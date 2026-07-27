@@ -15,8 +15,39 @@ const getPrefix = (path) => {
   return null;
 };
 
+const OPERATIONS_SEGMENT = 'operations';
+
+/**
+ * Removes a trailing Operations suffix (`operations` or `operations/{operationId}`) so the rest of
+ * the path can be checked for strict alternation. The Operations collection defined by IPA-132 is
+ * nested directly under its parent resource and intentionally does not alternate.
+ *
+ * @param {string[]} elements - The path segments
+ * @returns {string[]} The path segments without a trailing Operations suffix
+ */
+const stripOperationsSuffix = (elements) => {
+  const last = elements[elements.length - 1];
+  const secondToLast = elements[elements.length - 2];
+
+  let suffixLength;
+  if (secondToLast === OPERATIONS_SEGMENT && isPathParam(last)) {
+    suffixLength = 2; // `.../operations/{operationId}`
+  } else if (last === OPERATIONS_SEGMENT) {
+    suffixLength = 1; // `.../operations`
+  } else {
+    return elements;
+  }
+
+  // The exemption only applies to an Operations collection nested under a parent resource. An
+  // unscoped `/api/atlas/v2/operations` keeps its segments and is checked as an ordinary
+  // collection -- rejecting unscoped Operations endpoints belongs to IPA-132, not IPA-102.
+  // (Both unscoped shapes happen to alternate anyway, so this is a statement of intent.)
+  const parent = elements.slice(0, elements.length - suffixLength);
+  return parent.length > 0 ? parent : elements;
+};
+
 const validatePathStructure = (elements) => {
-  return elements.every((element, index) => {
+  return stripOperationsSuffix(elements).every((element, index) => {
     const isEvenIndex = index % 2 === 0;
     return isEvenIndex ? !isPathParam(element) : isPathParam(element);
   });

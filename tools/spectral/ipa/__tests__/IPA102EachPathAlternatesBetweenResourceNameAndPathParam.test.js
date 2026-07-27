@@ -33,6 +33,24 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
     errors: [],
   },
   {
+    name: 'valid paths - IPA-132 Operations endpoints',
+    document: {
+      paths: {
+        // Collection-scoped Operations endpoints, nested directly under the parent collection
+        '/api/atlas/v2/resourceName/operations': {},
+        '/api/atlas/v2/resourceName/operations/{operationId}': {},
+        '/api/atlas/v2/resourceName1/{pathParam}/resourceName2/operations': {},
+        '/api/atlas/v2/resourceName1/{pathParam}/resourceName2/operations/{operationId}': {},
+        // Instance-scoped Operations endpoints, nested under the parent resource instance
+        '/api/atlas/v2/resourceName/{pathParam}/operations': {},
+        '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}': {},
+        '/api/atlas/v2/unauth/resourceName/operations': {},
+        '/api/atlas/v2/unauth/resourceName/operations/{operationId}': {},
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid paths - api/atlas/v2',
     document: {
       paths: {
@@ -130,6 +148,38 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
         message: 'API paths must alternate between resource name and path params.',
         path: ['paths', '/api/atlas/v2/unauth/{pathParam1}/{pathParam2}'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'invalid paths - only a trailing Operations suffix is exempt',
+    document: {
+      paths: {
+        // `operations` is only exempt as the final segment, optionally followed by its path param
+        '/api/atlas/v2/resourceName/operations/foo': {},
+        '/api/atlas/v2/resourceName/operations/{operationId}/details': {},
+        // A non-alternating segment which is not `operations` is still a violation
+        '/api/atlas/v2/resourceName/customAction': {},
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message: 'API paths must alternate between resource name and path params.',
+        path: ['paths', '/api/atlas/v2/resourceName/operations/foo'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message: 'API paths must alternate between resource name and path params.',
+        path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}/details'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message: 'API paths must alternate between resource name and path params.',
+        path: ['paths', '/api/atlas/v2/resourceName/customAction'],
         severity: DiagnosticSeverity.Error,
       },
     ],
