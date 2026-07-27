@@ -45436,7 +45436,7 @@
           "results": {
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
-              "$ref": "#/components/schemas/StreamsConnection"
+              "$ref": "#/components/schemas/StreamsFailoverConnection"
             },
             "readOnly": true,
             "type": "array"
@@ -55057,6 +55057,7 @@
             }
           }
         },
+        "readOnly": true,
         "type": "object"
       },
       "StreamsDLQ": {
@@ -55202,6 +55203,138 @@
           "id"
         ],
         "title": "Streams Events",
+        "type": "object"
+      },
+      "StreamsFailoverClusterConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsFailoverConnection"
+          },
+          {
+            "properties": {
+              "clusterGroupId": {
+                "description": "Unique 24-hexadecimal digit string that identifies the project that contains the configured cluster. Required if the ID does not match the project containing the streams workspace. You must first enable the organization setting.",
+                "nullable": true,
+                "type": "string"
+              },
+              "clusterName": {
+                "description": "Name of the cluster configured for this connection.",
+                "type": "string"
+              },
+              "dbRoleToExecute": {
+                "$ref": "#/components/schemas/DBRoleToExecute"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "type": "object"
+      },
+      "StreamsFailoverConnection": {
+        "description": "Settings that define a failover connection to an external data store.",
+        "discriminator": {
+          "mapping": {
+            "Cluster": "#/components/schemas/StreamsFailoverClusterConnection",
+            "Kafka": "#/components/schemas/StreamsFailoverKafkaConnection"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/StreamsFailoverClusterConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsFailoverKafkaConnection"
+          }
+        ],
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the connection.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "name": {
+            "description": "Human-readable label that identifies the stream connection.",
+            "type": "string"
+          },
+          "region": {
+            "description": "The connection region.",
+            "type": "string"
+          },
+          "state": {
+            "description": "The connection state.",
+            "enum": [
+              "PENDING",
+              "READY",
+              "DELETING",
+              "FAILED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": {
+            "description": "The connection type.",
+            "enum": [
+              "Kafka",
+              "Cluster"
+            ],
+            "type": "string",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-123-enum-values-must-be-upper-snake-case": "Schema predates IPA validation."
+            }
+          }
+        },
+        "type": "object"
+      },
+      "StreamsFailoverKafkaConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsFailoverConnection"
+          },
+          {
+            "properties": {
+              "authentication": {
+                "$ref": "#/components/schemas/StreamsKafkaAuthentication"
+              },
+              "bootstrapServers": {
+                "description": "Comma separated list of server addresses.",
+                "type": "string"
+              },
+              "config": {
+                "additionalProperties": {
+                  "description": "A map of Kafka key-value pairs for optional configuration. This is a flat object, and keys can have '.' characters.",
+                  "example": "{\"group.protocol.type\":\"consumer\",\"debug\":\"queue, msg, protocol\"}",
+                  "type": "string"
+                },
+                "description": "A map of Kafka key-value pairs for optional configuration. This is a flat object, and keys can have '.' characters.",
+                "example": {
+                  "debug": "queue, msg, protocol",
+                  "group.protocol.type": "consumer"
+                },
+                "type": "object"
+              },
+              "networking": {
+                "$ref": "#/components/schemas/StreamsKafkaNetworking"
+              },
+              "security": {
+                "$ref": "#/components/schemas/StreamsKafkaSecurity"
+              }
+            },
+            "type": "object"
+          }
+        ],
         "type": "object"
       },
       "StreamsGCPConnectionConfig": {
@@ -61077,7 +61210,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "fb6c5636adb8dc7908530c438262550dd133514d"
+    "x-xgen-sha": "8c1a582a41e3fd71515d2b4aca3f194eb0063ea5"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -99190,7 +99323,7 @@
           "content": {
             "application/vnd.atlas.2025-03-12+json": {
               "schema": {
-                "$ref": "#/components/schemas/StreamsConnection"
+                "$ref": "#/components/schemas/StreamsFailoverConnection"
               },
               "x-xgen-IPA-exception": {
                 "xgen-IPA-106-create-method-request-body-is-request-suffixed-object": "Content predates IPA validation.",
@@ -99207,7 +99340,7 @@
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StreamsConnection"
+                  "$ref": "#/components/schemas/StreamsFailoverConnection"
                 },
                 "x-xgen-version": "2025-03-12"
               }
@@ -99390,7 +99523,7 @@
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StreamsConnection"
+                  "$ref": "#/components/schemas/StreamsFailoverConnection"
                 },
                 "x-xgen-IPA-exception": {
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "Schema predates IPA validation."
@@ -99484,7 +99617,7 @@
           "content": {
             "application/vnd.atlas.2025-03-12+json": {
               "schema": {
-                "$ref": "#/components/schemas/StreamsConnection"
+                "$ref": "#/components/schemas/StreamsFailoverConnection"
               },
               "x-xgen-IPA-exception": {
                 "xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object": "Exception OK as they are present in existing resource, fixing would require major refactoring.",
@@ -99500,7 +99633,7 @@
             "content": {
               "application/vnd.atlas.2025-03-12+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StreamsConnection"
+                  "$ref": "#/components/schemas/StreamsFailoverConnection"
                 },
                 "x-xgen-IPA-exception": {
                   "xgen-IPA-104-get-method-returns-response-suffixed-object": "API predates IPA validation."
