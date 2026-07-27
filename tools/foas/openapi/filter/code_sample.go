@@ -158,12 +158,6 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 		if overrideString, ok := override.(string); ok {
 			operationID = overrideString
 		}
-
-		// The x-xgen-atlascli operationId override takes priority over x-xgen-operation-id-override,
-		// mirroring the behavior of the Atlas CLI command generation.
-		if atlasCliOperationID, ok := atlasCliOperationIDOverride(extensions); ok {
-			operationID = atlasCliOperationID
-		}
 	}
 
 	return codeSample{
@@ -171,27 +165,6 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 		Label:  "Atlas CLI",
 		Source: "atlas api " + tag + " " + operationID + " --help",
 	}
-}
-
-// atlasCliOperationIDOverride returns the operationId override configured through the
-// "x-xgen-atlascli" extension (via its nested "override.operationId" field), if present.
-func atlasCliOperationIDOverride(extensions map[string]any) (string, bool) {
-	atlasCli, ok := extensions[atlasCliExtensionName].(map[string]any)
-	if !ok {
-		return "", false
-	}
-
-	override, ok := atlasCli["override"].(map[string]any)
-	if !ok {
-		return "", false
-	}
-
-	operationID, ok := override["operationId"].(string)
-	if !ok || operationID == "" {
-		return "", false
-	}
-
-	return operationID, true
 }
 
 func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operation, opMethod string) (*codeSample, error) {
@@ -243,8 +216,11 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 		op.Extensions = map[string]any{}
 	}
 
-	codeSamples := []codeSample{
-		newAtlasCliCodeSamplesForOperation(op),
+	// The Atlas CLI code sample is only generated when the operation does not define the
+	// "x-xgen-atlascli" extension, as atlascli owns the command generation in that case.
+	var codeSamples []codeSample
+	if _, ok := op.Extensions[atlasCliExtensionName]; !ok {
+		codeSamples = append(codeSamples, newAtlasCliCodeSamplesForOperation(op))
 	}
 
 	if f.metadata.targetVersion.IsStable() {

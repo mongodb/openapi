@@ -445,7 +445,7 @@ func TestCodeSampleFilter(t *testing.T) {
 			},
 		},
 		{
-			name:    "stable api with x-xgen-atlascli operationId override",
+			name:    "stable api with x-xgen-atlascli skips the Atlas CLI code sample",
 			version: "2025-01-01",
 			oas: &openapi3.T{
 				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
@@ -467,8 +467,6 @@ func TestCodeSampleFilter(t *testing.T) {
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
-							// The atlascli override takes priority over x-xgen-operation-id-override.
-							"x-xgen-operation-id-override": "ignoredOperationName",
 							"x-xgen-atlascli": map[string]any{
 								"override": map[string]any{
 									"operationId": "atlasCliOperationName",
@@ -497,19 +495,13 @@ func TestCodeSampleFilter(t *testing.T) {
 						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
-							"x-sunset":                     "9999-12-31",
-							"x-xgen-operation-id-override": "ignoredOperationName",
+							"x-sunset": "9999-12-31",
 							"x-xgen-atlascli": map[string]any{
 								"override": map[string]any{
 									"operationId": "atlasCliOperationName",
 								},
 							},
 							"x-codeSamples": []codeSample{
-								{
-									Lang:   "cURL",
-									Label:  "Atlas CLI",
-									Source: "atlas api testTag atlasCliOperationName --help",
-								},
 								{
 									Lang:  "go",
 									Label: "Go",
