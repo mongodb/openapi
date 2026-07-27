@@ -34,6 +34,7 @@ import (
 var goSDKTemplate string
 
 const codeSampleExtensionName = "x-codeSamples"
+const atlasCliExtensionName = "x-xgen-atlascli"
 
 // https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-code-samples#x-codesamples
 type codeSample struct {
@@ -147,6 +148,19 @@ func apiVersion(version *apiversion.APIVersion) string {
 	return version.Date().Format(time.DateOnly) + ".upcoming"
 }
 
+// skipAtlasCliCodeSample reports whether the Atlas CLI code sample generation should be skipped
+// for the given operation. It is skipped only when the "x-xgen-atlascli" extension is present and
+// sets "skip" to true, since in that case atlascli owns the command generation.
+func skipAtlasCliCodeSample(op *openapi3.Operation) bool {
+	atlasCli, ok := op.Extensions[atlasCliExtensionName].(map[string]any)
+	if !ok {
+		return false
+	}
+
+	skip, _ := atlasCli["skip"].(bool)
+	return skip
+}
+
 func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 	tag := strcase.ToLowerCamel(op.Tags[0])
 	operationID := strcase.ToLowerCamel(op.OperationID)
@@ -215,8 +229,12 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 		op.Extensions = map[string]any{}
 	}
 
-	codeSamples := []codeSample{
-		newAtlasCliCodeSamplesForOperation(op),
+	// The Atlas CLI code sample is generated when the "x-xgen-atlascli" extension is missing
+	// or when it is present with "skip: false". When the extension sets "skip: true", atlascli
+	// owns the command generation and no Atlas CLI sample is emitted.
+	var codeSamples []codeSample
+	if !skipAtlasCliCodeSample(op) {
+		codeSamples = append(codeSamples, newAtlasCliCodeSamplesForOperation(op))
 	}
 
 	if f.metadata.targetVersion.IsStable() {
