@@ -468,9 +468,7 @@ func TestCodeSampleFilter(t *testing.T) {
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 							"x-xgen-atlascli": map[string]any{
-								"override": map[string]any{
-									"operationId": "atlasCliOperationName",
-								},
+								"skip": true,
 							},
 						},
 					},
@@ -497,9 +495,7 @@ func TestCodeSampleFilter(t *testing.T) {
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 							"x-xgen-atlascli": map[string]any{
-								"override": map[string]any{
-									"operationId": "atlasCliOperationName",
-								},
+								"skip": true,
 							},
 							"x-codeSamples": []codeSample{
 								{
