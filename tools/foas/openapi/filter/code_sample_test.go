@@ -629,6 +629,207 @@ func TestCodeSampleFilter(t *testing.T) {
 				})),
 			},
 		},
+		{
+			name:    "unauthenticated api omits authentication from the curl sample",
+			version: "preview",
+			oas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Security:    openapi3.NewSecurityRequirements(),
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+						},
+					},
+				})),
+			},
+			expectedOas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Security:    openapi3.NewSecurityRequirements(),
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+							"x-codeSamples": []codeSample{
+								{
+									Lang:   "cURL",
+									Label:  "Atlas CLI",
+									Source: "atlas api testTag testOperationId --help",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl",
+									Source: "curl --include \\\n  " +
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+							},
+						},
+					},
+				})),
+			},
+		},
+		{
+			name:    "service account only api omits the digest curl sample",
+			version: "preview",
+			oas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Security:    openapi3.NewSecurityRequirements().With(openapi3.NewSecurityRequirement().Authenticate("ServiceAccounts")),
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+						},
+					},
+				})),
+			},
+			expectedOas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Security:    openapi3.NewSecurityRequirements().With(openapi3.NewSecurityRequirement().Authenticate("ServiceAccounts")),
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+							"x-codeSamples": []codeSample{
+								{
+									Lang:   "cURL",
+									Label:  "Atlas CLI",
+									Source: "atlas api testTag testOperationId --help",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Service Accounts)",
+									Source: "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+							},
+						},
+					},
+				})),
+			},
+		},
+		{
+			name:    "digest only api omits the service account curl sample",
+			version: "preview",
+			oas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Security:    openapi3.NewSecurityRequirements().With(openapi3.NewSecurityRequirement().Authenticate("DigestAuth")),
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+						},
+					},
+				})),
+			},
+			expectedOas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Security:    openapi3.NewSecurityRequirements().With(openapi3.NewSecurityRequirement().Authenticate("DigestAuth")),
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+							"x-codeSamples": []codeSample{
+								{
+									Lang:   "cURL",
+									Label:  "Atlas CLI",
+									Source: "atlas api testTag testOperationId --help",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
+									Source: "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+							},
+						},
+					},
+				})),
+			},
+		},
 	}
 
 	for _, tt := range testCases {
