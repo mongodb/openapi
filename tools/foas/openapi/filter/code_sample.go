@@ -34,6 +34,7 @@ import (
 var goSDKTemplate string
 
 const codeSampleExtensionName = "x-codeSamples"
+const atlasCliExtensionName = "x-xgen-atlascli"
 
 // https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-code-samples#x-codesamples
 type codeSample struct {
@@ -157,6 +158,12 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 		if overrideString, ok := override.(string); ok {
 			operationID = overrideString
 		}
+
+		// The x-xgen-atlascli operationId override takes priority over x-xgen-operation-id-override,
+		// mirroring the behavior of the Atlas CLI command generation.
+		if atlasCliOperationID, ok := atlasCliOperationIDOverride(extensions); ok {
+			operationID = atlasCliOperationID
+		}
 	}
 
 	return codeSample{
@@ -164,6 +171,27 @@ func newAtlasCliCodeSamplesForOperation(op *openapi3.Operation) codeSample {
 		Label:  "Atlas CLI",
 		Source: "atlas api " + tag + " " + operationID + " --help",
 	}
+}
+
+// atlasCliOperationIDOverride returns the operationId override configured through the
+// "x-xgen-atlascli" extension (via its nested "override.operationId" field), if present.
+func atlasCliOperationIDOverride(extensions map[string]any) (string, bool) {
+	atlasCli, ok := extensions[atlasCliExtensionName].(map[string]any)
+	if !ok {
+		return "", false
+	}
+
+	override, ok := atlasCli["override"].(map[string]any)
+	if !ok {
+		return "", false
+	}
+
+	operationID, ok := override["operationId"].(string)
+	if !ok || operationID == "" {
+		return "", false
+	}
+
+	return operationID, true
 }
 
 func (f *CodeSampleFilter) newGoSdkCodeSamplesForOperation(op *openapi3.Operation, opMethod string) (*codeSample, error) {
