@@ -254,7 +254,7 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	supportedFormat := getSupportedFormat(op)
 	unAuthEndpoint := isEndpointUnAuthenticated(op.Responses.Map())
 	if unAuthEndpoint {
-
+		codeSamples = append(codeSamples, f.newCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
 	} else {
 		codeSamples = append(
 			codeSamples,
