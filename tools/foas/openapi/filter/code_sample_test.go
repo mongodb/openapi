@@ -50,7 +50,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -74,7 +74,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -140,7 +140,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 						},
@@ -164,7 +164,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
@@ -211,7 +211,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 						},
@@ -235,7 +235,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
@@ -281,7 +281,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -305,7 +305,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -372,7 +372,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset":                     "9999-12-31",
@@ -397,7 +397,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset":                     "9999-12-31",
@@ -463,7 +463,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -490,7 +490,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -558,7 +558,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -585,7 +585,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						})),
+						}), openapi3.WithName("401", &openapi3.Response{})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -593,6 +593,243 @@ func TestCodeSampleFilter(t *testing.T) {
 								"skip": true,
 							},
 							"x-codeSamples": []codeSample{
+								{
+									Lang:  "go",
+									Label: "Go",
+									Source: "import (\n" +
+										"\t\"os\"\n	\"context\"\n" + "\t\"log\"\n" +
+										"\tsdk \"go.mongodb.org/atlas-sdk/v20250101001/admin\"\n)\n\n" +
+										"func main() {\n" +
+										"\tctx := context.Background()\n" +
+										"\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n" +
+										"\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n" +
+										"\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n" +
+										"\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n" +
+										"\tif err != nil {\n" + "\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n" +
+										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
+										"\tsdkResp, httpResp, err := client.TestTagApi.\n" +
+										"\t\tTestOperationIDWithParams(ctx, params).\n" +
+										"\t\tExecute()" + "\n}\n",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Service Accounts)",
+									Source: "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl (Digest)",
+									Source: "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+							},
+						},
+					},
+				})),
+			},
+		},
+		{
+			name:    "unauthenticated stable api emits plain curl code sample",
+			version: "2025-01-01",
+			oas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.2025-01-01+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "2025-01-01",
+									},
+								},
+							},
+						})),
+						Tags: []string{"TestTag"},
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+						},
+					},
+				})),
+			},
+			expectedOas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.2025-01-01+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "2025-01-01",
+									},
+								},
+							},
+						})),
+						Tags: []string{"TestTag"},
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+							"x-codeSamples": []codeSample{
+								{
+									Lang:   "cURL",
+									Label:  "Atlas CLI",
+									Source: "atlas api testTag testOperationId --help",
+								},
+								{
+									Lang:  "go",
+									Label: "Go",
+									Source: "import (\n" +
+										"\t\"os\"\n	\"context\"\n" + "\t\"log\"\n" +
+										"\tsdk \"go.mongodb.org/atlas-sdk/v20250101001/admin\"\n)\n\n" +
+										"func main() {\n" +
+										"\tctx := context.Background()\n" +
+										"\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n" +
+										"\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n" +
+										"\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n" +
+										"\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n" +
+										"\tif err != nil {\n" + "\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n" +
+										"\tparams = &sdk.TestOperationIDApiParams{}\n" +
+										"\tsdkResp, httpResp, err := client.TestTagApi.\n" +
+										"\t\tTestOperationIDWithParams(ctx, params).\n" +
+										"\t\tExecute()" + "\n}\n",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl",
+									Source: "curl --include \\\n  " +
+										"--header \"Accept: application/vnd.atlas.2025-01-01+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+							},
+						},
+					},
+				})),
+			},
+		},
+		{
+			name:    "unauthenticated preview api emits plain curl code sample",
+			version: "preview",
+			oas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+						},
+					},
+				})),
+			},
+			expectedOas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Tags:        []string{"TestTag"},
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.preview+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "preview",
+									},
+								},
+							},
+						})),
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+							"x-codeSamples": []codeSample{
+								{
+									Lang:   "cURL",
+									Label:  "Atlas CLI",
+									Source: "atlas api testTag testOperationId --help",
+								},
+								{
+									Lang:  "cURL",
+									Label: "curl",
+									Source: "curl --include \\\n  " +
+										"--header \"Accept: application/vnd.atlas.preview+json\" \\\n  " + "-X GET \"https://cloud.mongodb.com/test?pretty=true\"",
+								},
+							},
+						},
+					},
+				})),
+			},
+		},
+		{
+			name:    "authenticated api with 403 response emits service accounts and digest curl code samples",
+			version: "2025-01-01",
+			oas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.2025-01-01+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "2025-01-01",
+									},
+								},
+							},
+						}), openapi3.WithName("403", &openapi3.Response{})),
+						Tags: []string{"TestTag"},
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+						},
+					},
+				})),
+			},
+			expectedOas: &openapi3.T{
+				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
+					Get: &openapi3.Operation{
+						OperationID: "testOperationID",
+						Summary:     "testSummary",
+						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+							Content: openapi3.Content{
+								"application/vnd.atlas.2025-01-01+json": {
+									Schema: &openapi3.SchemaRef{
+										Ref: "#/components/schemas/PaginatedAppUserView",
+									},
+									Extensions: map[string]any{
+										"x-gen-version": "2025-01-01",
+									},
+								},
+							},
+						}), openapi3.WithName("403", &openapi3.Response{})),
+						Tags: []string{"TestTag"},
+						Extensions: map[string]any{
+							"x-sunset": "9999-12-31",
+							"x-codeSamples": []codeSample{
+								{
+									Lang:   "cURL",
+									Label:  "Atlas CLI",
+									Source: "atlas api testTag testOperationId --help",
+								},
 								{
 									Lang:  "go",
 									Label: "Go",
