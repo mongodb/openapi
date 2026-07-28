@@ -488,27 +488,6 @@
         ],
         "type": "object"
       },
-      "Header": {
-        "description": "HTTP header with name and value.",
-        "properties": {
-          "name": {
-            "description": "Header name.",
-            "example": "Authorization",
-            "type": "string"
-          },
-          "value": {
-            "description": "Header value.",
-            "example": "Bearer token123",
-            "format": "password",
-            "type": "string"
-          }
-        },
-        "required": [
-          "name",
-          "value"
-        ],
-        "type": "object"
-      },
       "Link": {
         "properties": {
           "href": {
@@ -524,217 +503,72 @@
         },
         "type": "object"
       },
-      "MetricIntegrationRequest": {
-        "description": "Request schema for creating a metric integration.",
+      "OverloadProtectionSimulationRequest": {
+        "description": "Request to start an overload protection simulation for a cluster.",
         "properties": {
-          "aggregationTemporality": {
-            "description": "The temporality to send to the metric integration.",
-            "enum": [
-              "DELTA",
-              "CUMULATIVE"
-            ],
-            "type": "string"
-          },
-          "endpoint": {
-            "description": "OpenTelemetry collector endpoint URL. Must use HTTPS.",
-            "example": "https://otel-collector.example.com:4318/v1/metrics",
-            "maxLength": 2048,
-            "type": "string"
-          },
-          "headers": {
-            "description": "HTTP headers for authentication and configuration. Total size limit 2KB.",
-            "items": {
-              "$ref": "#/components/schemas/Header"
-            },
-            "maxItems": 10,
-            "minItems": 1,
-            "type": "array"
-          },
-          "integrationType": {
-            "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
-            "enum": [
-              "OTEL"
-            ],
-            "type": "string"
-          },
-          "metricSelection": {
-            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration.",
-            "items": {
-              "enum": [
-                "ATLAS_STREAM_PROCESSING"
-              ],
-              "type": "string"
-            },
-            "maxItems": 30,
-            "minItems": 1,
-            "type": "array",
-            "uniqueItems": true
-          },
-          "providerType": {
-            "description": "The provider type for the metric integration. Identifies the third-party service provider.",
-            "enum": [
-              "CUSTOM",
-              "DYNATRACE",
-              "NEW_RELIC"
-            ],
-            "type": "string"
+          "durationSeconds": {
+            "description": "Duration of the overload protection simulation in seconds.",
+            "format": "int32",
+            "type": "integer"
           }
         },
-        "required": [
-          "aggregationTemporality",
-          "endpoint",
-          "headers",
-          "integrationType",
-          "metricSelection",
-          "providerType"
-        ],
-        "title": "Metric Integration Request",
         "type": "object"
       },
-      "MetricIntegrationResponse": {
-        "description": "Response schema for metric integration operations.",
+      "OverloadProtectionSimulationResponse": {
+        "description": "Overload protection simulation for a cluster.",
         "properties": {
-          "aggregationTemporality": {
-            "description": "The temporality to send to the metric integration.",
-            "enum": [
-              "DELTA",
-              "CUMULATIVE"
-            ],
-            "type": "string"
-          },
-          "endpoint": {
-            "description": "OpenTelemetry collector endpoint URL.",
-            "example": "https://otel-collector.example.com:4318/v1/metrics",
-            "maxLength": 2048,
-            "type": "string"
-          },
-          "headers": {
-            "description": "HTTP headers for authentication and configuration. Header values are redacted in responses.",
-            "items": {
-              "$ref": "#/components/schemas/Header"
-            },
-            "maxItems": 10,
-            "minItems": 1,
-            "type": "array"
-          },
-          "integrationType": {
-            "description": "Type of metric integration. Identifies which protocol will be used for the integration.",
-            "enum": [
-              "OTEL"
-            ],
-            "type": "string"
-          },
-          "metricIntegrationId": {
-            "description": "Unique identifier of the metric integration configuration.",
-            "example": "507f1f77bcf86cd799439011",
-            "maxLength": 24,
-            "minLength": 24,
+          "cancelRequestedAt": {
+            "description": "Date and time when cancellation of the overload protection simulation was requested. This parameter is only present when a cancellation has been requested and expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
-          "metricSelection": {
-            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration.",
-            "items": {
-              "enum": [
-                "ATLAS_STREAM_PROCESSING"
-              ],
-              "type": "string"
-            },
-            "maxItems": 30,
-            "minItems": 1,
-            "type": "array",
-            "uniqueItems": true
+          "clusterName": {
+            "description": "Human-readable label that identifies the cluster on which the simulation is running.",
+            "readOnly": true,
+            "type": "string"
           },
-          "providerType": {
-            "description": "The provider type for the metric integration. Identifies the third-party service provider.",
-            "enum": [
-              "CUSTOM",
-              "DYNATRACE",
-              "NEW_RELIC"
-            ],
+          "durationSeconds": {
+            "description": "Duration of the overload protection simulation in seconds.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "expiresAt": {
+            "description": "Date and time when the overload protection simulation expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal character string that identifies the project that contains the cluster.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "requestDate": {
+            "description": "Date and time when the overload protection simulation was requested. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "simulationId": {
+            "description": "Unique identifier of the overload protection simulation.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "state": {
+            "description": "Current state of the overload protection simulation.",
+            "readOnly": true,
             "type": "string"
           }
         },
-        "required": [
-          "aggregationTemporality",
-          "endpoint",
-          "headers",
-          "integrationType",
-          "metricIntegrationId",
-          "metricSelection",
-          "providerType"
-        ],
-        "title": "Metric Integration Response",
         "type": "object"
       },
-      "MetricIntegrationUpdateRequest": {
-        "description": "Request schema for updating a metric integration.",
-        "properties": {
-          "aggregationTemporality": {
-            "description": "The temporality to send to the metric integration.",
-            "enum": [
-              "DELTA",
-              "CUMULATIVE"
-            ],
-            "type": "string"
-          },
-          "endpoint": {
-            "description": "OpenTelemetry collector endpoint URL. Must use HTTPS.",
-            "example": "https://otel-collector.example.com:4318/v1/metrics",
-            "maxLength": 2048,
-            "type": "string"
-          },
-          "headers": {
-            "description": "HTTP headers for authentication and configuration. Total size limit 2KB.",
-            "items": {
-              "$ref": "#/components/schemas/Header"
-            },
-            "maxItems": 10,
-            "minItems": 1,
-            "type": "array"
-          },
-          "integrationType": {
-            "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
-            "enum": [
-              "OTEL"
-            ],
-            "type": "string"
-          },
-          "metricSelection": {
-            "description": "Array of metric categories to export. Determines which types of metrics are sent to the integration.",
-            "items": {
-              "enum": [
-                "ATLAS_STREAM_PROCESSING"
-              ],
-              "type": "string"
-            },
-            "maxItems": 30,
-            "minItems": 1,
-            "type": "array",
-            "uniqueItems": true
-          },
-          "providerType": {
-            "description": "The provider type for the metric integration. Identifies the third-party service provider.",
-            "enum": [
-              "CUSTOM",
-              "DYNATRACE",
-              "NEW_RELIC"
-            ],
-            "type": "string"
-          }
-        },
-        "required": [
-          "aggregationTemporality",
-          "endpoint",
-          "headers",
-          "integrationType",
-          "metricSelection",
-          "providerType"
-        ],
-        "title": "Metric Integration Update Request",
-        "type": "object"
-      },
-      "PaginatedMetricIntegrationResponse": {
+      "PaginatedOverloadProtectionSimulationResponse": {
+        "description": "List of overload protection simulations for a cluster.",
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -751,7 +585,7 @@
           "results": {
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
-              "$ref": "#/components/schemas/MetricIntegrationResponse"
+              "$ref": "#/components/schemas/OverloadProtectionSimulationResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -788,7 +622,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-metric-integrations+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-overload-protection-simulation+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -800,19 +634,13 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/groups/{groupId}/metricIntegrations": {
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all metric integration configurations for the project. Optionally filter by integration type and provider type.",
-        "operationId": "listGroupMetricIntegrations",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all overload protection simulations for one cluster.",
+        "operationId": "listGroupClusterOverloadSimulations",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/includeCount"
           },
           {
             "$ref": "#/components/parameters/itemsPerPage"
@@ -824,18 +652,15 @@
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Optional filter by integration type (e.g., `OTEL`).",
-            "in": "query",
-            "name": "integrationType",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/groupId"
           },
           {
-            "description": "Optional filter by provider type (e.g., `CUSTOM`). When specified, `integrationType` must also be specified.",
-            "in": "query",
-            "name": "providerType",
+            "description": "Human-readable label that identifies the cluster on which the overload protection simulations are running.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
             "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
               "type": "string"
             }
           }
@@ -845,13 +670,12 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedMetricIntegrationResponse"
+                  "$ref": "#/components/schemas/PaginatedOverloadProtectionSimulationResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "metric-integrations",
-                  "public": "false"
+                  "name": "overload-protection-simulation"
                 },
-                "x-xgen-version": "private-preview-metric-integrations"
+                "x-xgen-version": "private-preview-overload-protection-simulation"
               }
             },
             "description": "OK",
@@ -883,65 +707,75 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return All Active Metric Integrations",
+        "summary": "Return All Overload Protection Simulations",
         "tags": [
-          "Metric Integrations"
+          "Overload Protection Simulation"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api metricIntegrations listGroupMetricIntegrations --help"
+            "source": "atlas api overloadProtectionSimulation listClusterOverloadSimulations --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true\""
           }
         ],
         "x-rolesRequirements": [
-          "Project Owner"
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/listGroupMetricIntegrations"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/listGroupClusterOverloadSimulations",
+        "x-xgen-operation-id-override": "listClusterOverloadSimulations"
       },
       "post": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Creates a new metric integration configuration identified by a unique ID.",
-        "operationId": "createGroupMetricIntegration",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Starts an overload protection simulation for one cluster. Returns a 409 if a simulation is already in progress or completed; DELETE the existing simulation before starting a new one.",
+        "operationId": "createGroupClusterOverloadSimulation",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
           },
           {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
             "$ref": "#/components/parameters/groupId"
           },
           {
-            "$ref": "#/components/parameters/pretty"
+            "description": "Human-readable label that identifies the cluster on which to start the overload protection simulation.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/vnd.atlas.preview+json": {
               "schema": {
-                "$ref": "#/components/schemas/MetricIntegrationRequest"
+                "$ref": "#/components/schemas/OverloadProtectionSimulationRequest"
               },
               "x-xgen-preview": {
-                "name": "metric-integrations",
-                "public": "false"
+                "name": "overload-protection-simulation"
               },
-              "x-xgen-version": "private-preview-metric-integrations"
+              "x-xgen-version": "private-preview-overload-protection-simulation"
             }
           },
-          "description": "Metric integration configuration to create.",
+          "description": "Details of the overload protection simulation to start. Valid durations (in seconds): 900, 3600, 28800, 86400.",
           "required": true
         },
         "responses": {
@@ -949,13 +783,12 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MetricIntegrationResponse"
+                  "$ref": "#/components/schemas/OverloadProtectionSimulationResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "metric-integrations",
-                  "public": "false"
+                  "name": "overload-protection-simulation"
                 },
-                "x-xgen-version": "private-preview-metric-integrations"
+                "x-xgen-version": "private-preview-overload-protection-simulation"
               }
             },
             "description": "Created",
@@ -980,6 +813,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
           },
@@ -987,56 +823,67 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Create One Metric Integration",
+        "summary": "Create One Overload Protection Simulation",
         "tags": [
-          "Metric Integrations"
+          "Overload Protection Simulation"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api metricIntegrations createGroupMetricIntegration --help"
+            "source": "atlas api overloadProtectionSimulation createClusterOverloadSimulation --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations\" \\\n  -d '{ <Payload> }'"
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations\" \\\n  -d '{ <Payload> }'"
           }
         ],
         "x-rolesRequirements": [
-          "Project Owner"
+          "Project Cluster Manager"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/createGroupMetricIntegration"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/createGroupClusterOverloadSimulation",
+        "x-xgen-operation-id-override": "createClusterOverloadSimulation"
       }
     },
-    "/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}": {
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}": {
       "delete": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Removes the configuration for one metric integration identified by its unique ID.",
-        "operationId": "deleteGroupMetricIntegration",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Deletes the overload protection simulation for one cluster.",
+        "operationId": "deleteGroupClusterOverloadSimulation",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
           },
           {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Unique identifier of the metric integration configuration.",
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which the overload protection simulation is running.",
             "in": "path",
-            "name": "metricIntegrationId",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the overload protection simulation.",
+            "in": "path",
+            "name": "simulationId",
             "required": true,
             "schema": {
               "type": "string"
@@ -1044,17 +891,16 @@
           }
         ],
         "responses": {
-          "204": {
+          "202": {
             "content": {
               "application/vnd.atlas.preview+json": {
                 "x-xgen-preview": {
-                  "name": "metric-integrations",
-                  "public": "false"
+                  "name": "overload-protection-simulation"
                 },
-                "x-xgen-version": "private-preview-metric-integrations"
+                "x-xgen-version": "private-preview-overload-protection-simulation"
               }
             },
-            "description": "No Content",
+            "description": "Accepted",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -1076,6 +922,9 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
           },
@@ -1083,54 +932,65 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Remove One Metric Integration",
+        "summary": "Delete One Overload Protection Simulation",
         "tags": [
-          "Metric Integrations"
+          "Overload Protection Simulation"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api metricIntegrations deleteGroupMetricIntegration --help"
+            "source": "atlas api overloadProtectionSimulation deleteClusterOverloadSimulation --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}\""
           }
         ],
         "x-rolesRequirements": [
-          "Project Owner"
+          "Project Cluster Manager"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/deleteGroupMetricIntegration"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/deleteGroupClusterOverloadSimulation",
+        "x-xgen-operation-id-override": "deleteClusterOverloadSimulation"
       },
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the configuration for one metric integration identified by its unique ID.",
-        "operationId": "getGroupMetricIntegration",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the overload protection simulation for one cluster.",
+        "operationId": "getGroupClusterOverloadSimulation",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
           },
           {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Unique identifier of the metric integration configuration.",
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster on which the overload protection simulation is running.",
             "in": "path",
-            "name": "metricIntegrationId",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the overload protection simulation.",
+            "in": "path",
+            "name": "simulationId",
             "required": true,
             "schema": {
               "type": "string"
@@ -1142,13 +1002,12 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MetricIntegrationResponse"
+                  "$ref": "#/components/schemas/OverloadProtectionSimulationResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "metric-integrations",
-                  "public": "false"
+                  "name": "overload-protection-simulation"
                 },
-                "x-xgen-version": "private-preview-metric-integrations"
+                "x-xgen-version": "private-preview-overload-protection-simulation"
               }
             },
             "description": "OK",
@@ -1180,149 +1039,37 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return One Metric Integration",
+        "summary": "Return One Overload Protection Simulation",
         "tags": [
-          "Metric Integrations"
+          "Overload Protection Simulation"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api metricIntegrations getGroupMetricIntegration --help"
+            "source": "atlas api overloadProtectionSimulation getClusterOverloadSimulation --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true\""
           }
         ],
         "x-rolesRequirements": [
-          "Project Owner"
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/getGroupMetricIntegration"
-      },
-      "put": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Updates the configuration for one metric integration identified by its unique ID.",
-        "operationId": "updateGroupMetricIntegration",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Unique identifier of the metric integration configuration.",
-            "in": "path",
-            "name": "metricIntegrationId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/MetricIntegrationUpdateRequest"
-              },
-              "x-xgen-preview": {
-                "name": "metric-integrations",
-                "public": "false"
-              },
-              "x-xgen-version": "private-preview-metric-integrations"
-            }
-          },
-          "description": "Updated metric integration configuration.",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MetricIntegrationResponse"
-                },
-                "x-xgen-preview": {
-                  "name": "metric-integrations",
-                  "public": "false"
-                },
-                "x-xgen-version": "private-preview-metric-integrations"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Update One Metric Integration",
-        "tags": [
-          "Metric Integrations"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api metricIntegrations updateGroupMetricIntegration --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PUT \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\" \\\n  -d '{ <Payload> }'"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PUT \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}\" \\\n  -d '{ <Payload> }'"
-          }
-        ],
-        "x-rolesRequirements": [
-          "Project Owner"
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/updateGroupMetricIntegration"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/getGroupClusterOverloadSimulation",
+        "x-xgen-operation-id-override": "getClusterOverloadSimulation"
       }
     }
   },
@@ -1341,8 +1088,8 @@
   ],
   "tags": [
     {
-      "description": "Returns, creates, updates, and removes metric integration configurations for a project.",
-      "name": "Metric Integrations"
+      "description": "Returns and starts overload protection simulations for a cluster.",
+      "name": "Overload Protection Simulation"
     }
   ],
   "x-externalLinks": [

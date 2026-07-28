@@ -471,37 +471,6 @@
         "readOnly": true,
         "type": "object"
       },
-      "DefaultGroupLimitResponse": {
-        "description": "General information about a project-level, user-configured limit, including its name, maximum value, default value, and a description.",
-        "properties": {
-          "defaultLimit": {
-            "description": "Default limit value. Returns null if no default exists.",
-            "format": "int32",
-            "nullable": true,
-            "readOnly": true,
-            "type": "integer"
-          },
-          "description": {
-            "description": "Human-friendly description of what the limit controls.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "maximumLimit": {
-            "description": "Maximum limit value. Returns null if no maximum exists.",
-            "format": "int32",
-            "nullable": true,
-            "readOnly": true,
-            "type": "integer"
-          },
-          "name": {
-            "description": "Human-readable label that identifies the user-managed limit.",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "title": "Group limit description",
-        "type": "object"
-      },
       "FieldViolation": {
         "properties": {
           "description": {
@@ -519,54 +488,52 @@
         ],
         "type": "object"
       },
-      "Link": {
+      "SqlInterfaceStatusResponse": {
         "properties": {
-          "href": {
-            "description": "Uniform Resource Locator (URL) that points another API resource to which this response has some relationship. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
-            "example": "https://cloud.mongodb.com/api/atlas",
+          "status": {
+            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
+            "enum": [
+              "ON",
+              "OFF"
+            ],
             "type": "string"
           },
-          "rel": {
-            "description": "Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
-            "example": "self",
+          "supported": {
+            "default": false,
+            "description": "Whether the cluster tier and type support SQL Interface.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "unsupportedReason": {
+            "description": "Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.",
+            "enum": [
+              "UNSUPPORTED_TIER",
+              "UNSUPPORTED_TYPE",
+              "UNSUPPORTED_MONGODB_VERSION"
+            ],
+            "nullable": true,
+            "readOnly": true,
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "PaginatedDefaultGroupLimitResponse": {
-        "description": "A list of user-configurable, project-level limits with descriptions.",
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "results": {
-            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
-            "items": {
-              "$ref": "#/components/schemas/DefaultGroupLimitResponse"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
-            "format": "int32",
-            "minimum": 0,
-            "readOnly": true,
-            "type": "integer"
           }
         },
         "required": [
-          "results"
+          "status"
+        ],
+        "type": "object"
+      },
+      "SqlInterfaceStatusUpdateRequest": {
+        "properties": {
+          "status": {
+            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
+            "enum": [
+              "ON",
+              "OFF"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
         ],
         "type": "object"
       }
@@ -589,7 +556,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-sql-interface+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -601,22 +568,29 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/defaultGroupLimits": {
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns a list of all user-configurable, project-level limits, along with a description and their default and maximum values.",
-        "operationId": "listDefaultGroupLimits",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the current SQL Interface status, either ON or OFF, for the specified cluster. If no status is configured, this resource returns OFF. The response also indicates whether SQL Interface is supported for this cluster.",
+        "operationId": "getGroupClusterSqlInterface",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
           },
           {
-            "$ref": "#/components/parameters/itemsPerPage"
-          },
-          {
-            "$ref": "#/components/parameters/pageNum"
+            "$ref": "#/components/parameters/groupId"
           },
           {
             "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -624,15 +598,15 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedDefaultGroupLimitResponse"
+                  "$ref": "#/components/schemas/SqlInterfaceStatusResponse"
                 },
                 "x-xgen-preview": {
-                  "public": "true"
+                  "name": "sql-interface"
                 },
-                "x-xgen-version": "preview"
+                "x-xgen-version": "private-preview-sql-interface"
               }
             },
-            "description": "OK",
+            "description": "SQL Interface status successfully retrieved.",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -651,107 +625,6 @@
           "403": {
             "$ref": "#/components/responses/forbidden"
           },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return Descriptions of User-Configurable Project Limits",
-        "tags": [
-          "Limit Description"
-        ],
-        "x-beta": true,
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api limitDescription listDefaultGroupLimits --help"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits?pretty=true\""
-          }
-        ],
-        "x-state": {
-          "label": "PREVIEW",
-          "color": "#B89D09"
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/listDefaultGroupLimits"
-      }
-    },
-    "/api/atlas/v2/defaultGroupLimits/{limitName}": {
-      "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the description of one user-configurable, project-level limit, along with its default and maximum values.",
-        "operationId": "getDefaultGroupLimit",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Identifies the user-managed limit.",
-            "in": "path",
-            "name": "limitName",
-            "required": true,
-            "schema": {
-              "enum": [
-                "MONGODB_USERS",
-                "NUM_CLUSTERS",
-                "NUM_SERVERLESS_MTMS",
-                "NUM_USER_CUSTOM_ROLES",
-                "MAX_NETWORK_PERMISSION_ENTRIES",
-                "MAX_CROSS_REGION_NETWORK_PERMISSION_ENTRIES",
-                "MAX_NODES_PER_PRIVATELINK_REGION",
-                "BYTES_PROCESSED_QUERY",
-                "BYTES_PROCESSED_DAILY",
-                "BYTES_PROCESSED_WEEKLY",
-                "BYTES_PROCESSED_MONTHLY",
-                "NUM_PRIVATE_SERVICE_CONNECTIONS_PER_REGION_GROUP",
-                "GCP_PSC_NAT_SUBNET_MASK"
-              ],
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DefaultGroupLimitResponse"
-                },
-                "x-xgen-preview": {
-                  "public": "true"
-                },
-                "x-xgen-version": "preview"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
           "404": {
             "$ref": "#/components/responses/notFound"
           },
@@ -762,33 +635,153 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return One User-Configurable Project Limit and Description",
+        "summary": "Return SQL Interface Status",
         "tags": [
-          "Limit Description"
+          "Clusters"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api limitDescription getDefaultGroupLimit --help"
+            "source": "atlas api clusters getClusterSqlInterface --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits/{limitName}?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/defaultGroupLimits/{limitName}?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true\""
           }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Limit-Description/operation/getDefaultGroupLimit"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterSqlInterface",
+        "x-xgen-operation-id-override": "getClusterSqlInterface"
+      },
+      "patch": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.",
+        "operationId": "updateGroupClusterSqlInterface",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SqlInterfaceStatusUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "sql-interface"
+              },
+              "x-xgen-version": "private-preview-sql-interface"
+            }
+          },
+          "description": "Desired SQL Interface status for the cluster.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SqlInterfaceStatusResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "sql-interface"
+                },
+                "x-xgen-version": "private-preview-sql-interface"
+              }
+            },
+            "description": "SQL Interface status successfully updated.",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update SQL Interface Status",
+        "tags": [
+          "Clusters"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api clusters updateClusterSqlInterface --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager",
+          "Project Replica Set Manager"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface",
+        "x-xgen-operation-id-override": "updateClusterSqlInterface"
       }
     }
   },
@@ -807,8 +800,8 @@
   ],
   "tags": [
     {
-      "description": "Returns User-Configurable Project Limits.",
-      "name": "Limit Description"
+      "description": "Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.",
+      "name": "Clusters"
     }
   ],
   "x-externalLinks": [
