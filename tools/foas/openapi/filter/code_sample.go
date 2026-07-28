@@ -252,7 +252,7 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	supportedFormat := getSupportedFormat(op)
-	unAuthEndpoint := isEndpointUnAuthenticated(op.Responses.Map())
+	unAuthEndpoint := isEndpointUnAuthenticated(op.Extensions)
 	if unAuthEndpoint {
 		codeSamples = append(codeSamples, f.newCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
 	} else {
@@ -310,16 +310,9 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) op
 }
 
 // isEndpointUnAuthenticated returns true if the endpoint is authenticated.
-// The authentication decision is made based on the responses code the endpoint support:
-// - No 401 (unauthorized) and 403(forbidden) -> unauthenticated.
-func isEndpointUnAuthenticated(responsesMap map[string]*openapi3.ResponseRef) bool {
-	if _, ok := responsesMap["401"]; ok {
-		return false
-	}
-
-	if _, ok := responsesMap["403"]; ok {
-		return false
-	}
-
-	return true
+// The authentication decision is made based on the present of the extension "security". If "security":[] is present,
+// the endpoint is considered unauthenticated.
+func isEndpointUnAuthenticated(extensions map[string]any) bool {
+	_, ok := extensions["security"]
+	return ok
 }

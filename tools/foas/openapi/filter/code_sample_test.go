@@ -50,7 +50,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -74,7 +74,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -140,7 +140,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 						},
@@ -164,7 +164,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
@@ -211,7 +211,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 						},
@@ -235,7 +235,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
 							"x-codeSamples": []codeSample{
@@ -281,7 +281,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -305,7 +305,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -372,7 +372,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset":                     "9999-12-31",
@@ -397,7 +397,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset":                     "9999-12-31",
@@ -463,7 +463,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -490,7 +490,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -558,7 +558,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -585,7 +585,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("401", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -652,6 +652,7 @@ func TestCodeSampleFilter(t *testing.T) {
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
+							"security": []any{},
 						},
 					},
 				})),
@@ -676,6 +677,7 @@ func TestCodeSampleFilter(t *testing.T) {
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
+							"security": []any{},
 							"x-codeSamples": []codeSample{
 								{
 									Lang:   "cURL",
@@ -735,6 +737,7 @@ func TestCodeSampleFilter(t *testing.T) {
 						})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
+							"security": []any{},
 						},
 					},
 				})),
@@ -759,6 +762,7 @@ func TestCodeSampleFilter(t *testing.T) {
 						})),
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
+							"security": []any{},
 							"x-codeSamples": []codeSample{
 								{
 									Lang:   "cURL",
@@ -778,7 +782,7 @@ func TestCodeSampleFilter(t *testing.T) {
 			},
 		},
 		{
-			name:    "authenticated api with 403 response emits service accounts and digest curl code samples",
+			name:    "authenticated api without security extension emits service accounts and digest curl code samples",
 			version: "2025-01-01",
 			oas: &openapi3.T{
 				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
@@ -796,7 +800,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("403", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
@@ -820,7 +824,7 @@ func TestCodeSampleFilter(t *testing.T) {
 									},
 								},
 							},
-						}), openapi3.WithName("403", &openapi3.Response{})),
+						})),
 						Tags: []string{"TestTag"},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
