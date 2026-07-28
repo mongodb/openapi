@@ -15269,11 +15269,12 @@
         "type": "object"
       },
       "CreateEphemeralClusterRequest": {
-        "description": "Create an ephemeral Atlas cluster.",
+        "description": "Create an Atlas Ephemeral cluster.",
         "properties": {
           "clusterName": {
-            "description": "Designate the name of the ephemeral cluster.",
+            "description": "Human-readable label that identifies the Ephemeral cluster. Defaults to `Cluster0`.",
             "nullable": true,
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
             "type": "string"
           }
         },
@@ -23303,19 +23304,19 @@
         "type": "object"
       },
       "EphemeralClusterCreated": {
-        "description": "Details for the ephemeral Atlas cluster that was created.",
+        "description": "Details for the Atlas Ephemeral cluster that was created.",
         "properties": {
           "claimUrl": {
-            "description": "URL that redirects users to the Atlas registration page.",
+            "description": "Unique URL for claiming this Ephemeral cluster. Redirects to the Atlas sign-in or registration page, where a user signs in or creates an account to claim the cluster. Valid for 7 days after the cluster is created.",
             "format": "uri",
             "type": "string"
           },
           "clusterId": {
-            "description": "Unique ID that can be used to check the status of an ephemeral cluster.",
+            "description": "Unique identifier of the Ephemeral cluster. Use this ID to retrieve the cluster's status and details in a GET request.",
             "type": "string"
           },
           "connectionString": {
-            "description": "Atlas cluster connection string with SCRAM database user credentials included.",
+            "description": "Connection string that uses the `mongodb+srv://` protocol to connect to the Ephemeral cluster. This string includes the unredacted SCRAM credentials (username and password) for an automatically generated database user that Atlas grants the built-in `readWriteAnyDatabase` role.",
             "type": "string"
           },
           "expiresAt": {
@@ -23324,7 +23325,7 @@
             "type": "string"
           },
           "status": {
-            "description": "Status of the ephemeral cluster.",
+            "description": "Status of the Ephemeral cluster.",
             "enum": [
               "ACTIVE",
               "PAUSED"
@@ -23332,7 +23333,7 @@
             "type": "string"
           },
           "termsOfService": {
-            "description": "Legal Terms of Service agreement.",
+            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.",
             "type": "string"
           }
         },
@@ -23342,16 +23343,16 @@
         "description": "Current status and details of an ephemeral Atlas cluster.",
         "properties": {
           "claimUrl": {
-            "description": "URL that redirects users to the Atlas registration page.",
+            "description": "Unique URL for claiming this Ephemeral cluster. Redirects to the Atlas sign-in or registration page, where a user signs in or creates an account to claim the cluster. Valid for 7 days after the cluster is created.",
             "format": "uri",
             "type": "string"
           },
           "clusterId": {
-            "description": "Unique ID of the ephemeral cluster.",
+            "description": "Unique identifier of the Ephemeral cluster. Use this ID to retrieve the cluster's status and details in a GET request.",
             "type": "string"
           },
           "connectionString": {
-            "description": "Atlas cluster connection string with the SCRAM database user name included. The password is replaced by a placeholder, since it is only ever returned when the cluster is created.",
+            "description": "Connection string that uses the `mongodb+srv://` protocol to connect to the Ephemeral cluster. This string includes the SCRAM username of an automatically generated database user, but replaces the password with a placeholder. Atlas returns the password only in the create response.",
             "nullable": true,
             "type": "string"
           },
@@ -23361,7 +23362,7 @@
             "type": "string"
           },
           "status": {
-            "description": "Status of the ephemeral cluster.",
+            "description": "Status of the Ephemeral cluster.",
             "enum": [
               "PROVISIONING",
               "ACTIVE",
@@ -23370,7 +23371,7 @@
             "type": "string"
           },
           "termsOfService": {
-            "description": "Legal Terms of Service agreement.",
+            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.",
             "type": "string"
           }
         },
@@ -57789,7 +57790,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "f6da2a5b8ea61594845e70535587bf52eb0350b3"
+    "x-xgen-sha": "2d010a097c785d8d3a025ff99c0005c413e0e6c7"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -105779,7 +105780,7 @@
     },
     "/api/atlas/v2/unauth/ephemeralClusters/{clusterId}": {
       "get": {
-        "description": "Returns the current status of an ephemeral Atlas cluster.",
+        "description": "Returns the details for one Atlas Ephemeral cluster.\n\nTo learn more about Ephemeral clusters, see [Create an Atlas Ephemeral Cluster](https://dochub.mongodb.org/core/create-ephemeral-cluster) in the MongoDB Atlas documentation.",
         "operationId": "getEphemeralCluster",
         "parameters": [
           {
@@ -105838,7 +105839,7 @@
     },
     "/api/atlas/v2/unauth/ephemeralClusters:create": {
       "post": {
-        "description": "Creates an ephemeral Atlas cluster for users or agents.",
+        "description": "Creates an Atlas Ephemeral cluster and returns its connection and claim details.\n\nAn Ephemeral cluster is a temporary Free cluster that you can create and connect to without an Atlas account. Atlas pauses the cluster 2 days after creation and deletes it 7 days after creation unless you claim it to an Atlas account.\n\nClaiming an Ephemeral cluster converts it into a standard Free cluster with no expiration date and moves it into a new or existing Atlas organization. Until you claim the cluster, you can read and write its data but can't perform administrative operations, such as scaling the cluster, adding database users, or changing network access.\n\nAtlas deploys all Ephemeral clusters to AWS `us-east-1` and allows connections from any IP address (`0.0.0.0/0`). To learn more about Ephemeral clusters, see [Create an Atlas Ephemeral Cluster](https://dochub.mongodb.org/core/create-ephemeral-cluster) in the MongoDB Atlas documentation.",
         "operationId": "createEphemeralCluster",
         "requestBody": {
           "content": {
@@ -105882,7 +105883,7 @@
           }
         },
         "security": [],
-        "summary": "Create an Ephemeral Atlas Cluster",
+        "summary": "Create One Ephemeral Atlas Cluster",
         "tags": [
           "Ephemeral Clusters"
         ],
@@ -106391,7 +106392,7 @@
       "name": "Encryption at Rest using Customer Key Management"
     },
     {
-      "description": "Provisions and returns the status of ephemeral Atlas clusters through an unauthenticated flow. A human can later claim an ephemeral cluster to convert it into a permanent Atlas cluster.",
+      "description": "Create and return Atlas Ephemeral clusters. An Ephemeral cluster is a temporary Atlas Free cluster that you can claim within 7 days to convert into a standard Free cluster.\n\nUse of this API, including any resources created through it, is governed by MongoDB’s [Cloud Terms of Service](https://www.mongodb.com/legal/terms-and-conditions/cloud) and [Privacy Policy](https://www.mongodb.com/legal/privacy/privacy-policy). By using this API to create an Ephemeral cluster, you agree to these terms.\n\nTo learn more about Ephemeral clusters, see [Create an Atlas Ephemeral Cluster](https://dochub.mongodb.org/core/create-ephemeral-cluster) in the MongoDB Atlas documentation.",
       "name": "Ephemeral Clusters"
     },
     {
