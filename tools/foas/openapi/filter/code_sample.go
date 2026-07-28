@@ -76,11 +76,9 @@ func getFileExtension(format string) string {
 	}
 }
 
-func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
-	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
-
+// appendCurlMethodSource appends the HTTP method specific portion of a curl command
+// (URL, query parameters, headers and payload) to the provided base source string.
+func appendCurlMethodSource(source, pathName, opMethod, format string) string {
 	switch opMethod {
 	case "GET":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName
@@ -90,7 +88,6 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 		} else {
 			source += "?pretty=true\""
 		}
-
 	case "DELETE":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
 	case "POST", "PATCH", "PUT":
@@ -99,9 +96,33 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 		source += "-d " + "'{ <Payload> }'"
 	}
 
+	return source
+}
+
+func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
+	version := apiVersion(f.metadata.targetVersion)
+	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
+		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
+
+	source = appendCurlMethodSource(source, pathName, opMethod, format)
+
 	return codeSample{
 		Lang:   "cURL",
 		Label:  "curl (Digest)",
+		Source: source,
+	}
+}
+
+func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
+	version := apiVersion(f.metadata.targetVersion)
+	source := "curl --include \\\n  " +
+		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
+
+	source = appendCurlMethodSource(source, pathName, opMethod, format)
+
+	return codeSample{
+		Lang:   "cURL",
+		Label:  "curl",
 		Source: source,
 	}
 }
@@ -111,22 +132,7 @@ func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName
 	source := "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
 		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
 
-	switch opMethod {
-	case "GET":
-		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName
-		if format == "gzip" {
-			source += "\" \\\n  "
-			source += "--output \"file_name." + getFileExtension(format) + "\""
-		} else {
-			source += "?pretty=true\""
-		}
-	case "DELETE":
-		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\""
-	case "POST", "PATCH", "PUT":
-		source += "--header \"Content-Type: application/json\" \\\n  "
-		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName + "\" \\\n  "
-		source += "-d " + "'{ <Payload> }'"
-	}
+	source = appendCurlMethodSource(source, pathName, opMethod, format)
 
 	return codeSample{
 		Lang:   "cURL",
@@ -246,10 +252,15 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	supportedFormat := getSupportedFormat(op)
-	codeSamples = append(
-		codeSamples,
-		f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat),
-		f.newDigestCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
+	unAuthEndpoint := isEndpointUnAuthenticated(op)
+	if unAuthEndpoint {
+		codeSamples = append(codeSamples, f.newCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
+	} else {
+		codeSamples = append(
+			codeSamples,
+			f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat),
+			f.newDigestCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
+	}
 	op.Extensions[codeSampleExtensionName] = codeSamples
 	return nil
 }
@@ -296,4 +307,12 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) op
 	}
 
 	return nil
+}
+
+// isEndpointUnAuthenticated returns true if the endpoint is unauthenticated.
+// The authentication decision is made based on the operation-level "security" field:
+// when it is present and empty ("security": []), the endpoint does not require authentication.
+// Note: kin-openapi parses "security" into Operation.Security, not into Operation.Extensions.
+func isEndpointUnAuthenticated(op *openapi3.Operation) bool {
+	return op.Security != nil && len(*op.Security) == 0
 }
