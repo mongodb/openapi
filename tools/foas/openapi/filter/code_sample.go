@@ -252,7 +252,7 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	supportedFormat := getSupportedFormat(op)
-	unAuthEndpoint := isEndpointUnAuthenticated(op.Extensions)
+	unAuthEndpoint := isEndpointUnAuthenticated(op)
 	if unAuthEndpoint {
 		codeSamples = append(codeSamples, f.newCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
 	} else {
@@ -309,10 +309,10 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) op
 	return nil
 }
 
-// isEndpointUnAuthenticated returns true if the endpoint is authenticated.
-// The authentication decision is made based on the present of the extension "security". If "security":[] is present,
-// the endpoint is considered unauthenticated.
-func isEndpointUnAuthenticated(extensions map[string]any) bool {
-	_, ok := extensions["security"]
-	return ok
+// isEndpointUnAuthenticated returns true if the endpoint is unauthenticated.
+// The authentication decision is made based on the operation-level "security" field:
+// when it is present and empty ("security": []), the endpoint does not require authentication.
+// Note: kin-openapi parses "security" into Operation.Security, not into Operation.Extensions.
+func isEndpointUnAuthenticated(op *openapi3.Operation) bool {
+	return op.Security != nil && len(*op.Security) == 0
 }

@@ -649,10 +649,10 @@ func TestCodeSampleFilter(t *testing.T) {
 								},
 							},
 						})),
-						Tags: []string{"TestTag"},
+						Tags:     []string{"TestTag"},
+						Security: &openapi3.SecurityRequirements{},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
-							"security": []any{},
 						},
 					},
 				})),
@@ -674,10 +674,10 @@ func TestCodeSampleFilter(t *testing.T) {
 								},
 							},
 						})),
-						Tags: []string{"TestTag"},
+						Tags:     []string{"TestTag"},
+						Security: &openapi3.SecurityRequirements{},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
-							"security": []any{},
 							"x-codeSamples": []codeSample{
 								{
 									Lang:   "cURL",
@@ -735,9 +735,9 @@ func TestCodeSampleFilter(t *testing.T) {
 								},
 							},
 						})),
+						Security: &openapi3.SecurityRequirements{},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
-							"security": []any{},
 						},
 					},
 				})),
@@ -760,9 +760,9 @@ func TestCodeSampleFilter(t *testing.T) {
 								},
 							},
 						})),
+						Security: &openapi3.SecurityRequirements{},
 						Extensions: map[string]any{
 							"x-sunset": "9999-12-31",
-							"security": []any{},
 							"x-codeSamples": []codeSample{
 								{
 									Lang:   "cURL",
@@ -782,7 +782,7 @@ func TestCodeSampleFilter(t *testing.T) {
 			},
 		},
 		{
-			name:    "authenticated api without security extension emits service accounts and digest curl code samples",
+			name:    "authenticated api without empty security field emits service accounts and digest curl code samples",
 			version: "2025-01-01",
 			oas: &openapi3.T{
 				Paths: openapi3.NewPaths(openapi3.WithPath("/test", &openapi3.PathItem{
