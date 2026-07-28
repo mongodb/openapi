@@ -36,12 +36,6 @@ var goSDKTemplate string
 const codeSampleExtensionName = "x-codeSamples"
 const atlasCliExtensionName = "x-xgen-atlascli"
 
-// Security scheme names used by the Atlas Admin API to authenticate requests. An operation is
-// considered unauthenticated when it overrides the global security (via "security: []") and does
-// not reference either of these schemes.
-const digestAuthSchemeName = "DigestAuth"
-const serviceAccountSchemeName = "ServiceAccounts"
-
 // https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-code-samples#x-codesamples
 type codeSample struct {
 	Lang   string `json:"lang,omitempty" yaml:"lang,omitempty"`
@@ -82,10 +76,9 @@ func getFileExtension(format string) string {
 	}
 }
 
-// curlRequestSuffix builds the request portion of a curl code sample (method, URL and, where
-// relevant, the payload) that is shared by every curl variant regardless of the authentication used.
-func curlRequestSuffix(pathName, opMethod, format string) string {
-	var source string
+// appendCurlMethodSource appends the HTTP method specific portion of a curl command
+// (URL, query parameters, headers and payload) to the provided base source string.
+func appendCurlMethodSource(source, pathName, opMethod, format string) string {
 	switch opMethod {
 	case "GET":
 		source += "-X " + opMethod + " \"https://cloud.mongodb.com" + pathName
@@ -109,8 +102,9 @@ func curlRequestSuffix(pathName, opMethod, format string) string {
 func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
 	source := "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  " +
-		curlRequestSuffix(pathName, opMethod, format)
+		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
+
+	source = appendCurlMethodSource(source, pathName, opMethod, format)
 
 	return codeSample{
 		Lang:   "cURL",
@@ -119,30 +113,30 @@ func (f *CodeSampleFilter) newDigestCurlCodeSamplesForOperation(pathName, opMeth
 	}
 }
 
-func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
-	version := apiVersion(f.metadata.targetVersion)
-	source := "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  " +
-		curlRequestSuffix(pathName, opMethod, format)
-
-	return codeSample{
-		Lang:   "cURL",
-		Label:  "curl (Service Accounts)",
-		Source: source,
-	}
-}
-
-// newUnauthenticatedCurlCodeSamplesForOperation builds a curl code sample without any authentication
-// flags, used for endpoints that do not require authentication.
-func (f *CodeSampleFilter) newUnauthenticatedCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
+func (f *CodeSampleFilter) newCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
 	version := apiVersion(f.metadata.targetVersion)
 	source := "curl --include \\\n  " +
-		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  " +
-		curlRequestSuffix(pathName, opMethod, format)
+		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
+
+	source = appendCurlMethodSource(source, pathName, opMethod, format)
 
 	return codeSample{
 		Lang:   "cURL",
 		Label:  "curl",
+		Source: source,
+	}
+}
+
+func (f *CodeSampleFilter) newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, format string) codeSample {
+	version := apiVersion(f.metadata.targetVersion)
+	source := "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  " +
+		"--header \"Accept: application/vnd.atlas." + version + "+" + format + "\" \\\n  "
+
+	source = appendCurlMethodSource(source, pathName, opMethod, format)
+
+	return codeSample{
+		Lang:   "cURL",
+		Label:  "curl (Service Accounts)",
 		Source: source,
 	}
 }
@@ -258,54 +252,17 @@ func (f *CodeSampleFilter) includeCodeSamplesForOperation(pathName, opMethod str
 	}
 
 	supportedFormat := getSupportedFormat(op)
-	if isUnauthenticatedOperation(op) {
-		codeSamples = append(codeSamples, f.newUnauthenticatedCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
+	unAuthEndpoint := isEndpointUnAuthenticated(op.Responses.Map())
+	if unAuthEndpoint {
+
 	} else {
-		if usesServiceAccountAuth(op) {
-			codeSamples = append(codeSamples, f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
-		}
-		if usesDigestAuth(op) {
-			codeSamples = append(codeSamples, f.newDigestCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
-		}
+		codeSamples = append(
+			codeSamples,
+			f.newServiceAccountCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat),
+			f.newDigestCurlCodeSamplesForOperation(pathName, opMethod, supportedFormat))
 	}
 	op.Extensions[codeSampleExtensionName] = codeSamples
 	return nil
-}
-
-// isUnauthenticatedOperation reports whether the operation does not require authentication. An
-// operation is unauthenticated when it overrides the global security requirements with an empty set
-// (i.e. "security: []"). When the operation does not override the global security (Security is nil),
-// it inherits the authenticated global default.
-func isUnauthenticatedOperation(op *openapi3.Operation) bool {
-	return op.Security != nil && len(*op.Security) == 0
-}
-
-// usesServiceAccountAuth reports whether the operation supports service account authentication.
-// When the operation does not override the global security (Security is nil), it inherits the
-// authenticated global default, which supports service accounts.
-func usesServiceAccountAuth(op *openapi3.Operation) bool {
-	return operationSupportsSecurityScheme(op, serviceAccountSchemeName)
-}
-
-// usesDigestAuth reports whether the operation supports digest authentication. When the operation
-// does not override the global security (Security is nil), it inherits the authenticated global
-// default, which supports digest authentication.
-func usesDigestAuth(op *openapi3.Operation) bool {
-	return operationSupportsSecurityScheme(op, digestAuthSchemeName)
-}
-
-func operationSupportsSecurityScheme(op *openapi3.Operation, scheme string) bool {
-	if op.Security == nil {
-		return true
-	}
-
-	for _, requirement := range *op.Security {
-		if _, ok := requirement[scheme]; ok {
-			return true
-		}
-	}
-
-	return false
 }
 
 // getSupportedFormat inspects the response content types of a given OpenAPI operation,
@@ -350,4 +307,19 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) op
 	}
 
 	return nil
+}
+
+// isEndpointUnAuthenticated returns true if the endpoint is authenticated.
+// The authentication decision is made based on the responses code the endpoint support:
+// - No 401 (unauthorized) and 403(forbidden) -> unauthenticated
+func isEndpointUnAuthenticated(responsesMap map[string]*openapi3.ResponseRef) bool {
+	if _, ok := responsesMap["401"]; ok {
+		return false
+	}
+
+	if _, ok := responsesMap["403"]; ok {
+		return false
+	}
+
+	return true
 }
