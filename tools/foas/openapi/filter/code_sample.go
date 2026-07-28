@@ -311,7 +311,7 @@ func successResponseExtensions(responsesMap map[string]*openapi3.ResponseRef) op
 
 // isEndpointUnAuthenticated returns true if the endpoint is authenticated.
 // The authentication decision is made based on the responses code the endpoint support:
-// - No 401 (unauthorized) and 403(forbidden) -> unauthenticated
+// - No 401 (unauthorized) and 403(forbidden) -> unauthenticated.
 func isEndpointUnAuthenticated(responsesMap map[string]*openapi3.ResponseRef) bool {
 	if _, ok := responsesMap["401"]; ok {
 		return false
