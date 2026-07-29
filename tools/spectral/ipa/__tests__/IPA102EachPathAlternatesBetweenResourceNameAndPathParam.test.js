@@ -41,11 +41,11 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         '/api/atlas/v2/resourceName/operations/{operationId}': {},
         '/api/atlas/v2/resourceName1/{pathParam}/resourceName2/operations': {},
         '/api/atlas/v2/resourceName1/{pathParam}/resourceName2/operations/{operationId}': {},
+        '/api/atlas/v2/unauth/resourceName/operations': {},
+        '/api/atlas/v2/unauth/resourceName/operations/{operationId}': {},
         // Instance-scoped Operations endpoints, nested under the parent resource instance
         '/api/atlas/v2/resourceName/{pathParam}/operations': {},
         '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}': {},
-        '/api/atlas/v2/unauth/resourceName/operations': {},
-        '/api/atlas/v2/unauth/resourceName/operations/{operationId}': {},
       },
     },
     errors: [],
