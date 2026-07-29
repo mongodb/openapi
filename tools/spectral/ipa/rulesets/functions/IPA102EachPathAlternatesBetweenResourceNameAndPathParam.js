@@ -38,12 +38,8 @@ const stripOperationsSuffix = (elements) => {
     return elements;
   }
 
-  // The exemption only applies to an Operations collection nested under a parent resource. An
-  // unscoped `/api/atlas/v2/operations` keeps its segments and is checked as an ordinary
-  // collection -- rejecting unscoped Operations endpoints belongs to IPA-132, not IPA-102.
-  // (Both unscoped shapes happen to alternate anyway, so this is a statement of intent.)
-  const parent = elements.slice(0, elements.length - suffixLength);
-  return parent.length > 0 ? parent : elements;
+  // An unscoped `/api/atlas/v2/operations` strips to nothing and passes; rejecting it is IPA-132's job.
+  return elements.slice(0, elements.length - suffixLength);
 };
 
 const validatePathStructure = (elements) => {
