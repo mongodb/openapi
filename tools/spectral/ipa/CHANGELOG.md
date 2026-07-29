@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [11.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.1.1...11.0.0)
+#### [11.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.0.0...11.1.0)
+
+- fix(ipa): allow Operations endpoint paths in IPA-102 alternation check [`#1406`](https://github.com/mongodb/openapi/pull/1406)
+- chore(ipa): bump @stoplight/spectral-cli from 6.16.1 to 6.16.2 in /tools/spectral/ipa [`#1391`](https://github.com/mongodb/openapi/pull/1391)
+- fix(ipa): clarify endpoint version lifecycle entries [`#1370`](https://github.com/mongodb/openapi/pull/1370)
+- chore(ipa): bump @stoplight/spectral-core from 1.23.0 to 1.23.1 in /tools/spectral/ipa [`#1350`](https://github.com/mongodb/openapi/pull/1350)
+- chore(ipa): bump @stoplight/spectral-cli from 6.16.0 to 6.16.1 in /tools/spectral/ipa [`#1349`](https://github.com/mongodb/openapi/pull/1349)
+- chore(ipa): bump @stoplight/spectral-functions from 1.10.3 to 1.10.5 in /tools/spectral/ipa [`#1352`](https://github.com/mongodb/openapi/pull/1352)
+
+### [ipa-validation-ruleset-v11.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v10.1.1...ipa-validation-ruleset-v11.0.0)
+
+> 24 June 2026
 
 - feat(ipa): Promote warning rules to error [`#1329`](https://github.com/mongodb/openapi/pull/1329)
 - fix(ipa): Update ipa-spectral to include mongoDBEmployeeAccessGrant [`#1328`](https://github.com/mongodb/openapi/pull/1328)
