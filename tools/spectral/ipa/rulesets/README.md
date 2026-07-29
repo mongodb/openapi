@@ -56,7 +56,7 @@ Paths should alternate between resource names and path params.
 ##### Implementation details
 Rule checks for the following conditions:
 
-  - Paths should alternate between resource names and path parameters
+  - Paths must follow a pattern where resource names and path parameters strictly alternate
   - Even-indexed path segments should be resource names (not path parameters)
   - Odd-indexed path segments should be path parameters
   - A trailing `operations` or `operations/{operationId}` suffix is exempt, for the Operations
