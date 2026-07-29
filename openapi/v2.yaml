@@ -12139,6 +12139,13 @@ components:
         ControlPlaneIPAddresses:
             description: List of IP addresses in the Atlas control plane.
             properties:
+                gateways:
+                    description: List of gateways, each representing a group of service-specific IP addresses that customers can add to their allow lists independently. Includes the Atlas Gateway (data plane) group when present.
+                    items:
+                        $ref: '#/components/schemas/Gateway'
+                    maxItems: 25
+                    readOnly: true
+                    type: array
                 inbound:
                     $ref: '#/components/schemas/InboundControlPlaneCloudProviderIPAddresses'
                 outbound:
@@ -22847,6 +22854,27 @@ components:
             description: Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.
             title: GCP Regional Replication Specifications
             type: object
+        Gateway:
+            description: Represents a service-specific gateway, such as the Atlas Gateway, with its IP addresses.
+            properties:
+                ips:
+                    $ref: '#/components/schemas/GatewayIpAddresses'
+                name:
+                    description: Name of the service that this gateway represents.
+                    readOnly: true
+                    type: string
+            title: Gateway
+            type: object
+        GatewayIpAddresses:
+            description: IP addresses for a specific gateway, organized by direction and cloud provider.
+            properties:
+                inbound:
+                    $ref: '#/components/schemas/InboundControlPlaneCloudProviderIPAddresses'
+                outbound:
+                    $ref: '#/components/schemas/OutboundControlPlaneCloudProviderIPAddresses'
+            readOnly: true
+            title: Gateway IP Addresses
+            type: object
         GcsLogIntegrationRequest:
             allOf:
                 - $ref: '#/components/schemas/LogIntegrationRequest'
@@ -26179,6 +26207,80 @@ components:
                     readOnly: true
                     type: number
             title: Line Item
+            type: object
+        InvoiceReportRequest:
+            properties:
+                formatSpecVersion:
+                    description: Version of the report format specification.
+                    type: string
+                reportFormat:
+                    description: Format of the report.
+                    enum:
+                        - CSV
+                    type: string
+                reportType:
+                    description: Type of report to generate.
+                    enum:
+                        - FOCUS
+                    type: string
+            required:
+                - reportFormat
+                - reportType
+            type: object
+        InvoiceReportResponse:
+            description: Status and details of a previously requested invoice report.
+            properties:
+                downloadUrl:
+                    description: URL to download the report. Present only when the report has succeeded.
+                    readOnly: true
+                    type: string
+                expiresAt:
+                    description: Time at which the download URL expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC. Present only when the report has succeeded.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                failureReason:
+                    description: Reason the report failed. Present only when the report has failed.
+                    readOnly: true
+                    type: string
+                formatSpecVersion:
+                    description: Version of the report format specification.
+                    type: string
+                invoiceId:
+                    description: Unique 24-hexadecimal digit string that identifies the invoice.
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                reportFormat:
+                    description: Format of the generated report.
+                    enum:
+                        - CSV
+                    type: string
+                reportId:
+                    description: Unique 24-hexadecimal digit string that identifies the report.
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                reportType:
+                    description: Type of the generated report.
+                    enum:
+                        - FOCUS
+                    type: string
+                state:
+                    description: Current state of the report generation.
+                    enum:
+                        - PENDING
+                        - RUNNING
+                        - SUCCEEDED
+                        - FAILED
+                    readOnly: true
+                    type: string
+            required:
+                - invoiceId
+                - reportFormat
+                - reportId
+                - reportType
+                - state
             type: object
         JournalingCommitsInWriteLockRawMetricThresholdView:
             properties:
@@ -45562,7 +45664,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 7a24863f6227658fa083b277365adca6fb8bda1a
+    x-xgen-sha: e815bdbd7e5f73ffe9d91c432dd50cefe8fda127
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -73041,6 +73143,107 @@ paths:
                 - Organization Billing Viewer
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/searchOrgInvoiceLineItems
             x-xgen-operation-id-override: searchInvoiceLineItems
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports:
+        post:
+            description: Requests asynchronous generation of a report for the specified invoice. Returns a report identifier that can be used to poll the report status.
+            operationId: createOrgInvoiceReport
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique string that identifies the invoice for which to generate the report.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/InvoiceReportRequest'
+                        x-xgen-version: "2025-03-12"
+                description: Create Invoice Report request body.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/InvoiceReportResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: Report generation requested successfully
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Invoice Report
+            tags:
+                - Invoices
+            x-rolesRequirements:
+                - Organization Billing Viewer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/createOrgInvoiceReport
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports/{reportId}:
+        get:
+            description: Returns the status and details of a previously requested invoice report.
+            operationId: getOrgInvoiceReport
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique string that identifies the invoice the report was generated for.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    type: string
+                - description: Unique string that identifies the report to retrieve.
+                  in: path
+                  name: reportId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/InvoiceReportResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: Report retrieved successfully
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Invoice Report
+            tags:
+                - Invoices
+            x-rolesRequirements:
+                - Organization Billing Viewer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgInvoiceReport
+            x-xgen-operation-id-override: getOrgInvoiceReport
     /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport:
         post:
             description: Generates and downloads a report for the specified invoice.
