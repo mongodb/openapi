@@ -159,8 +159,6 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         // `operations` is only exempt as the final segment, optionally followed by its path param
         '/api/atlas/v2/resourceName/operations/foo': {},
         '/api/atlas/v2/resourceName/operations/{operationId}/details': {},
-        // A non-alternating segment which is not `operations` is still a violation
-        '/api/atlas/v2/resourceName/customAction': {},
       },
     },
     errors: [
@@ -176,13 +174,46 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}/details'],
         severity: DiagnosticSeverity.Error,
       },
+    ],
+  },
+  {
+    name: 'Operations endpoints no longer need an exception',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName/operations': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'reason',
+          },
+        },
+      },
+    },
+    errors: [
       {
         code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
-        message: 'API paths must alternate between resource name and path params.',
-        path: ['paths', '/api/atlas/v2/resourceName/customAction'],
+        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName/operations',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-path-alternate-resource-name-path-param',
+        ],
         severity: DiagnosticSeverity.Error,
       },
     ],
+  },
+  {
+    name: 'Operations paths which are still violations may keep an exception',
+    document: {
+      paths: {
+        // `operations` is not the final segment, so the path is a violation the exception suppresses
+        '/api/atlas/v2/resourceName/operations/foo': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'reason',
+          },
+        },
+      },
+    },
+    errors: [],
   },
   {
     name: 'invalid paths with exceptions',
