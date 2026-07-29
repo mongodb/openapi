@@ -33,6 +33,24 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
     errors: [],
   },
   {
+    name: 'valid paths - IPA-132 Operations endpoints',
+    document: {
+      paths: {
+        // Collection-scoped Operations endpoints, nested directly under the parent collection
+        '/api/atlas/v2/resourceName/operations': {},
+        '/api/atlas/v2/resourceName/operations/{operationId}': {},
+        '/api/atlas/v2/resourceName1/{pathParam}/resourceName2/operations': {},
+        '/api/atlas/v2/resourceName1/{pathParam}/resourceName2/operations/{operationId}': {},
+        '/api/atlas/v2/unauth/resourceName/operations': {},
+        '/api/atlas/v2/unauth/resourceName/operations/{operationId}': {},
+        // Instance-scoped Operations endpoints, nested under the parent resource instance
+        '/api/atlas/v2/resourceName/{pathParam}/operations': {},
+        '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}': {},
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid paths - api/atlas/v2',
     document: {
       paths: {
@@ -133,6 +151,69 @@ testRule('xgen-IPA-102-path-alternate-resource-name-path-param', [
         severity: DiagnosticSeverity.Error,
       },
     ],
+  },
+  {
+    name: 'invalid paths - only a trailing Operations suffix is exempt',
+    document: {
+      paths: {
+        // `operations` is only exempt as the final segment, optionally followed by its path param
+        '/api/atlas/v2/resourceName/operations/foo': {},
+        '/api/atlas/v2/resourceName/operations/{operationId}/details': {},
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message: 'API paths must alternate between resource name and path params.',
+        path: ['paths', '/api/atlas/v2/resourceName/operations/foo'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message: 'API paths must alternate between resource name and path params.',
+        path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}/details'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'Operations endpoints no longer need an exception',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName/operations': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'reason',
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-102-path-alternate-resource-name-path-param',
+        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName/operations',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-102-path-alternate-resource-name-path-param',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'Operations paths which are still violations may keep an exception',
+    document: {
+      paths: {
+        // `operations` is not the final segment, so the path is a violation the exception suppresses
+        '/api/atlas/v2/resourceName/operations/foo': {
+          'x-xgen-IPA-exception': {
+            'xgen-IPA-102-path-alternate-resource-name-path-param': 'reason',
+          },
+        },
+      },
+    },
+    errors: [],
   },
   {
     name: 'invalid paths with exceptions',
