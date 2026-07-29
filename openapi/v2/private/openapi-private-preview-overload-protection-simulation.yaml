@@ -350,42 +350,6 @@ components:
                     type: array
             readOnly: true
             type: object
-        DiskBackupCollectionResponse:
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                name:
-                    description: Human-readable label that identifies the collection in the database within the snapshot.
-                    readOnly: true
-                    type: string
-            required:
-                - name
-            type: object
-        DiskBackupDatabaseResponse:
-            properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                name:
-                    description: Human-readable label that identifies the database within the snapshot.
-                    readOnly: true
-                    type: string
-            required:
-                - name
-            type: object
         FieldViolation:
             properties:
                 description:
@@ -409,33 +373,59 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedApiAtlasDiskBackupCollectionView:
+        OverloadProtectionSimulationRequest:
+            description: Request to start an overload protection simulation for a cluster.
             properties:
-                links:
-                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
-                    externalDocs:
-                        description: Web Linking Specification (RFC 5988)
-                        url: https://datatracker.ietf.org/doc/html/rfc5988
-                    items:
-                        $ref: '#/components/schemas/Link'
-                    readOnly: true
-                    type: array
-                results:
-                    description: List of returned documents that MongoDB Cloud provides when completing this request.
-                    items:
-                        $ref: '#/components/schemas/DiskBackupCollectionResponse'
-                    readOnly: true
-                    type: array
-                totalCount:
-                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                durationSeconds:
+                    description: Duration of the overload protection simulation in seconds.
                     format: int32
-                    minimum: 0
-                    readOnly: true
                     type: integer
-            required:
-                - results
             type: object
-        PaginatedApiAtlasDiskBackupDatabaseView:
+        OverloadProtectionSimulationResponse:
+            description: Overload protection simulation for a cluster.
+            properties:
+                cancelRequestedAt:
+                    description: Date and time when cancellation of the overload protection simulation was requested. This parameter is only present when a cancellation has been requested and expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                clusterName:
+                    description: Human-readable label that identifies the cluster on which the simulation is running.
+                    readOnly: true
+                    type: string
+                durationSeconds:
+                    description: Duration of the overload protection simulation in seconds.
+                    format: int32
+                    type: integer
+                expiresAt:
+                    description: Date and time when the overload protection simulation expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal character string that identifies the project that contains the cluster.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                requestDate:
+                    description: Date and time when the overload protection simulation was requested. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                simulationId:
+                    description: Unique identifier of the overload protection simulation.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                state:
+                    description: Current state of the overload protection simulation.
+                    readOnly: true
+                    type: string
+            type: object
+        PaginatedOverloadProtectionSimulationResponse:
+            description: List of overload protection simulations for a cluster.
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -449,7 +439,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/DiskBackupDatabaseResponse'
+                        $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -490,7 +480,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-snapshot-namespaces+json" \
+          --header "Accept: application/vnd.atlas.private-preview-overload-protection-simulation+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -508,44 +498,35 @@ info:
     x-xgen-sha: a54c1214a7e78a3a48bec4ee1b5808a7d740a5a5
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations:
         get:
-            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns the list of databases that exist in the specified snapshot. Use this to discover namespaces before creating a collection restore job. Deprecated versions: v2-{2025-03-12}
-            operationId: listGroupClusterBackupSnapshotDatabases
+                 Returns all overload protection simulations for one cluster.
+            operationId: listGroupClusterOverloadSimulations
             parameters:
                 - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulations are running.
                   in: path
                   name: clusterName
                   required: true
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
-                  in: path
-                  name: snapshotId
-                  required: true
-                  schema:
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupDatabaseView'
+                                $ref: '#/components/schemas/PaginatedOverloadProtectionSimulationResponse'
                             x-xgen-preview:
-                                name: snapshot-namespaces
-                            x-xgen-version: private-preview-snapshot-namespaces
+                                name: overload-protection-simulation
+                            x-xgen-version: private-preview-overload-protection-simulation
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -564,153 +545,221 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return Databases in One Snapshot
+            summary: Return All Overload Protection Simulations
             tags:
-                - Cloud Backups
+                - Overload Protection Simulation
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudBackups listBackupSnapshotDatabases --help
+                  source: atlas api overloadProtectionSimulation listClusterOverloadSimulations --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true"
             x-rolesRequirements:
-                - Project Backup Manager
+                - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-sunset: "2026-08-10"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotDatabases
-            x-xgen-operation-id-override: listBackupSnapshotDatabases
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}:
-        get:
-            deprecated: true
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/listGroupClusterOverloadSimulations
+            x-xgen-operation-id-override: listClusterOverloadSimulations
+        post:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns one database that exists in the specified snapshot. Use this to confirm a known database exists before referencing it in a collection restore job. Deprecated versions: v2-{2025-03-12}
-            operationId: getGroupClusterBackupSnapshotDatabase
+                 Starts an overload protection simulation for one cluster. Returns a 409 if a simulation is already in progress or completed; DELETE the existing simulation before starting a new one.
+            operationId: createGroupClusterOverloadSimulation
             parameters:
                 - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which to start the overload protection simulation.
                   in: path
                   name: clusterName
                   required: true
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
-                  in: path
-                  name: snapshotId
-                  required: true
-                  schema:
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                - description: Human-readable label that identifies the database.
-                  in: path
-                  name: databaseName
-                  required: true
-                  schema:
-                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/OverloadProtectionSimulationRequest'
+                        x-xgen-preview:
+                            name: overload-protection-simulation
+                        x-xgen-version: private-preview-overload-protection-simulation
+                description: 'Details of the overload protection simulation to start. Valid durations (in seconds): 900, 3600, 28800, 86400.'
+                required: true
             responses:
-                "200":
+                "201":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/DiskBackupDatabaseResponse'
+                                $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
                             x-xgen-preview:
-                                name: snapshot-namespaces
-                            x-xgen-version: private-preview-snapshot-namespaces
-                    description: OK
+                                name: overload-protection-simulation
+                            x-xgen-version: private-preview-overload-protection-simulation
+                    description: Created
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return One Database in One Snapshot
+            summary: Create One Overload Protection Simulation
             tags:
-                - Cloud Backups
+                - Overload Protection Simulation
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudBackups getBackupSnapshotDatabase --help
+                  source: atlas api overloadProtectionSimulation createClusterOverloadSimulation --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}?pretty=true"
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations" \
+                      -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}?pretty=true"
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations" \
+                      -d '{ <Payload> }'
             x-rolesRequirements:
-                - Project Backup Manager
+                - Project Cluster Manager
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-sunset: "2026-08-10"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshotDatabase
-            x-xgen-operation-id-override: getBackupSnapshotDatabase
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections:
-        get:
-            deprecated: true
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/createGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: createClusterOverloadSimulation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}:
+        delete:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns the list of collections in the specified database that exist in the snapshot. Use this to discover namespaces before creating a collection restore job. Deprecated versions: v2-{2025-03-12}
-            operationId: listGroupClusterBackupSnapshotDatabaseCollections
+                 Deletes the overload protection simulation for one cluster.
+            operationId: deleteGroupClusterOverloadSimulation
             parameters:
                 - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/includeCount'
-                - $ref: '#/components/parameters/itemsPerPage'
-                - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulation is running.
                   in: path
                   name: clusterName
                   required: true
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
+                - description: Unique 24-hexadecimal digit string that identifies the overload protection simulation.
                   in: path
-                  name: snapshotId
+                  name: simulationId
                   required: true
                   schema:
-                    pattern: ^([a-f0-9]{24})$
                     type: string
-                - description: Human-readable label that identifies the database.
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                name: overload-protection-simulation
+                            x-xgen-version: private-preview-overload-protection-simulation
+                    description: Accepted
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Overload Protection Simulation
+            tags:
+                - Overload Protection Simulation
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api overloadProtectionSimulation deleteClusterOverloadSimulation --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}"
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/deleteGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: deleteClusterOverloadSimulation
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns the overload protection simulation for one cluster.
+            operationId: getGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulation is running.
                   in: path
-                  name: databaseName
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the overload protection simulation.
+                  in: path
+                  name: simulationId
                   required: true
                   schema:
                     type: string
@@ -719,10 +768,10 @@ paths:
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiAtlasDiskBackupCollectionView'
+                                $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
                             x-xgen-preview:
-                                name: snapshot-namespaces
-                            x-xgen-version: private-preview-snapshot-namespaces
+                                name: overload-protection-simulation
+                            x-xgen-version: private-preview-overload-protection-simulation
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -741,135 +790,42 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return Collections in One Database in One Snapshot
+            summary: Return One Overload Protection Simulation
             tags:
-                - Cloud Backups
+                - Overload Protection Simulation
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api cloudBackups listSnapshotDatabaseCollections --help
+                  source: atlas api overloadProtectionSimulation getClusterOverloadSimulation --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true"
             x-rolesRequirements:
-                - Project Backup Manager
+                - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-sunset: "2026-08-10"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupClusterBackupSnapshotDatabaseCollections
-            x-xgen-operation-id-override: listSnapshotDatabaseCollections
-    ? /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}
-    :   get:
-            deprecated: true
-            description: |-
-                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
-
-                 Returns one collection that exists in the specified database in the snapshot. Use this to confirm a known collection exists before referencing it in a collection restore job. Deprecated versions: v2-{2025-03-12}
-            operationId: getGroupClusterBackupSnapshotDatabaseCollection
-            parameters:
-                - $ref: '#/components/parameters/envelope'
-                - $ref: '#/components/parameters/groupId'
-                - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
-                - description: Unique 24-hexadecimal digit string that identifies the desired snapshot.
-                  in: path
-                  name: snapshotId
-                  required: true
-                  schema:
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                - description: Human-readable label that identifies the database.
-                  in: path
-                  name: databaseName
-                  required: true
-                  schema:
-                    type: string
-                - description: Human-readable label that identifies the collection.
-                  in: path
-                  name: collectionName
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    content:
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/DiskBackupCollectionResponse'
-                            x-xgen-preview:
-                                name: snapshot-namespaces
-                            x-xgen-version: private-preview-snapshot-namespaces
-                    description: OK
-                    headers:
-                        RateLimit-Limit:
-                            $ref: '#/components/headers/HeaderRateLimitLimit'
-                        RateLimit-Remaining:
-                            $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "401":
-                    $ref: '#/components/responses/unauthorized'
-                "403":
-                    $ref: '#/components/responses/forbidden'
-                "404":
-                    $ref: '#/components/responses/notFound'
-                "429":
-                    $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return One Collection in One Database in One Snapshot
-            tags:
-                - Cloud Backups
-            x-beta: true
-            x-codeSamples:
-                - label: Atlas CLI
-                  lang: cURL
-                  source: atlas api cloudBackups getSnapshotDatabaseCollection --help
-                - label: curl (Service Accounts)
-                  lang: cURL
-                  source: |-
-                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}?pretty=true"
-                - label: curl (Digest)
-                  lang: cURL
-                  source: |-
-                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
-                      --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backup/snapshots/{snapshotId}/databases/{databaseName}/collections/{collectionName}?pretty=true"
-            x-rolesRequirements:
-                - Project Backup Manager
-            x-state:
-                color: '#B89D09'
-                label: PREVIEW
-            x-sunset: "2026-08-10"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSnapshotDatabaseCollection
-            x-xgen-operation-id-override: getSnapshotDatabaseCollection
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/getGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: getClusterOverloadSimulation
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.
-      name: Cloud Backups
+    - description: Returns and starts overload protection simulations for a cluster.
+      name: Overload Protection Simulation
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
