@@ -99,10 +99,13 @@ function deriveActionVerb(method) {
 }
 
 /**
- * Checks if a resource identifier is a collection-scoped Operations resource, i.e. the trailing
- * 'operations' section is attached to a parent resource collection rather than to a single resource.
+ * Checks if a resource identifier is a collection-scoped Operations resource, i.e. the 'operations'
+ * section is attached to a parent resource collection rather than to a single resource. Applies to both
+ * the Operations resource collection and a single Operations resource.
  * '/groups/{groupId}/clusters/operations' returns true
+ * '/groups/{groupId}/clusters/operations/{operationId}' returns true
  * '/groups/{groupId}/clusters/{clusterName}/operations' returns false
+ * '/groups/{groupId}/clusters/{clusterName}/operations/{operationId}' returns false
  * '/operations' returns false
  *
  * @param {string} resourceIdentifier the resource identifier to evaluate, without prefix
@@ -110,6 +113,12 @@ function deriveActionVerb(method) {
  */
 function isCollectionScopedOperationsPath(resourceIdentifier) {
   const sections = resourceIdentifier.split('/').filter((section) => section.length > 0);
+
+  // a single Operations resource ends with the operation identifier, the resource collection does not
+  if (sections.length > 0 && isPathParam(sections[sections.length - 1])) {
+    sections.pop();
+  }
+
   if (sections.length < 2 || sections[sections.length - 1] !== OPERATIONS_SECTION) {
     return false;
   }
