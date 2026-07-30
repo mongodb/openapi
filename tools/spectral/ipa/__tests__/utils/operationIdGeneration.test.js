@@ -29,6 +29,35 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
       expect(generateOperationID('grant', '/api/atlas/v2/groups/{groupId}/access')).toEqual('grantGroupAccess');
     });
 
+    it('should preserve the resource scope of trailing operations paths', () => {
+      // the collection-scoped path keeps the parent plural, the instance-scoped path keeps it singular,
+      // so that the two Operations resources do not share an operation ID
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/operations')).toEqual(
+        'listGroupClustersOperations'
+      );
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations')).toEqual(
+        'listGroupClusterOperations'
+      );
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/operations')).not.toEqual(
+        generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations')
+      );
+    });
+
+    it('should not preserve the parent plural for other operations paths', () => {
+      // the parent is a single resource, so the existing singularization applies
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/operations')).toEqual('listGroupOperations');
+      // 'operations' is not the trailing section
+      expect(generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/operations/{operationId}')).toEqual(
+        'getGroupClusterOperation'
+      );
+      // no parent resource to scope to
+      expect(generateOperationID('list', '/api/atlas/v2/operations')).toEqual('listOperations');
+      // multi-word custom methods append their own trailing noun, so the parent is singularized as before
+      expect(generateOperationID('listPending', '/api/atlas/v2/groups/{groupId}/clusters/operations')).toEqual(
+        'listGroupClusterOperationPending'
+      );
+    });
+
     it('should split camelCase method names', () => {
       expect(generateOperationID('addNode', '/groups/{groupId}/clusters/{clusterName}')).toEqual('addGroupClusterNode');
       expect(generateOperationID('get', '/api/atlas/v2/groups/byName/{groupName}')).toEqual('getGroupByName');
