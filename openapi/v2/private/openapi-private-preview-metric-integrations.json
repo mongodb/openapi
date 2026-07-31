@@ -500,7 +500,8 @@
             "description": "Header value.",
             "example": "Bearer token123",
             "format": "password",
-            "type": "string"
+            "type": "string",
+            "writeOnly": true
           }
         },
         "required": [
@@ -548,7 +549,8 @@
             },
             "maxItems": 10,
             "minItems": 1,
-            "type": "array"
+            "type": "array",
+            "writeOnly": true
           },
           "integrationType": {
             "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
@@ -608,13 +610,14 @@
             "maxLength": 2048,
             "type": "string"
           },
-          "headers": {
-            "description": "HTTP headers for authentication and configuration. Header values are redacted in responses.",
+          "headersRedacted": {
+            "description": "HTTP headers for authentication and configuration. Values are redacted and never returned in plaintext.",
             "items": {
-              "$ref": "#/components/schemas/Header"
+              "$ref": "#/components/schemas/RedactedHeader"
             },
             "maxItems": 10,
             "minItems": 1,
+            "readOnly": true,
             "type": "array"
           },
           "integrationType": {
@@ -659,7 +662,7 @@
         "required": [
           "aggregationTemporality",
           "endpoint",
-          "headers",
+          "headersRedacted",
           "integrationType",
           "metricIntegrationId",
           "metricSelection",
@@ -686,13 +689,14 @@
             "type": "string"
           },
           "headers": {
-            "description": "HTTP headers for authentication and configuration. Total size limit 2KB.",
+            "description": "HTTP headers for authentication and configuration. Total size limit 2KB. Omit this field to leave existing headers unchanged.",
             "items": {
               "$ref": "#/components/schemas/Header"
             },
             "maxItems": 10,
             "minItems": 1,
-            "type": "array"
+            "type": "array",
+            "writeOnly": true
           },
           "integrationType": {
             "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
@@ -727,7 +731,6 @@
         "required": [
           "aggregationTemporality",
           "endpoint",
-          "headers",
           "integrationType",
           "metricSelection",
           "providerType"
@@ -769,6 +772,28 @@
           "results"
         ],
         "type": "object"
+      },
+      "RedactedHeader": {
+        "description": "HTTP header with a redacted value.",
+        "properties": {
+          "name": {
+            "description": "Header name.",
+            "example": "Authorization",
+            "readOnly": true,
+            "type": "string"
+          },
+          "value": {
+            "description": "Redacted header value.",
+            "example": "********oken",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -797,7 +822,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "3ce02d8509fc436892bbe3d44ea151c155bb553d"
+    "x-xgen-sha": "a3cb07c11e010798d14337ee496db14a7de30bfa"
   },
   "openapi": "3.0.1",
   "paths": {

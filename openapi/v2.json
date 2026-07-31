@@ -30421,7 +30421,8 @@
             "description": "Header value.",
             "example": "Bearer token123",
             "format": "password",
-            "type": "string"
+            "type": "string",
+            "writeOnly": true
           }
         },
         "required": [
@@ -36444,7 +36445,8 @@
             },
             "maxItems": 10,
             "minItems": 1,
-            "type": "array"
+            "type": "array",
+            "writeOnly": true
           },
           "integrationType": {
             "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
@@ -36504,13 +36506,14 @@
             "maxLength": 2048,
             "type": "string"
           },
-          "headers": {
-            "description": "HTTP headers for authentication and configuration. Header values are redacted in responses.",
+          "headersRedacted": {
+            "description": "HTTP headers for authentication and configuration. Values are redacted and never returned in plaintext.",
             "items": {
-              "$ref": "#/components/schemas/Header"
+              "$ref": "#/components/schemas/RedactedHeader"
             },
             "maxItems": 10,
             "minItems": 1,
+            "readOnly": true,
             "type": "array"
           },
           "integrationType": {
@@ -36555,7 +36558,7 @@
         "required": [
           "aggregationTemporality",
           "endpoint",
-          "headers",
+          "headersRedacted",
           "integrationType",
           "metricIntegrationId",
           "metricSelection",
@@ -36582,13 +36585,14 @@
             "type": "string"
           },
           "headers": {
-            "description": "HTTP headers for authentication and configuration. Total size limit 2KB.",
+            "description": "HTTP headers for authentication and configuration. Total size limit 2KB. Omit this field to leave existing headers unchanged.",
             "items": {
               "$ref": "#/components/schemas/Header"
             },
             "maxItems": 10,
             "minItems": 1,
-            "type": "array"
+            "type": "array",
+            "writeOnly": true
           },
           "integrationType": {
             "description": "Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.",
@@ -36623,7 +36627,6 @@
         "required": [
           "aggregationTemporality",
           "endpoint",
-          "headers",
           "integrationType",
           "metricSelection",
           "providerType"
@@ -43973,6 +43976,41 @@
         ],
         "type": "object"
       },
+      "PaginatedInvoiceReportView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/InvoiceReportResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedLegacyClusterView": {
         "properties": {
           "links": {
@@ -46686,6 +46724,28 @@
         },
         "readOnly": true,
         "title": "Raw Metric Value",
+        "type": "object"
+      },
+      "RedactedHeader": {
+        "description": "HTTP header with a redacted value.",
+        "properties": {
+          "name": {
+            "description": "Header name.",
+            "example": "Authorization",
+            "readOnly": true,
+            "type": "string"
+          },
+          "value": {
+            "description": "Redacted header value.",
+            "example": "********oken",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
         "type": "object"
       },
       "RegionSpec": {
@@ -57960,7 +58020,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "3ce02d8509fc436892bbe3d44ea151c155bb553d"
+    "x-xgen-sha": "a3cb07c11e010798d14337ee496db14a7de30bfa"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -100674,6 +100734,86 @@
       }
     },
     "/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports": {
+      "get": {
+        "description": "Returns all unexpired reports for the specified invoice, newest first. Listed reports never include a download URL; retrieve a single report to obtain one.",
+        "operationId": "listOrgInvoiceReports",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "description": "Unique string that identifies the invoice to list reports for.",
+            "in": "path",
+            "name": "invoiceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedInvoiceReportView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Reports listed successfully",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Invoice Reports for One Invoice",
+        "tags": [
+          "Invoices"
+        ],
+        "x-rolesRequirements": [
+          "Organization Billing Viewer"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listOrgInvoiceReports"
+      },
       "post": {
         "description": "Requests asynchronous generation of a report for the specified invoice. Returns a report identifier that can be used to poll the report status.",
         "operationId": "createOrgInvoiceReport",
