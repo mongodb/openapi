@@ -24049,6 +24049,80 @@ components:
                     type: number
             title: Line Item
             type: object
+        InvoiceReportRequest:
+            properties:
+                formatSpecVersion:
+                    description: Version of the report format specification.
+                    type: string
+                reportFormat:
+                    description: Format of the report.
+                    enum:
+                        - CSV
+                    type: string
+                reportType:
+                    description: Type of report to generate.
+                    enum:
+                        - FOCUS
+                    type: string
+            required:
+                - reportFormat
+                - reportType
+            type: object
+        InvoiceReportResponse:
+            description: Status and details of a previously requested invoice report.
+            properties:
+                downloadUrl:
+                    description: URL to download the report. Present only when the report has succeeded.
+                    readOnly: true
+                    type: string
+                expiresAt:
+                    description: Time at which the download URL expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC. Present only when the report has succeeded.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                failureReason:
+                    description: Reason the report failed. Present only when the report has failed.
+                    readOnly: true
+                    type: string
+                formatSpecVersion:
+                    description: Version of the report format specification.
+                    type: string
+                invoiceId:
+                    description: Unique 24-hexadecimal digit string that identifies the invoice.
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                reportFormat:
+                    description: Format of the generated report.
+                    enum:
+                        - CSV
+                    type: string
+                reportId:
+                    description: Unique 24-hexadecimal digit string that identifies the report.
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                reportType:
+                    description: Type of the generated report.
+                    enum:
+                        - FOCUS
+                    type: string
+                state:
+                    description: Current state of the report generation.
+                    enum:
+                        - PENDING
+                        - RUNNING
+                        - SUCCEEDED
+                        - FAILED
+                    readOnly: true
+                    type: string
+            required:
+                - invoiceId
+                - reportFormat
+                - reportId
+                - reportType
+                - state
+            type: object
         JournalingCommitsInWriteLockRawMetricThresholdView:
             properties:
                 metricName:
@@ -42150,7 +42224,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: f91c59cff53978aa5d69c96ed9dc1c73af88f1e9
+    x-xgen-sha: 8c7b58bf74be8c3d612b30ac1cbbd543b3a68143
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -86102,6 +86176,199 @@ paths:
                 - Organization Billing Viewer
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/searchOrgInvoiceLineItems
             x-xgen-operation-id-override: searchInvoiceLineItems
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports:
+        post:
+            description: Requests asynchronous generation of a report for the specified invoice. Returns a report identifier that can be used to poll the report status.
+            operationId: createOrgInvoiceReport
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique string that identifies the invoice for which to generate the report.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/InvoiceReportRequest'
+                        x-xgen-version: "2025-03-12"
+                description: Create Invoice Report request body.
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/InvoiceReportResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: Report generation requested successfully
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Invoice Report
+            tags:
+                - Invoices
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api invoices createOrgInvoiceReport --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.CreateOrgInvoiceReportApiParams{}
+                    	sdkResp, httpResp, err := client.InvoicesApi.
+                    		CreateOrgInvoiceReportWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Organization Billing Viewer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/createOrgInvoiceReport
+    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports/{reportId}:
+        get:
+            description: Returns the status and details of a previously requested invoice report.
+            operationId: getOrgInvoiceReport
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique string that identifies the invoice the report was generated for.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    type: string
+                - description: Unique string that identifies the report to retrieve.
+                  in: path
+                  name: reportId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/InvoiceReportResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: Report retrieved successfully
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Invoice Report
+            tags:
+                - Invoices
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api invoices getOrgInvoiceReport --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.GetOrgInvoiceReportApiParams{}
+                    	sdkResp, httpResp, err := client.InvoicesApi.
+                    		GetOrgInvoiceReportWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports/{reportId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports/{reportId}?pretty=true"
+            x-rolesRequirements:
+                - Organization Billing Viewer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgInvoiceReport
+            x-xgen-operation-id-override: getOrgInvoiceReport
     /api/atlas/v2/orgs/{orgId}/invoices/pending:
         get:
             description: Returns all invoices accruing charges for the current billing cycle for the specified organization. If you have a cross-organization setup, you can view linked invoices if you have the Organization Billing Admin or Organization Owner Role.
