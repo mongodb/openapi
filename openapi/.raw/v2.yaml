@@ -36699,6 +36699,32 @@ components:
             required:
                 - results
             type: object
+        PaginatedInvoiceReportView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/InvoiceReportResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedLegacyClusterView:
             properties:
                 links:
@@ -48029,7 +48055,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 6424082ab2b5db881cd8cde7a4a3124e23897cb0
+    x-xgen-sha: 9ce6b22cd2e2a703b6240a6c39507356a5dd6b06
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -77507,6 +77533,54 @@ paths:
             x-xgen-operation-id-override: searchInvoiceLineItems
             x-xgen-owner-team: Billing
     /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports:
+        get:
+            description: Returns all unexpired reports for the specified invoice, newest first. Listed reports never include a download URL; retrieve a single report to obtain one.
+            operationId: listOrgInvoiceReports
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: Unique string that identifies the invoice to list reports for.
+                  in: path
+                  name: invoiceId
+                  required: true
+                  schema:
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedInvoiceReportView'
+                            x-xgen-version: "2025-03-12"
+                    description: Reports listed successfully
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Invoice Reports for One Invoice
+            tags:
+                - Invoices
+            x-rolesRequirements:
+                - Organization Billing Viewer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listOrgInvoiceReports
+            x-xgen-owner-team: Billing Platform
         post:
             description: Requests asynchronous generation of a report for the specified invoice. Returns a report identifier that can be used to poll the report status.
             operationId: createOrgInvoiceReport
@@ -77558,8 +77632,6 @@ paths:
                 - Organization Billing Viewer
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/createOrgInvoiceReport
             x-xgen-owner-team: Billing Platform
-        x-xgen-IPA-exception:
-            xgen-IPA-105-resource-has-list: Invoice reports are asynchronous jobs addressed by reportId; the List method will be added in a follow-up change.
     /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}/reports/{reportId}:
         get:
             description: Returns the status and details of a previously requested invoice report.
