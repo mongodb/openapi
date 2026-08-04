@@ -29,6 +29,89 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
       expect(generateOperationID('grant', '/api/atlas/v2/groups/{groupId}/access')).toEqual('grantGroupAccess');
     });
 
+    it('should preserve the resource scope of operations paths', () => {
+      // the collection-scoped paths keep the parent plural, the instance-scoped paths keep it singular,
+      // so that the two Operations resources do not share an operation ID
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/operations')).toEqual(
+        'listGroupClustersOperations'
+      );
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations')).toEqual(
+        'listGroupClusterOperations'
+      );
+      expect(generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/operations/{operationId}')).toEqual(
+        'getGroupClustersOperation'
+      );
+      expect(
+        generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations/{operationId}')
+      ).toEqual('getGroupClusterOperation');
+    });
+
+    it('should generate distinct operation IDs for collection- and instance-scoped operations resources', () => {
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/operations')).not.toEqual(
+        generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations')
+      );
+      expect(
+        generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/operations/{operationId}')
+      ).not.toEqual(
+        generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations/{operationId}')
+      );
+    });
+
+    it('should preserve the resource scope for mutating methods on operations paths', () => {
+      // IPA-132 Operations resources are read-only, so these methods should not exist. Pinned to
+      // ensure the scope distinction stays consistent across every method, not just Get and List.
+      expect(generateOperationID('create', '/api/atlas/v2/groups/{groupId}/clusters/operations')).toEqual(
+        'createGroupClustersOperation'
+      );
+      expect(generateOperationID('create', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations')).toEqual(
+        'createGroupClusterOperation'
+      );
+      expect(generateOperationID('update', '/api/atlas/v2/groups/{groupId}/clusters/operations/{operationId}')).toEqual(
+        'updateGroupClustersOperation'
+      );
+      expect(
+        generateOperationID('update', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations/{operationId}')
+      ).toEqual('updateGroupClusterOperation');
+      expect(generateOperationID('delete', '/api/atlas/v2/groups/{groupId}/clusters/operations/{operationId}')).toEqual(
+        'deleteGroupClustersOperation'
+      );
+      expect(
+        generateOperationID('delete', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations/{operationId}')
+      ).toEqual('deleteGroupClusterOperation');
+    });
+
+    it('should not preserve the parent plural for other operations paths', () => {
+      // the parent is a single resource, so the existing singularization applies
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/operations')).toEqual('listGroupOperations');
+      // 'operations' is not the trailing resource section
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/operations/logs')).toEqual(
+        'listGroupClusterOperationLogs'
+      );
+      // no parent resource to scope to
+      expect(generateOperationID('list', '/api/atlas/v2/operations')).toEqual('listOperations');
+      // multi-word custom methods append their own trailing noun, so the parent is singularized as before
+      expect(generateOperationID('listPending', '/api/atlas/v2/groups/{groupId}/clusters/operations')).toEqual(
+        'listGroupClusterOperationPending'
+      );
+    });
+
+    it('should not affect operation IDs for non-operations paths', () => {
+      // nested resource collection
+      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters')).toEqual('listGroupClusters');
+      // single resource
+      expect(generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}')).toEqual(
+        'getGroupCluster'
+      );
+      // multi-word custom method
+      expect(generateOperationID('addNode', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}')).toEqual(
+        'addGroupClusterNode'
+      );
+      // legacy custom method
+      expect(generateOperationID('', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/restartPrimaries')).toEqual(
+        'restartGroupClusterPrimaries'
+      );
+    });
+
     it('should split camelCase method names', () => {
       expect(generateOperationID('addNode', '/groups/{groupId}/clusters/{clusterName}')).toEqual('addGroupClusterNode');
       expect(generateOperationID('get', '/api/atlas/v2/groups/byName/{groupName}')).toEqual('getGroupByName');
