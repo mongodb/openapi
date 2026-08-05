@@ -2,10 +2,6 @@ name: 'Required Spec Validations'
 on:
   workflow_call:
     inputs:
-      spectral_version:
-        description: 'Version of Spectral to use'     
-        type: string
-        required: true
       env:
         description: 'Environment to generate the OpenAPI Spec for.'
         required: true
@@ -28,7 +24,7 @@ jobs:
             node-version: '22.x'
             cache: 'npm'
         - name: Install npm dependencies
-          run: npm install
+          run: npm ci
         - name: Download openapi-foas
           uses: actions/download-artifact@v8
           with:
@@ -37,13 +33,10 @@ jobs:
             run-id: ${{ github.run_id }}
         - name: Run IPA validation
           id: ipa-spectral-validation
-          run: |
-            npx spectral lint openapi-foas.json --ruleset=./tools/spectral/ipa/ipa-spectral.yaml
-        - name: Run 
+          run: npm run spectral-lint -- openapi-foas.json --ruleset=./tools/spectral/ipa/ipa-spectral.yaml
+        - name: Run Spectral validation
           id: spectral-validation
-          env:
-            SPECTRAL_VERSION: ${{ inputs.spectral_version }}
-          run: npx -- @stoplight/spectral-cli@"${SPECTRAL_VERSION}" lint openapi-foas.yaml --ruleset=tools/spectral/.spectral.yaml
+          run: npm run spectral-lint -- openapi-foas.yaml --ruleset=tools/spectral/.spectral.yaml
         - name: Install Go
           uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
           with:
