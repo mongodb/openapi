@@ -1652,8 +1652,7 @@
       },
       "AdaptiveSettingsOverrides": {
         "additionalProperties": true,
-        "description": "Map of customer-specified overrides for Adaptive Settings, applied on a best-effort basis. Each entry you set here takes precedence over the corresponding Atlas-managed default when supported. For example, if a setting is enabled by default, you can add an override here to disable it for your cluster.",
-        "readOnly": true,
+        "description": "Map of customer-specified overrides for Adaptive Settings, applied on a best-effort basis. Each supported entry that you specify in this object takes precedence over the corresponding Atlas-managed default. For example, if a setting is enabled by default, you can add an override to disable it for your cluster.",
         "type": "object"
       },
       "AdaptiveSettingsResponse": {
@@ -1668,7 +1667,7 @@
           },
           "effectiveAdaptiveSettings": {
             "additionalProperties": true,
-            "description": "The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that isn't supported by your cluster's current MongoDB version, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.",
+            "description": "The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that your cluster's current MongoDB version doesn't support, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.",
             "readOnly": true,
             "type": "object"
           }
@@ -1676,6 +1675,19 @@
         "required": [
           "effectiveAdaptiveSettings"
         ],
+        "type": "object"
+      },
+      "AdaptiveSettingsUpdateRequest": {
+        "description": "Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.",
+        "externalDocs": {
+          "description": "Adaptive Settings",
+          "url": "https://dochub.mongodb.org/core/adaptive-settings"
+        },
+        "properties": {
+          "adaptiveSettingsOverrides": {
+            "$ref": "#/components/schemas/AdaptiveSettingsOverrides"
+          }
+        },
         "type": "object"
       },
       "AddOrRemoveGroupRole": {
@@ -25044,7 +25056,7 @@
       },
       "EffectiveAdaptiveSettings": {
         "additionalProperties": true,
-        "description": "The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that isn't supported by your cluster's current MongoDB version, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.",
+        "description": "The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that your cluster's current MongoDB version doesn't support, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.",
         "readOnly": true,
         "type": "object"
       },
@@ -26941,6 +26953,8 @@
               "ORG_DELEGATION_SETTINGS_UPDATED",
               "ORGANIZATION_VOYAGE_SETTINGS_CREATED",
               "ORGANIZATION_VOYAGE_SETTINGS_DELETED",
+              "ORG_DATA_SHARING_AI_MODELS_ENABLED",
+              "ORG_DATA_SHARING_AI_MODELS_DISABLED",
               "ORG_WAVE_ASSIGNMENT_MODE_MANUAL",
               "ORG_WAVE_ASSIGNMENT_MODE_ENV_TAG_MAPPING",
               "PROJECT_CREATED_VIA_ANIS"
@@ -43349,6 +43363,8 @@
           "ORG_DELEGATION_SETTINGS_UPDATED",
           "ORGANIZATION_VOYAGE_SETTINGS_CREATED",
           "ORGANIZATION_VOYAGE_SETTINGS_DELETED",
+          "ORG_DATA_SHARING_AI_MODELS_ENABLED",
+          "ORG_DATA_SHARING_AI_MODELS_DISABLED",
           "ORG_WAVE_ASSIGNMENT_MODE_MANUAL",
           "ORG_WAVE_ASSIGNMENT_MODE_ENV_TAG_MAPPING",
           "PROJECT_CREATED_VIA_ANIS"
@@ -61274,7 +61290,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "67d1b27fcdaead05667671c0e58b3f684090c574"
+    "x-xgen-sha": "68027aac35055b37c3ca7647939d94be3d455263"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -69953,32 +69969,13 @@
         "operationId": "getGroupClusterAdaptiveSettings",
         "parameters": [
           {
-            "description": "Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query.",
-            "in": "query",
-            "name": "envelope",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
+            "$ref": "#/components/parameters/envelope"
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies your project. Groups and projects are synonymous terms. Your group id is the same as your project id.",
-            "in": "path",
-            "name": "groupId",
-            "required": true,
-            "schema": {
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/groupId"
           },
           {
-            "description": "Flag that indicates whether the response body should be in the prettyprint format.",
-            "in": "query",
-            "name": "pretty",
-            "schema": {
-              "default": false,
-              "type": "boolean"
-            }
+            "$ref": "#/components/parameters/pretty"
           },
           {
             "description": "Human-readable label that identifies the cluster.",
@@ -70035,6 +70032,90 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterAdaptiveSettings",
         "x-xgen-operation-id-override": "getClusterAdaptiveSettings",
+        "x-xgen-owner-team": "Atlas Dedicated"
+      },
+      "patch": {
+        "description": "Updates the client-provided Adaptive Settings overrides for the specified cluster and returns the resulting Adaptive Settings, including the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
+        "operationId": "updateGroupClusterAdaptiveSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdaptiveSettingsUpdateRequest"
+              }
+            }
+          },
+          "description": "Adaptive Settings overrides to apply to the specified cluster. Omitting `adaptiveSettingsOverrides` is a no-op.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdaptiveSettingsResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK.",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          }
+        },
+        "summary": "Update Adaptive Settings for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterAdaptiveSettings",
+        "x-xgen-operation-id-override": "updateClusterAdaptiveSettings",
         "x-xgen-owner-team": "Atlas Dedicated"
       }
     },
@@ -112269,6 +112350,9 @@
           "skip": true
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/getEphemeralCluster",
+        "x-xgen-hidden-env": {
+          "envs": "prod"
+        },
         "x-xgen-owner-team": "Atlas Growth"
       }
     },
@@ -112329,6 +112413,9 @@
           "skip": true
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/createEphemeralCluster",
+        "x-xgen-hidden-env": {
+          "envs": "prod"
+        },
         "x-xgen-owner-team": "Atlas Growth"
       }
     },

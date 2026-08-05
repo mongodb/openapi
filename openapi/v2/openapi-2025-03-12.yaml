@@ -1226,8 +1226,7 @@ components:
             type: object
         AdaptiveSettingsOverrides:
             additionalProperties: true
-            description: Map of customer-specified overrides for Adaptive Settings, applied on a best-effort basis. Each entry you set here takes precedence over the corresponding Atlas-managed default when supported. For example, if a setting is enabled by default, you can add an override here to disable it for your cluster.
-            readOnly: true
+            description: Map of customer-specified overrides for Adaptive Settings, applied on a best-effort basis. Each supported entry that you specify in this object takes precedence over the corresponding Atlas-managed default. For example, if a setting is enabled by default, you can add an override to disable it for your cluster.
             type: object
         AdaptiveSettingsResponse:
             description: Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.
@@ -1239,11 +1238,20 @@ components:
                     $ref: '#/components/schemas/AdaptiveSettingsOverrides'
                 effectiveAdaptiveSettings:
                     additionalProperties: true
-                    description: The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that isn't supported by your cluster's current MongoDB version, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.
+                    description: The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that your cluster's current MongoDB version doesn't support, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.
                     readOnly: true
                     type: object
             required:
                 - effectiveAdaptiveSettings
+            type: object
+        AdaptiveSettingsUpdateRequest:
+            description: Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.
+            externalDocs:
+                description: Adaptive Settings
+                url: https://dochub.mongodb.org/core/adaptive-settings
+            properties:
+                adaptiveSettingsOverrides:
+                    $ref: '#/components/schemas/AdaptiveSettingsOverrides'
             type: object
         AddOrRemoveGroupRole:
             properties:
@@ -18293,6 +18301,8 @@ components:
                     - ORG_DELEGATION_SETTINGS_UPDATED
                     - ORGANIZATION_VOYAGE_SETTINGS_CREATED
                     - ORGANIZATION_VOYAGE_SETTINGS_DELETED
+                    - ORG_DATA_SHARING_AI_MODELS_ENABLED
+                    - ORG_DATA_SHARING_AI_MODELS_DISABLED
                     - ORG_WAVE_ASSIGNMENT_MODE_MANUAL
                     - ORG_WAVE_ASSIGNMENT_MODE_ENV_TAG_MAPPING
                     - PROJECT_CREATED_VIA_ANIS
@@ -30074,6 +30084,8 @@ components:
                 - ORG_DELEGATION_SETTINGS_UPDATED
                 - ORGANIZATION_VOYAGE_SETTINGS_CREATED
                 - ORGANIZATION_VOYAGE_SETTINGS_DELETED
+                - ORG_DATA_SHARING_AI_MODELS_ENABLED
+                - ORG_DATA_SHARING_AI_MODELS_DISABLED
                 - ORG_WAVE_ASSIGNMENT_MODE_MANUAL
                 - ORG_WAVE_ASSIGNMENT_MODE_ENV_TAG_MAPPING
                 - PROJECT_CREATED_VIA_ANIS
@@ -42569,7 +42581,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 67d1b27fcdaead05667671c0e58b3f684090c574
+    x-xgen-sha: 68027aac35055b37c3ca7647939d94be3d455263
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -51266,25 +51278,9 @@ paths:
             description: Returns the Adaptive Settings for the specified cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
             operationId: getGroupClusterAdaptiveSettings
             parameters:
-                - description: Flag that indicates whether Application wraps the response in an `envelope` JSON object. Some API clients cannot access the HTTP response headers or status code. To remediate this, set envelope=true in the query.
-                  in: query
-                  name: envelope
-                  schema:
-                    default: false
-                    type: boolean
-                - description: Unique 24-hexadecimal digit string that identifies your project. Groups and projects are synonymous terms. Your group id is the same as your project id.
-                  in: path
-                  name: groupId
-                  required: true
-                  schema:
-                    pattern: ^([a-f0-9]{24})$
-                    type: string
-                - description: Flag that indicates whether the response body should be in the prettyprint format.
-                  in: query
-                  name: pretty
-                  schema:
-                    default: false
-                    type: boolean
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
                 - description: Human-readable label that identifies the cluster.
                   in: path
                   name: clusterName
@@ -51365,6 +51361,106 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterAdaptiveSettings
             x-xgen-operation-id-override: getClusterAdaptiveSettings
+        patch:
+            description: Updates the client-provided Adaptive Settings overrides for the specified cluster and returns the resulting Adaptive Settings, including the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            operationId: updateGroupClusterAdaptiveSettings
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/AdaptiveSettingsUpdateRequest'
+                description: Adaptive Settings overrides to apply to the specified cluster. Omitting `adaptiveSettingsOverrides` is a no-op.
+                required: true
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/AdaptiveSettingsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+            summary: Update Adaptive Settings for One Cluster
+            tags:
+                - Clusters
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters updateClusterAdaptiveSettings --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.UpdateGroupClusterAdaptiveSettingsApiParams{}
+                    	sdkResp, httpResp, err := client.ClustersApi.
+                    		UpdateGroupClusterAdaptiveSettingsWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Owner
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterAdaptiveSettings
+            x-xgen-operation-id-override: updateClusterAdaptiveSettings
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoScalingConfiguration:
         get:
             deprecated: true
