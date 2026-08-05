@@ -76,6 +76,48 @@ overrides:
          x-xgen-IPA-xxx-rule: 'off'
 ```
 
+#### Consumer-Provided Word Lists
+
+The casing rules `xgen-IPA-117-operation-summary-format` and `xgen-IPA-126-tag-names-should-use-title-case`
+use two configurable lists:
+
+- `ignoreList`: words allowed to keep their specific casing (e.g. acronyms such as `API`, `AWS`, `DNS`)
+- `grammaticalWords`: common words allowed to stay lowercase in titles (e.g. `and`, `or`, `the`)
+
+Both lists are passed to the rule functions through Spectral's native `functionOptions`. Consumers who
+extend the ruleset can provide their own lists by redeclaring the rule **in their own repository's
+`.spectral.yaml`**, without editing this package or waiting for a new release. This is done in the
+repository that _consumes_ the ruleset, not in this `openapi` repository — note the `extends` on the
+published package below:
+
+```yaml
+extends:
+  - '@mongodb/ipa-validation-ruleset'
+
+rules:
+  xgen-IPA-126-tag-names-should-use-title-case:
+    given: $.tags[?(@.name && @.name.length > 0)]
+    then:
+      function: IPA126TagNamesShouldUseTitleCase
+      functionOptions:
+        ignoreList:
+          - API
+          - AWS
+          # ...the words this repository needs
+        grammaticalWords:
+          - and
+          - or
+```
+
+Because Spectral requires the whole rule to be redeclared when overriding `functionOptions`, consumers own
+the complete lists for their repository. The lists defined in `IPA-117.yaml` and `IPA-126.yaml` are the
+package defaults consumers inherit when they don't override them.
+
+Since these word lists are driven by the OpenAPI specs of the consuming repositories, keeping copies of them
+in sync just to satisfy this repository's own validation would be a maintenance burden. For that reason both
+rules are turned `off` in `ipa-spectral.yaml`, so this repository's second layer of validation does not run
+them. The rule definitions and their tests are kept for development and remain available to consumers.
+
 ### CI/CD Integration
 
 #### GitHub Actions Example
