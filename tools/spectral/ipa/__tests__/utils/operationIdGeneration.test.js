@@ -46,17 +46,6 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
       ).toEqual('getGroupClusterOperation');
     });
 
-    it('should generate distinct operation IDs for collection- and instance-scoped operations resources', () => {
-      expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/operations')).not.toEqual(
-        generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations')
-      );
-      expect(
-        generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/operations/{operationId}')
-      ).not.toEqual(
-        generateOperationID('get', '/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations/{operationId}')
-      );
-    });
-
     it('should preserve the resource scope for mutating methods on operations paths', () => {
       // IPA-132 Operations resources are read-only, so these methods should not exist. Pinned to
       // ensure the scope distinction stays consistent across every method, not just Get and List.
@@ -81,8 +70,10 @@ describe('tools/spectral/ipa/utils/operationIdGeneration.js', () => {
     });
 
     it('should not preserve the parent plural for other operations paths', () => {
-      // the parent is a single resource, so the existing singularization applies
+      // {groupId} makes the parent instance-scoped (a single group), so the existing singularization applies
       expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/operations')).toEqual('listGroupOperations');
+      // the parent resource collection itself (no ID param), so it is treated as collection-scoped
+      expect(generateOperationID('list', '/api/atlas/v2/groups/operations')).toEqual('listGroupsOperations');
       // 'operations' is not the trailing resource section
       expect(generateOperationID('list', '/api/atlas/v2/groups/{groupId}/clusters/operations/logs')).toEqual(
         'listGroupClusterOperationLogs'
