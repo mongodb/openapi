@@ -152,6 +152,7 @@ Rule checks for the following conditions:
 The Operation ID must start with the verb “get” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form.
 If the resource is a singleton resource, the last noun may be the plural form of the collection identifier.
+For a collection-scoped Operations resource, such as '/resources/operations/{operationId}', the parent noun (e.g. 'resources') stays in its plural form instead of being singularized.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -242,6 +243,7 @@ The response body of the List method should consist of the same resource object 
  ![error](https://img.shields.io/badge/error-red) 
 The Operation ID must start with the verb “list” and should be followed by a noun or compound noun.
 The noun(s) in the Operation ID should be the collection identifiers from the resource identifier in singular form, where the last noun is in plural form.
+For a collection-scoped Operations resource, such as '/resources/operations', the parent noun (e.g. 'resources') stays in its plural form instead of being singularized.
 
 ##### Implementation details
 Rule checks for the following conditions:

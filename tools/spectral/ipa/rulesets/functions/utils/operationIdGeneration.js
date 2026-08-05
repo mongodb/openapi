@@ -3,6 +3,7 @@ import { isPathParam, removePrefix, isSingleResourceIdentifier } from './resourc
 
 const CAMEL_CASE = /[A-Z]?[a-z]+/g;
 export const CAMEL_CASE_WITH_ABBREVIATIONS = /[A-Z]+(?![a-z0-9])|[A-Z]*[a-z0-9]+/g;
+const OPERATIONS_SECTION = 'operations';
 
 /**
  * Returns IPA Compliant Operation ID.
@@ -39,9 +40,16 @@ export function generateOperationID(method, path, ignoreSingularizationList = []
     nouns.push(method.slice(verb.length));
   }
 
+  // a collection-scoped Operations resource keeps its parent's plural form, so that its operation ID
+  // does not collide with the instance-scoped Operations resource of the same parent
+  const keepParentPlural = isCollectionScopedOperationsPath(resourceIdentifier) && !camelCaseCustomMethod;
+
   let opID = verb;
   for (let i = 0; i < nouns.length - 1; i++) {
-    opID += upperCamelCase(singularize(nouns[i], ignoreSingularizationList));
+    const isParentOfOperations = i === nouns.length - 2;
+    opID += upperCamelCase(
+      keepParentPlural && isParentOfOperations ? nouns[i] : singularize(nouns[i], ignoreSingularizationList)
+    );
   }
 
   // singularize final noun, dependent on resource identifier - leave custom nouns alone
@@ -88,6 +96,33 @@ export function shortenOperationId(operationId) {
  */
 function deriveActionVerb(method) {
   return method.match(CAMEL_CASE)[0];
+}
+
+/**
+ * Checks if a resource identifier is a collection-scoped Operations resource, i.e. the 'operations'
+ * section is attached to a parent resource collection rather than to a single resource. Applies to both
+ * the Operations resource collection and a single Operations resource.
+ * '/groups/{groupId}/clusters/operations' returns true
+ * '/groups/{groupId}/clusters/operations/{operationId}' returns true
+ * '/groups/{groupId}/clusters/{clusterName}/operations' returns false
+ * '/groups/{groupId}/clusters/{clusterName}/operations/{operationId}' returns false
+ * '/operations' returns false
+ *
+ * @param {string} resourceIdentifier the resource identifier to evaluate, without prefix
+ * @returns {boolean}
+ */
+function isCollectionScopedOperationsPath(resourceIdentifier) {
+  const sections = resourceIdentifier.split('/').filter((section) => section.length > 0);
+
+  // a single Operations resource ends with the operation identifier, the resource collection does not
+  if (sections.length > 0 && isPathParam(sections[sections.length - 1])) {
+    sections.pop();
+  }
+
+  if (sections.length < 2 || sections[sections.length - 1] !== OPERATIONS_SECTION) {
+    return false;
+  }
+  return !isPathParam(sections[sections.length - 2]);
 }
 
 function capitalize(val) {
