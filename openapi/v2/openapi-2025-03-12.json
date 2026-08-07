@@ -13250,6 +13250,15 @@
       "ControlPlaneIPAddresses": {
         "description": "List of IP addresses in the Atlas control plane.",
         "properties": {
+          "gateways": {
+            "description": "List of gateways, each representing a group of service-specific IP addresses that customers can add to their allow lists independently. Includes the Atlas Gateway (data plane) group when present.",
+            "items": {
+              "$ref": "#/components/schemas/Gateway"
+            },
+            "maxItems": 25,
+            "readOnly": true,
+            "type": "array"
+          },
           "inbound": {
             "$ref": "#/components/schemas/InboundControlPlaneCloudProviderIPAddresses"
           },
@@ -26410,6 +26419,35 @@
         ],
         "description": "Details that explain how MongoDB Cloud replicates data in one region on the specified MongoDB database.",
         "title": "GCP Regional Replication Specifications",
+        "type": "object"
+      },
+      "Gateway": {
+        "description": "Represents a service-specific gateway, such as the Atlas Gateway, with its IP addresses.",
+        "properties": {
+          "ips": {
+            "$ref": "#/components/schemas/GatewayIpAddresses"
+          },
+          "name": {
+            "description": "Name of the service that this gateway represents.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "title": "Gateway",
+        "type": "object"
+      },
+      "GatewayIpAddresses": {
+        "description": "IP addresses for a specific gateway, organized by direction and cloud provider.",
+        "properties": {
+          "inbound": {
+            "$ref": "#/components/schemas/InboundControlPlaneCloudProviderIPAddresses"
+          },
+          "outbound": {
+            "$ref": "#/components/schemas/OutboundControlPlaneCloudProviderIPAddresses"
+          }
+        },
+        "readOnly": true,
+        "title": "Gateway IP Addresses",
         "type": "object"
       },
       "GcsLogIntegrationRequest": {
@@ -49410,6 +49448,10 @@
       "StreamsStartProcessorFailover": {
         "description": "Failover options for starting a stream processor.",
         "properties": {
+          "clearCheckpoint": {
+            "description": "If true, clears the checkpoint so the failover processor does not resume from it. Applies only to FORCED failover; clearing may cause duplicate or missing records in the output.",
+            "type": "boolean"
+          },
           "dryRun": {
             "description": "If true, simulates the operation without making any changes.",
             "type": "boolean"
@@ -53704,7 +53746,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "ae3ca646f3fa2e6307cf6de9f985e8dd11fc501a"
+    "x-xgen-sha": "094a329dbbe24f02a0a9ed0b76b5666077eb0b1e"
   },
   "openapi": "3.0.1",
   "paths": {
