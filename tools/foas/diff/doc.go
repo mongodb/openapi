@@ -18,4 +18,15 @@
 // The package deliberately does not expose oasdiff types. Callers receive a
 // stable FOAS report that can be consumed by the changelog generator, OASIS,
 // CLIs, or other Go applications.
+//
+// To add a custom compatibility rule:
+//   - implement a checker in a dedicated check_<rule>.go file;
+//   - describe it with newCustomRule, including its FOAS message formatter;
+//   - add it to registeredCustomRules;
+//   - add focused checker and report tests;
+//   - increment RulesetVersion when the observable classification changes.
+//
+// Rules sharing one checker handler are executed once. The registry rejects
+// duplicate IDs, collisions with built-in oasdiff rules, missing metadata,
+// unsupported severities, and nil handlers or message formatters.
 package diff

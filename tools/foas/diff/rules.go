@@ -14,7 +14,11 @@
 
 package diff
 
-import "github.com/oasdiff/oasdiff/checker"
+import (
+	"fmt"
+
+	"github.com/oasdiff/oasdiff/checker"
+)
 
 const (
 	deprecationDaysStable = 365
@@ -37,10 +41,23 @@ var severityOverrides = map[string]checker.Level{
 	"response-optional-write-only-property-removed": checker.ERR,
 }
 
-func newCheckerConfig() *checker.Config {
-	return checker.NewConfig(
-		checker.GetAllChecks(),
+func newCheckerConfig(customRules []customRule) (*checker.Config, error) {
+	if err := validateCustomRules(customRules); err != nil {
+		return nil, err
+	}
+
+	checks := append(checker.GetAllChecks(), customChecks(customRules)...)
+	config := checker.NewConfig(
+		checks,
 		checker.WithSeverityLevels(severityOverrides),
 		checker.WithDeprecation(deprecationDaysBeta, deprecationDaysStable),
 	)
+	for _, rule := range customRules {
+		level, err := checkerLevel(rule.severity)
+		if err != nil {
+			return nil, fmt.Errorf("configure custom diff rule %q: %w", rule.id, err)
+		}
+		config.LogLevels[rule.id] = level
+	}
+	return config, nil
 }

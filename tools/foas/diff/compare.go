@@ -32,8 +32,12 @@ import (
 // Compare compares a base OpenAPI document with a revision using FOAS
 // compatibility rules.
 func Compare(ctx context.Context, base, revision Document) (Report, error) {
-	if err := ctx.Err(); err != nil {
-		return Report{}, err
+	return compareWithCustomRules(ctx, base, revision, registeredCustomRules())
+}
+
+func compareWithCustomRules(ctx context.Context, base, revision Document, customRules []customRule) (Report, error) {
+	if contextErr := ctx.Err(); contextErr != nil {
+		return Report{}, contextErr
 	}
 	if base.Spec == nil {
 		return Report{}, errors.New("base OpenAPI document is required")
@@ -67,20 +71,25 @@ func Compare(ctx context.Context, base, revision Document) (Report, error) {
 		return result, nil
 	}
 
-	if err := ctx.Err(); err != nil {
-		return Report{}, err
+	if contextErr := ctx.Err(); contextErr != nil {
+		return Report{}, contextErr
 	}
 
+	checkerConfig, err := newCheckerConfig(customRules)
+	if err != nil {
+		return Report{}, fmt.Errorf("configure compatibility checks: %w", err)
+	}
 	checkerChanges := checker.CheckBackwardCompatibilityUntilLevel(
-		newCheckerConfig(),
+		checkerConfig,
 		report,
 		sourceMap,
 		checker.INFO,
 	)
 	localizer := checker.NewDefaultLocalizer()
+	customMessages := customRuleMessages(customRules)
 	result.Changes = make([]Change, 0, len(checkerChanges))
 	for _, checkerChange := range checkerChanges {
-		result.Changes = append(result.Changes, normalizeCheckerChange(checkerChange, localizer))
+		result.Changes = append(result.Changes, normalizeCheckerChange(checkerChange, localizer, customMessages))
 	}
 
 	result.Changes = appendMissingAdditions(result.Changes, report)
@@ -103,12 +112,20 @@ func prepareSpecs(base, revision *openapi3.T) (flattenedBase, flattenedRevision 
 	return flattenedBase, flattenedRevision, nil
 }
 
-func normalizeCheckerChange(change checker.Change, localizer checker.Localizer) Change {
+func normalizeCheckerChange(
+	change checker.Change,
+	localizer checker.Localizer,
+	customMessages map[string]ruleMessage,
+) Change {
 	component, changeType := classifyChange(change.GetId())
 	severity := severityFromChecker(change.GetLevel())
+	text := change.GetUncolorizedText(localizer)
+	if message, exists := customMessages[change.GetId()]; exists {
+		text = message(change.GetArgs())
+	}
 	result := Change{
 		ID:               change.GetId(),
-		Text:             change.GetUncolorizedText(localizer),
+		Text:             text,
 		Severity:         severity,
 		Breaking:         severity == SeverityError,
 		Origin:           OriginChecker,
