@@ -7410,10 +7410,12 @@
         "properties": {
           "invoiceId": {
             "description": "Unique 24-hexadecimal digit identifier for an invoice.",
+            "readOnly": true,
             "type": "string"
           },
           "orgId": {
             "description": "Unique 24-hexadecimal digit identifier for an organization.",
+            "readOnly": true,
             "type": "string"
           }
         },
@@ -17199,13 +17201,13 @@
                 }
               },
               "gcpProjectId": {
-                "description": "Unique string that identifies the Google Cloud project in which you created the endpoints.",
-                "example": "p-fdeeb3e43b8e733e5ab627b1",
+                "description": "Unique string that identifies the Google Cloud project in which you created the endpoints. Specify the Google Cloud project ID or project number.",
+                "example": "my-project-12345",
                 "externalDocs": {
                   "description": "Google Cloud Creating and Managing Projects",
                   "url": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
                 },
-                "pattern": "^p-[0-9a-z]{24}$",
+                "pattern": "^([a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]{1,20})$",
                 "type": "string",
                 "writeOnly": true
               }
@@ -43227,6 +43229,7 @@
             "items": {
               "$ref": "#/components/schemas/AssociatedInvoice"
             },
+            "readOnly": true,
             "type": "array",
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "The number of associated invoices has no upper bound (as some organizations may have over 100 invoices in a billing period), and is not restricted in the response. This may be revisited before moving API out of private preview."
@@ -43235,11 +43238,13 @@
           "month": {
             "description": "Two-digit number that represents the month of the associated invoices.",
             "example": "01",
+            "readOnly": true,
             "type": "string"
           },
           "year": {
             "description": "Four-digit number that represents the year of the associated invoices.",
             "example": "2024",
+            "readOnly": true,
             "type": "string"
           }
         },
@@ -43636,6 +43641,166 @@
         },
         "type": "object"
       },
+      "OrgLogIntegrationHeader": {
+        "description": "HTTP header with name and value.",
+        "properties": {
+          "name": {
+            "description": "Header name.",
+            "example": "Authorization",
+            "type": "string"
+          },
+          "value": {
+            "description": "Header value. Redacted in responses.",
+            "example": "Bearer token123",
+            "format": "password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object"
+      },
+      "OrgLogIntegrationRequest": {
+        "description": "Request schema for creating an organization-level log integration.",
+        "discriminator": {
+          "mapping": {
+            "OTEL_LOG_EXPORT": "#/components/schemas/OrgOtelLogIntegrationRequest"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OrgOtelLogIntegrationRequest"
+          }
+        ],
+        "properties": {
+          "logTypes": {
+            "description": "Array of log types exported by this integration.",
+            "example": [
+              "EVENTS"
+            ],
+            "items": {
+              "enum": [
+                "EVENTS"
+              ],
+              "type": "string"
+            },
+            "maxItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "type": {
+            "description": "Type of log integration. Identifies which service will receive the exported events. This value cannot be modified after the integration is created.",
+            "enum": [
+              "OTEL_LOG_EXPORT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "logTypes",
+          "type"
+        ],
+        "title": "Organization Log Integration Request",
+        "type": "object"
+      },
+      "OrgLogIntegrationResponse": {
+        "description": "Response schema for organization-level log integration operations.",
+        "discriminator": {
+          "mapping": {
+            "OTEL_LOG_EXPORT": "#/components/schemas/OrgOtelLogIntegrationResponse"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OrgOtelLogIntegrationResponse"
+          }
+        ],
+        "properties": {
+          "id": {
+            "description": "Unique 24-character hexadecimal digit string that identifies the log integration configuration.",
+            "example": "507f1f77bcf86cd799439011",
+            "readOnly": true,
+            "type": "string"
+          },
+          "logTypes": {
+            "description": "Array of log types exported by this integration.",
+            "example": [
+              "EVENTS"
+            ],
+            "items": {
+              "enum": [
+                "EVENTS"
+              ],
+              "type": "string"
+            },
+            "maxItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "type": {
+            "description": "Type of log integration. Identifies which service will receive the exported events. This value cannot be modified after the integration is created.",
+            "enum": [
+              "OTEL_LOG_EXPORT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "logTypes",
+          "type"
+        ],
+        "title": "Organization Log Integration Response",
+        "type": "object"
+      },
+      "OrgLogIntegrationUpdateRequest": {
+        "description": "Request schema for updating an organization-level log integration.",
+        "discriminator": {
+          "mapping": {
+            "OTEL_LOG_EXPORT": "#/components/schemas/OrgOtelLogIntegrationUpdateRequest"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OrgOtelLogIntegrationUpdateRequest"
+          }
+        ],
+        "properties": {
+          "logTypes": {
+            "description": "Array of log types exported by this integration.",
+            "example": [
+              "EVENTS"
+            ],
+            "items": {
+              "enum": [
+                "EVENTS"
+              ],
+              "type": "string"
+            },
+            "maxItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "type": {
+            "description": "Type of log integration. Identifies which service will receive the exported events. This value cannot be modified after the integration is created.",
+            "enum": [
+              "OTEL_LOG_EXPORT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "logTypes",
+          "type"
+        ],
+        "title": "Organization Log Integration Update Request",
+        "type": "object"
+      },
       "OrgMcpConfigResponse": {
         "properties": {
           "clientId": {
@@ -43809,6 +43974,133 @@
           "typeName"
         ],
         "title": "Organization Notification",
+        "type": "object"
+      },
+      "OrgOtelLogIntegrationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OrgLogIntegrationRequest"
+          },
+          {
+            "properties": {
+              "otelEndpoint": {
+                "description": "OpenTelemetry collector endpoint URL. Must be HTTPS and not exceed 2048 characters.",
+                "example": "https://otel-collector.example.com:4318/v1/logs",
+                "type": "string"
+              },
+              "otelSuppliedHeaders": {
+                "description": "HTTP headers for authentication and configuration. Maximum 10 headers, total size limit 2KB.",
+                "items": {
+                  "$ref": "#/components/schemas/OrgLogIntegrationHeader"
+                },
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "OTEL_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for creating an organization-level OpenTelemetry log integration.",
+        "required": [
+          "logTypes",
+          "otelEndpoint",
+          "otelSuppliedHeaders",
+          "type"
+        ],
+        "title": "Organization OTel Log Integration Request",
+        "type": "object"
+      },
+      "OrgOtelLogIntegrationResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OrgLogIntegrationResponse"
+          },
+          {
+            "properties": {
+              "otelEndpoint": {
+                "description": "OpenTelemetry collector endpoint URL.",
+                "example": "https://otel-collector.example.com:4318/v1/logs",
+                "type": "string"
+              },
+              "otelSuppliedHeaders": {
+                "description": "HTTP headers for authentication and configuration. Maximum 10 headers, total size limit 2KB. Values are redacted.",
+                "items": {
+                  "$ref": "#/components/schemas/OrgLogIntegrationHeader"
+                },
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "OTEL_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details to integrate OpenTelemetry event export with one Atlas organization.",
+        "required": [
+          "id",
+          "logTypes",
+          "otelEndpoint",
+          "otelSuppliedHeaders",
+          "type"
+        ],
+        "title": "Organization OTel Log Integration Response",
+        "type": "object"
+      },
+      "OrgOtelLogIntegrationUpdateRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OrgLogIntegrationUpdateRequest"
+          },
+          {
+            "properties": {
+              "otelEndpoint": {
+                "description": "OpenTelemetry collector endpoint URL. Must be HTTPS and not exceed 2048 characters.",
+                "example": "https://otel-collector.example.com:4318/v1/logs",
+                "type": "string"
+              },
+              "otelSuppliedHeaders": {
+                "description": "HTTP headers for authentication and configuration. Maximum 10 headers, total size limit 2KB.",
+                "items": {
+                  "$ref": "#/components/schemas/OrgLogIntegrationHeader"
+                },
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array"
+              },
+              "type": {
+                "description": "Human-readable label that identifies the service to which you want to integrate with Atlas. The value must match the log integration type. This value cannot be modified after the integration is created.",
+                "enum": [
+                  "OTEL_LOG_EXPORT"
+                ],
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Request schema for updating an organization-level OpenTelemetry log integration.",
+        "required": [
+          "logTypes",
+          "otelEndpoint",
+          "otelSuppliedHeaders",
+          "type"
+        ],
+        "title": "Organization OTel Log Integration Update Request",
         "type": "object"
       },
       "OrgPaginatedEventView": {
@@ -47153,6 +47445,41 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/OrgGroup"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedOrgLogIntegrationResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/OrgLogIntegrationResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -54351,7 +54678,7 @@
             "type": "array"
           },
           "maxTierSize": {
-            "description": "Max tier size for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Max tier size for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -54363,7 +54690,7 @@
             "type": "string"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -55034,6 +55361,54 @@
         "description": "The configuration for AWS Lambda connections.",
         "type": "object"
       },
+      "StreamsAutoscaling": {
+        "description": "Autoscaling configuration for a stream processor.",
+        "nullable": true,
+        "properties": {
+          "enabled": {
+            "description": "Flag that indicates whether autoscaling is enabled.\n\n- **Omitted, `null`, or `false`:**\n  - On `CREATE`: a no-op, there is no persisted setting yet to disable or clear.\n  - On `MODIFY` or `:startWith`: omitted preserves the current setting. `null` or `false` disables autoscaling and clears its configuration.\n- **`true`** on `CREATE`, `MODIFY`, or `:startWith`: enables autoscaling.",
+            "nullable": true,
+            "type": "boolean"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "maxTier": {
+            "description": "Tier ceiling for autoscaling (scale-up limit).\n\n- **Omitted:**\n  - On `CREATE`: falls back to the workspace max tier (there is no current bound to preserve).\n  - On `MODIFY` or `:startWith`: the current bound is preserved.\n- **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the workspace max tier.\n- **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          "minTier": {
+            "description": "Tier floor for autoscaling (scale-down limit).\n\n- **Omitted:**\n  - On `CREATE`: falls back to the workspace default tier (there is no current bound to preserve).\n  - On `MODIFY` or `:startWith`: the current bound is preserved.\n- **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the workspace default tier.\n- **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "StreamsAzureBlobStorageConnection": {
         "allOf": [
           {
@@ -55672,7 +56047,7 @@
         "description": "Information about networking access.",
         "properties": {
           "connectionId": {
-            "description": "Reserved. Will be used by `PRIVATE_LINK` connection type.",
+            "description": "Reserved. Will be used by `PRIVATE_LINK` connection type. Setting this field with any other networking access type returns a validation error.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
@@ -55823,7 +56198,7 @@
             }
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -55840,6 +56215,9 @@
       "StreamsModifyStreamProcessorOptions": {
         "description": "Additional options for modifying a stream processor.",
         "properties": {
+          "autoscaling": {
+            "$ref": "#/components/schemas/StreamsAutoscaling"
+          },
           "dlq": {
             "$ref": "#/components/schemas/StreamsDLQ"
           },
@@ -55865,6 +56243,9 @@
       "StreamsOptions": {
         "description": "Optional configuration for the stream processor.",
         "properties": {
+          "autoscaling": {
+            "$ref": "#/components/schemas/StreamsAutoscaling"
+          },
           "dlq": {
             "$ref": "#/components/schemas/StreamsDLQ"
           },
@@ -56040,6 +56421,19 @@
               "xgen-IPA-112-field-names-are-camel-case": "Schema predates IPA validation."
             }
           },
+          "effectiveTier": {
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "readOnly": true,
+            "title": "Stream Workspace Tier",
+            "type": "string"
+          },
           "failoverEnabled": {
             "description": "Flag that enables or disables failover for the stream processor.",
             "type": "boolean"
@@ -56078,7 +56472,7 @@
             }
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -56090,6 +56484,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "effectiveTier"
+        ],
         "type": "object"
       },
       "StreamsProcessorStatus": {
@@ -56148,6 +56545,19 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-112-field-names-are-camel-case": "Schema predates IPA validation."
             }
+          },
+          "effectiveTier": {
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "readOnly": true,
+            "title": "Stream Workspace Tier",
+            "type": "string"
           },
           "eligibleForFailover": {
             "description": "Flag that indicates whether the stream processor is eligible for failover.",
@@ -56217,7 +56627,7 @@
             "type": "object"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -56231,6 +56641,7 @@
         },
         "required": [
           "_id",
+          "effectiveTier",
           "name",
           "pipeline",
           "state"
@@ -56415,6 +56826,9 @@
       "StreamsStartStreamProcessorWith": {
         "description": "A request to start a stream processor.",
         "properties": {
+          "autoscaling": {
+            "$ref": "#/components/schemas/StreamsAutoscaling"
+          },
           "failover": {
             "$ref": "#/components/schemas/StreamsStartProcessorFailover"
           },
@@ -56444,7 +56858,7 @@
             "type": "string"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -61334,7 +61748,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "203ac0360368239eed8f27b82e06b1be8429648c"
+    "x-xgen-sha": "7d56b904600c9d300f5c223b5070c50f58167f22"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -89562,7 +89976,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -89572,6 +89994,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -89623,7 +90048,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "Created"
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -89636,6 +90069,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -89691,7 +90127,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "No Content"
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -89704,6 +90148,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -89757,7 +90204,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -89767,6 +90222,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -89832,7 +90290,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -89845,6 +90311,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -89909,7 +90378,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -89919,6 +90396,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -89982,7 +90462,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "Created"
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -89998,6 +90486,9 @@
           },
           "409": {
             "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -90059,7 +90550,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "No Content"
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -90072,6 +90571,9 @@
           },
           "409": {
             "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -90143,7 +90645,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -90153,6 +90663,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -104823,10 +105336,17 @@
         "responses": {
           "200": {
             "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgAssociatedInvoiceResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              },
               "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrgAssociatedInvoiceResponse"
                 },
+                "x-sunset": "2026-09-16",
                 "x-xgen-preview": {
                   "name": "invoicereporting"
                 },
@@ -104871,9 +105391,6 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgAssociatedInvoices",
         "x-xgen-owner-team": "Billing Platform"
-      },
-      "x-xgen-IPA-exception": {
-        "xgen-IPA-113-singleton-should-have-update-method": "Resource is read-only. IPAs does not yet support read-only singleton resources."
       }
     },
     "/api/atlas/v2/orgs/{orgId}/billing/costExplorer/usage": {
@@ -107090,6 +107607,403 @@
         "xgen-IPA-102-path-alternate-resource-name-path-param": "API predates IPA validation."
       }
     },
+    "/api/atlas/v2/orgs/{orgId}/logIntegrations": {
+      "get": {
+        "description": "Returns all log integration configurations for the organization.",
+        "operationId": "listOrgLogIntegrations",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedOrgLogIntegrationResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Organization Log Integrations",
+        "tags": [
+          "Push-Based Log Export"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/listOrgLogIntegrations",
+        "x-xgen-owner-team": "CAP"
+      },
+      "post": {
+        "description": "Creates a new organization-level log integration configuration identified by a unique ID.",
+        "operationId": "createOrgLogIntegration",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgLogIntegrationRequest"
+              },
+              "x-xgen-preview": {
+                "public": "true"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Log integration configuration to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgLogIntegrationResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Organization Log Integration",
+        "tags": [
+          "Push-Based Log Export"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/createOrgLogIntegration",
+        "x-xgen-owner-team": "CAP"
+      }
+    },
+    "/api/atlas/v2/orgs/{orgId}/logIntegrations/{logIntegrationId}": {
+      "delete": {
+        "description": "Removes one organization-level log integration configuration identified by its unique ID.",
+        "operationId": "deleteOrgLogIntegration",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique identifier of the log integration configuration.",
+            "in": "path",
+            "name": "logIntegrationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove One Organization Log Integration",
+        "tags": [
+          "Push-Based Log Export"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/deleteOrgLogIntegration",
+        "x-xgen-owner-team": "CAP"
+      },
+      "get": {
+        "description": "Returns the configuration for one organization-level log integration identified by its unique ID.",
+        "operationId": "getOrgLogIntegration",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique identifier of the log integration configuration.",
+            "in": "path",
+            "name": "logIntegrationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgLogIntegrationResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Organization Log Integration",
+        "tags": [
+          "Push-Based Log Export"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/getOrgLogIntegration",
+        "x-xgen-owner-team": "CAP"
+      },
+      "put": {
+        "description": "Updates one organization-level log integration configuration identified by its unique ID. Read endpoints redact header values; a redacted value sent back unchanged leaves the stored value in place, so supply a header value in full only when changing it.",
+        "operationId": "updateOrgLogIntegration",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/orgId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Unique identifier of the log integration configuration.",
+            "in": "path",
+            "name": "logIntegrationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrgLogIntegrationUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "public": "true"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Log integration configuration to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrgLogIntegrationResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One Organization Log Integration",
+        "tags": [
+          "Push-Based Log Export"
+        ],
+        "x-rolesRequirements": [
+          "Organization Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Push-Based-Log-Export/operation/updateOrgLogIntegration",
+        "x-xgen-owner-team": "CAP"
+      }
+    },
     "/api/atlas/v2/orgs/{orgId}/maintenanceSettings": {
       "get": {
         "description": "Returns maintenance settings for the specified organization.",
@@ -107346,7 +108260,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -107356,6 +108278,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107407,7 +108332,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "Created"
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -107420,6 +108353,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107475,7 +108411,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "No Content"
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -107488,6 +108432,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107541,7 +108488,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -107551,6 +108506,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107616,7 +108574,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -107629,6 +108595,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107693,7 +108662,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -107703,6 +108680,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107766,7 +108746,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "Created"
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
@@ -107782,6 +108770,9 @@
           },
           "409": {
             "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107843,7 +108834,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "No Content"
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -107856,6 +108855,9 @@
           },
           "409": {
             "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"
@@ -107927,7 +108929,15 @@
                 "x-xgen-version": "2025-03-12"
               }
             },
-            "description": "OK"
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -107937,6 +108947,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
           },
           "500": {
             "$ref": "#/components/responses/internalServerError"

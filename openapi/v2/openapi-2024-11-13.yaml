@@ -10519,12 +10519,12 @@ components:
                             $ref: '#/components/schemas/CreateGCPForwardingRuleRequest'
                         type: array
                     gcpProjectId:
-                        description: Unique string that identifies the Google Cloud project in which you created the endpoints.
-                        example: p-fdeeb3e43b8e733e5ab627b1
+                        description: Unique string that identifies the Google Cloud project in which you created the endpoints. Specify the Google Cloud project ID or project number.
+                        example: my-project-12345
                         externalDocs:
                             description: Google Cloud Creating and Managing Projects
                             url: https://cloud.google.com/resource-manager/docs/creating-managing-projects
-                        pattern: ^p-[0-9a-z]{24}$
+                        pattern: ^([a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]{1,20})$
                         type: string
                         writeOnly: true
                   type: object
@@ -35106,7 +35106,7 @@ components:
                     readOnly: true
                     type: array
                 maxTierSize:
-                    description: Max tier size for the Stream Workspace. Configures Memory / VCPU allowances.
+                    description: Max tier size for the Stream Workspace. Configures Memory or VCPU allowances.
                     enum:
                         - SP50
                         - SP30
@@ -35116,7 +35116,7 @@ components:
                     title: Stream Workspace Max Tier Size
                     type: string
                 tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.
+                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
                     enum:
                         - SP50
                         - SP30
@@ -35633,6 +35633,64 @@ components:
                   type: object
             description: The configuration for AWS Lambda connections.
             type: object
+        StreamsAutoscaling:
+            description: Autoscaling configuration for a stream processor.
+            nullable: true
+            properties:
+                enabled:
+                    description: |-
+                        Flag that indicates whether autoscaling is enabled.
+
+                        - **Omitted, `null`, or `false`:**
+                          - On `CREATE`: a no-op, there is no persisted setting yet to disable or clear.
+                          - On `MODIFY` or `:startWith`: omitted preserves the current setting. `null` or `false` disables autoscaling and clears its configuration.
+                        - **`true`** on `CREATE`, `MODIFY`, or `:startWith`: enables autoscaling.
+                    nullable: true
+                    type: boolean
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                maxTier:
+                    description: |-
+                        Tier ceiling for autoscaling (scale-up limit).
+
+                        - **Omitted:**
+                          - On `CREATE`: falls back to the workspace max tier (there is no current bound to preserve).
+                          - On `MODIFY` or `:startWith`: the current bound is preserved.
+                        - **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the workspace max tier.
+                        - **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.
+                    enum:
+                        - SP50
+                        - SP30
+                        - SP10
+                        - SP5
+                        - SP2
+                    nullable: true
+                    type: string
+                minTier:
+                    description: |-
+                        Tier floor for autoscaling (scale-down limit).
+
+                        - **Omitted:**
+                          - On `CREATE`: falls back to the workspace default tier (there is no current bound to preserve).
+                          - On `MODIFY` or `:startWith`: the current bound is preserved.
+                        - **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the workspace default tier.
+                        - **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.
+                    enum:
+                        - SP50
+                        - SP30
+                        - SP10
+                        - SP5
+                        - SP2
+                    nullable: true
+                    type: string
+            type: object
         StreamsAzureBlobStorageConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsConnection'
@@ -35985,7 +36043,7 @@ components:
             description: Information about networking access.
             properties:
                 connectionId:
-                    description: Reserved. Will be used by `PRIVATE_LINK` connection type.
+                    description: Reserved. Will be used by `PRIVATE_LINK` connection type. Setting this field with any other networking access type returns a validation error.
                     example: 32b6e34b3d91647abb20e7b8
                     pattern: ^([a-f0-9]{24})$
                     type: string
@@ -36098,7 +36156,7 @@ components:
                         $ref: '#/components/schemas/Document'
                     type: array
                 tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.
+                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
                     enum:
                         - SP50
                         - SP30
@@ -36111,6 +36169,8 @@ components:
         StreamsModifyStreamProcessorOptions:
             description: Additional options for modifying a stream processor.
             properties:
+                autoscaling:
+                    $ref: '#/components/schemas/StreamsAutoscaling'
                 dlq:
                     $ref: '#/components/schemas/StreamsDLQ'
                 links:
@@ -36129,6 +36189,8 @@ components:
         StreamsOptions:
             description: Optional configuration for the stream processor.
             properties:
+                autoscaling:
+                    $ref: '#/components/schemas/StreamsAutoscaling'
                 dlq:
                     $ref: '#/components/schemas/StreamsDLQ'
                 links:
@@ -36262,6 +36324,17 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
                     type: string
+                effectiveTier:
+                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
+                    enum:
+                        - SP50
+                        - SP30
+                        - SP10
+                        - SP5
+                        - SP2
+                    readOnly: true
+                    title: Stream Workspace Tier
+                    type: string
                 failoverEnabled:
                     description: Flag that enables or disables failover for the stream processor.
                     type: boolean
@@ -36288,7 +36361,7 @@ components:
                         $ref: '#/components/schemas/Document'
                     type: array
                 tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.
+                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
                     enum:
                         - SP50
                         - SP30
@@ -36297,6 +36370,8 @@ components:
                         - SP2
                     title: Stream Workspace Tier
                     type: string
+            required:
+                - effectiveTier
             type: object
         StreamsProcessorStatus:
             description: Desired status change to apply to a tenant's stream processors.
@@ -36339,6 +36414,17 @@ components:
                     example: 32b6e34b3d91647abb20e7b8
                     pattern: ^([a-f0-9]{24})$
                     readOnly: true
+                    type: string
+                effectiveTier:
+                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
+                    enum:
+                        - SP50
+                        - SP30
+                        - SP10
+                        - SP5
+                        - SP2
+                    readOnly: true
+                    title: Stream Workspace Tier
                     type: string
                 eligibleForFailover:
                     description: Flag that indicates whether the stream processor is eligible for failover.
@@ -36390,7 +36476,7 @@ components:
                     readOnly: true
                     type: object
                 tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.
+                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
                     enum:
                         - SP50
                         - SP30
@@ -36401,6 +36487,7 @@ components:
                     type: string
             required:
                 - _id
+                - effectiveTier
                 - name
                 - pipeline
                 - state
@@ -39871,7 +39958,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 203ac0360368239eed8f27b82e06b1be8429648c
+    x-xgen-sha: 7d56b904600c9d300f5c223b5070c50f58167f22
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
