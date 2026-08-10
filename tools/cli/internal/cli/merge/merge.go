@@ -25,6 +25,31 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// legacyLongRunningOperationIDs lists the operations that return HTTP 202 but predate IPA-132:
+// they do not follow the long-running operation contract (no Location header, no /operations
+// polling endpoint), so downstream tooling must not treat them as standard long-running operations.
+// This hardcoded denylist is an intentional short-term solution until tagging can be derived from
+// the IPA-132 prerequisites themselves.
+var legacyLongRunningOperationIDs = map[string]struct{}{
+	"acceptGroupStreamVpcPeeringConnection":      {},
+	"createGroupClusterIndexRollingIndex":        {},
+	"createGroupCustomDbRoleRole":                {},
+	"createGroupEncryptionAtRestPrivateEndpoint": {},
+	"createOrgBillingCostExplorerUsageProcess":   {},
+	"cutoverGroupLiveMigration":                  {},
+	"deleteGroupCluster":                         {},
+	"deleteGroupClusterOverloadSimulation":       {},
+	"deleteGroupPeer":                            {},
+	"deleteGroupStreamConnection":                {},
+	"deleteGroupStreamPrivateLinkConnection":     {},
+	"deleteGroupStreamVpcPeeringConnection":      {},
+	"deleteGroupStreamWorkspace":                 {},
+	"deleteGroupUserSecurityLdapUserToDnMapping": {},
+	"disableGroupUserSecurityCustomerX509":       {},
+	"rejectGroupStreamVpcPeeringConnection":      {},
+	"updateGroupUserSecurity":                    {},
+}
+
 type Opts struct {
 	Merger              openapi.Merger
 	fs                  afero.Fs
@@ -40,6 +65,19 @@ func (o *Opts) Run() error {
 	federated, err := o.Merger.MergeOpenAPISpecs(o.externalPaths)
 	if err != nil {
 		return err
+	}
+
+	for _, pathItem := range federated.Paths.Map() {
+		for _, operation := range pathItem.Operations() {
+			_, isLegacy := legacyLongRunningOperationIDs[operation.OperationID]
+			if isLegacy || operation.Responses.Value("202") == nil {
+				continue
+			}
+			if operation.Extensions == nil {
+				operation.Extensions = map[string]any{}
+			}
+			operation.Extensions["x-xgen-long-running-operation"] = true
+		}
 	}
 
 	if o.gitSha != "" {
