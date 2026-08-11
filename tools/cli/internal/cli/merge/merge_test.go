@@ -97,15 +97,14 @@ func newOperationWithResponses(operationID string, codes ...string) *openapi3.Op
 }
 
 func TestLongRunningOperationExtension_Run(t *testing.T) {
-	tagged := newOperationWithResponses("createSomething", "202")
-	notTagged := newOperationWithResponses("getSomething", "200", "404")
-	taggedWithOthers := newOperationWithResponses("updateSomething", "201", "202")
+	standard := newOperationWithResponses("createSomething", "202")
+	standardWithOtherCodes := newOperationWithResponses("updateSomething", "201", "202")
+	synchronous := newOperationWithResponses("getSomething", "200", "404")
 	legacy := newOperationWithResponses("deleteGroupCluster", "202")
 
 	paths := openapi3.NewPaths()
-	paths.Set("/accepted", &openapi3.PathItem{Post: tagged})
-	paths.Set("/sync", &openapi3.PathItem{Get: notTagged})
-	paths.Set("/mixed", &openapi3.PathItem{Patch: taggedWithOthers, Delete: notTagged})
+	paths.Set("/accepted", &openapi3.PathItem{Post: standard})
+	paths.Set("/mixed", &openapi3.PathItem{Patch: standardWithOtherCodes, Delete: synchronous})
 	paths.Set("/legacy", &openapi3.PathItem{Delete: legacy})
 
 	ctrl := gomock.NewController(t)
@@ -131,10 +130,10 @@ func TestLongRunningOperationExtension_Run(t *testing.T) {
 
 	require.NoError(t, opts.Run())
 
-	require.Equal(t, true, tagged.Extensions["x-xgen-long-running-operation"])
-	require.Equal(t, true, taggedWithOthers.Extensions["x-xgen-long-running-operation"])
-	require.NotContains(t, notTagged.Extensions, "x-xgen-long-running-operation")
-	require.NotContains(t, legacy.Extensions, "x-xgen-long-running-operation")
+	require.Equal(t, true, standard.Extensions[longRunningOperationExtension])
+	require.Equal(t, true, standardWithOtherCodes.Extensions[longRunningOperationExtension])
+	require.NotContains(t, synchronous.Extensions, longRunningOperationExtension)
+	require.Equal(t, map[string]any{"legacy": true}, legacy.Extensions[longRunningOperationExtension])
 }
 
 func TestNoBaseSpecMerge_PreRun(t *testing.T) {
