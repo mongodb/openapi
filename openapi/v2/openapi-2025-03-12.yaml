@@ -4092,6 +4092,18 @@ components:
             required:
                 - metricName
             type: object
+        AssociatedInvoice:
+            description: An invoice associated with an organization.
+            properties:
+                invoiceId:
+                    description: Unique 24-hexadecimal digit identifier for an invoice.
+                    readOnly: true
+                    type: string
+                orgId:
+                    description: Unique 24-hexadecimal digit identifier for an organization.
+                    readOnly: true
+                    type: string
+            type: object
         AtlasClusterOutageSimulationOutageFilter:
             properties:
                 cloudProvider:
@@ -29817,6 +29829,26 @@ components:
                 - roles
                 - username
             type: object
+        OrgAssociatedInvoiceResponse:
+            description: Response containing associated invoices for an organization.
+            properties:
+                associatedInvoices:
+                    description: List of invoices associated with the organization for the specified period.
+                    items:
+                        $ref: '#/components/schemas/AssociatedInvoice'
+                    readOnly: true
+                    type: array
+                month:
+                    description: Two-digit number that represents the month of the associated invoices.
+                    example: "01"
+                    readOnly: true
+                    type: string
+                year:
+                    description: Four-digit number that represents the year of the associated invoices.
+                    example: "2024"
+                    readOnly: true
+                    type: string
+            type: object
         OrgDelegationSettingsResponse:
             properties:
                 delegatedMcpAccess:
@@ -42646,7 +42678,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d487b7142baa9aa5dc2fb5f78140c01c216c49cf
+    x-xgen-sha: 6fe5501cf0ffdb6be599bd30fa6cf09cb30ae929
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -85628,6 +85660,107 @@ paths:
                 customMethod: false
                 verb: getEntry
             x-xgen-operation-id-override: getOrgAccessEntry
+    /api/atlas/v2/orgs/{orgId}/associatedInvoices:
+        get:
+            description: Returns a list of invoice IDs for the specified organization and month/year. Optionally includes invoices from linked organizations.
+            operationId: getOrgAssociatedInvoices
+            parameters:
+                - $ref: '#/components/parameters/orgId'
+                - description: The month for which to retrieve invoices (1-12). Defaults to current month.
+                  in: query
+                  name: month
+                  schema:
+                    format: int64
+                    maximum: 12
+                    minimum: 1
+                    type: integer
+                - description: The year for which to retrieve invoices. Defaults to current year.
+                  in: query
+                  name: year
+                  schema:
+                    format: int64
+                    minimum: 2000
+                    type: integer
+                - description: Whether to include invoices from linked organizations. Defaults to false.
+                  in: query
+                  name: includeLinkedOrgs
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrgAssociatedInvoiceResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: Associated invoices retrieved successfully
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Associated Invoices
+            tags:
+                - Invoices
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api invoices getOrgAssociatedInvoices --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.GetOrgAssociatedInvoicesApiParams{}
+                    	sdkResp, httpResp, err := client.InvoicesApi.
+                    		GetOrgAssociatedInvoicesWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true"
+            x-rolesRequirements:
+                - Organization Billing Viewer
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgAssociatedInvoices
     /api/atlas/v2/orgs/{orgId}/billing/costExplorer/usage:
         post:
             description: Creates a query process within the Cost Explorer for the given parameters. A token is returned that can be used to poll the status of the query and eventually retrieve the results.
