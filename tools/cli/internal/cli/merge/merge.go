@@ -25,6 +25,47 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const longRunningOperationExtension = "x-xgen-long-running-operation"
+
+// legacyLongRunningOperationIDs lists the operations that return HTTP 202 but predate IPA-132:
+// they do not follow the long-running operation contract (no Location header, no /operations
+// polling endpoint), so downstream tooling must not treat them as standard long-running
+// operations. They are tagged as legacy instead of being tagged as compliant.
+//
+// The raw spec holds no machine-readable signal that separates these operations from future
+// IPA-132 compliant ones: no response anywhere declares a Location header, no path uses an
+// /operations segment, and the 202 response schemas have nothing in common. Until the upstream
+// service specs mark these operations themselves, this hardcoded denylist is the source of truth.
+var legacyLongRunningOperationIDs = map[string]struct{}{
+	"acceptGroupStreamVpcPeeringConnection":      {},
+	"createGroupClusterIndexRollingIndex":        {},
+	"createGroupCustomDbRoleRole":                {},
+	"createGroupEncryptionAtRestPrivateEndpoint": {},
+	"createOrgBillingCostExplorerUsageProcess":   {},
+	"cutoverGroupLiveMigration":                  {},
+	"deleteGroupCluster":                         {},
+	"deleteGroupClusterOverloadSimulation":       {},
+	"deleteGroupPeer":                            {},
+	"deleteGroupStreamConnection":                {},
+	"deleteGroupStreamPrivateLinkConnection":     {},
+	"deleteGroupStreamVpcPeeringConnection":      {},
+	"deleteGroupStreamWorkspace":                 {},
+	"deleteGroupUserSecurityLdapUserToDnMapping": {},
+	"disableGroupUserSecurityCustomerX509":       {},
+	"rejectGroupStreamVpcPeeringConnection":      {},
+	"updateGroupUserSecurity":                    {},
+}
+
+// longRunningOperationExtensionValue returns the value to publish for an operation returning
+// HTTP 202: true for IPA-132 compliant operations and {"legacy": true} for the operations
+// listed in legacyLongRunningOperationIDs.
+func longRunningOperationExtensionValue(operationID string) any {
+	if _, isLegacy := legacyLongRunningOperationIDs[operationID]; isLegacy {
+		return map[string]any{"legacy": true}
+	}
+	return true
+}
+
 type Opts struct {
 	Merger              openapi.Merger
 	fs                  afero.Fs
@@ -40,6 +81,18 @@ func (o *Opts) Run() error {
 	federated, err := o.Merger.MergeOpenAPISpecs(o.externalPaths)
 	if err != nil {
 		return err
+	}
+
+	for _, pathItem := range federated.Paths.Map() {
+		for _, operation := range pathItem.Operations() {
+			if operation.Responses.Value("202") == nil {
+				continue
+			}
+			if operation.Extensions == nil {
+				operation.Extensions = map[string]any{}
+			}
+			operation.Extensions[longRunningOperationExtension] = longRunningOperationExtensionValue(operation.OperationID)
+		}
 	}
 
 	if o.gitSha != "" {

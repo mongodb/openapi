@@ -88,6 +88,54 @@ func TestSuccessfulMergeYaml_Run(t *testing.T) {
 	}
 }
 
+func newOperationWithResponses(operationID string, codes ...string) *openapi3.Operation {
+	responses := openapi3.NewResponses()
+	for _, code := range codes {
+		responses.Set(code, &openapi3.ResponseRef{Value: openapi3.NewResponse().WithDescription("")})
+	}
+	return &openapi3.Operation{OperationID: operationID, Responses: responses}
+}
+
+func TestLongRunningOperationExtension_Run(t *testing.T) {
+	standard := newOperationWithResponses("createSomething", "202")
+	standardWithOtherCodes := newOperationWithResponses("updateSomething", "201", "202")
+	synchronous := newOperationWithResponses("getSomething", "200", "404")
+	legacy := newOperationWithResponses("deleteGroupCluster", "202")
+
+	paths := openapi3.NewPaths()
+	paths.Set("/accepted", &openapi3.PathItem{Post: standard})
+	paths.Set("/mixed", &openapi3.PathItem{Patch: standardWithOtherCodes, Delete: synchronous})
+	paths.Set("/legacy", &openapi3.PathItem{Delete: legacy})
+
+	ctrl := gomock.NewController(t)
+	mockMergerStore := openapi.NewMockMerger(ctrl)
+	opts := &Opts{
+		Merger:        mockMergerStore,
+		basePath:      "base.json",
+		outputPath:    "foas.json",
+		externalPaths: []string{"external.json"},
+		fs:            afero.NewMemMapFs(),
+	}
+
+	mockMergerStore.
+		EXPECT().
+		MergeOpenAPISpecs(opts.externalPaths).
+		Return(&openapi.Spec{
+			OpenAPI: "v3.0.1",
+			Info:    &openapi3.Info{},
+			Tags:    openapi3.Tags{},
+			Paths:   paths,
+		}, nil).
+		Times(1)
+
+	require.NoError(t, opts.Run())
+
+	require.Equal(t, true, standard.Extensions[longRunningOperationExtension])
+	require.Equal(t, true, standardWithOtherCodes.Extensions[longRunningOperationExtension])
+	require.NotContains(t, synchronous.Extensions, longRunningOperationExtension)
+	require.Equal(t, map[string]any{"legacy": true}, legacy.Extensions[longRunningOperationExtension])
+}
+
 func TestNoBaseSpecMerge_PreRun(t *testing.T) {
 	externalPaths := []string{"external.json"}
 	opts := &Opts{
