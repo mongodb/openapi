@@ -31253,6 +31253,70 @@ components:
             readOnly: true
             title: Outbound Control Plane IP Addresses By Cloud Provider
             type: object
+        OverloadProtectionSimulationRequest:
+            description: Request to start an overload protection simulation for a cluster.
+            properties:
+                durationSeconds:
+                    description: Duration of the overload protection simulation in seconds.
+                    format: int32
+                    type: integer
+            required:
+                - durationSeconds
+            type: object
+        OverloadProtectionSimulationResponse:
+            description: Overload protection simulation for a cluster.
+            properties:
+                cancelRequestedAt:
+                    description: Date and time when cancellation of the overload protection simulation was requested. This parameter is only present when a cancellation has been requested and expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                clusterName:
+                    description: Human-readable label that identifies the cluster on which the simulation is running.
+                    readOnly: true
+                    type: string
+                durationSeconds:
+                    description: Duration of the overload protection simulation in seconds.
+                    format: int32
+                    type: integer
+                expiresAt:
+                    description: Date and time when the overload protection simulation expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                    x-xgen-server-computed-immutable: true
+                groupId:
+                    description: Unique 24-hexadecimal character string that identifies the project that contains the cluster.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                requestDate:
+                    description: Date and time when the overload protection simulation was requested. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                    x-xgen-server-computed-immutable: true
+                simulationId:
+                    description: Unique identifier of the overload protection simulation.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^[a-fA-F0-9]{24}$
+                    readOnly: true
+                    type: string
+                    x-xgen-server-computed-immutable: true
+                state:
+                    description: Current state of the overload protection simulation.
+                    readOnly: true
+                    type: string
+            required:
+                - clusterName
+                - durationSeconds
+                - expiresAt
+                - groupId
+                - requestDate
+                - simulationId
+                - state
+            type: object
         PagerDuty:
             description: Details to integrate one PagerDuty account with one MongoDB Cloud project.
             properties:
@@ -32894,6 +32958,33 @@ components:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
                         $ref: '#/components/schemas/AtlasOrganization'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
+        PaginatedOverloadProtectionSimulationResponse:
+            description: List of overload protection simulations for a cluster.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -42989,7 +43080,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 4bbe96b26e000df57c824d4d25222791447279e0
+    x-xgen-sha: ebd1fbd091227da9e0d94fe7f440300536812768
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -57622,6 +57713,396 @@ paths:
                 customMethod: "True"
                 verb: start
             x-xgen-operation-id-override: startOutageSimulation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations:
+        get:
+            description: Returns all overload protection simulations for one cluster.
+            operationId: listGroupClusterOverloadSimulations
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulations are running.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOverloadProtectionSimulationResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Overload Protection Simulations
+            tags:
+                - Overload Protection Simulation
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api overloadProtectionSimulation listClusterOverloadSimulations --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.ListGroupClusterOverloadSimulationsApiParams{}
+                    	sdkResp, httpResp, err := client.OverloadProtectionSimulationApi.
+                    		ListGroupClusterOverloadSimulationsWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/listGroupClusterOverloadSimulations
+            x-xgen-operation-id-override: listClusterOverloadSimulations
+        post:
+            description: Starts an overload protection simulation for one cluster. Returns a 409 if a simulation is already in progress or completed; DELETE the existing simulation before starting a new one.
+            operationId: createGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which to start the overload protection simulation.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/OverloadProtectionSimulationRequest'
+                        x-xgen-version: "2025-03-12"
+                description: 'Details of the overload protection simulation to start. Valid durations (in seconds): 900, 3600, 28800, 86400.'
+                required: true
+            responses:
+                "201":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: Created
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Create One Overload Protection Simulation
+            tags:
+                - Overload Protection Simulation
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api overloadProtectionSimulation createClusterOverloadSimulation --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.CreateGroupClusterOverloadSimulationApiParams{}
+                    	sdkResp, httpResp, err := client.OverloadProtectionSimulationApi.
+                    		CreateGroupClusterOverloadSimulationWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/createGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: createClusterOverloadSimulation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}:
+        delete:
+            description: Deletes the overload protection simulation for one cluster.
+            operationId: deleteGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulation is running.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the overload protection simulation.
+                  in: path
+                  name: simulationId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            x-xgen-version: "2025-03-12"
+                    description: Accepted
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Overload Protection Simulation
+            tags:
+                - Overload Protection Simulation
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api overloadProtectionSimulation deleteClusterOverloadSimulation --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.DeleteGroupClusterOverloadSimulationApiParams{}
+                    	httpResp, err := client.OverloadProtectionSimulationApi.
+                    		DeleteGroupClusterOverloadSimulationWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}"
+            x-rolesRequirements:
+                - Project Cluster Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/deleteGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: deleteClusterOverloadSimulation
+        get:
+            description: Returns the overload protection simulation for one cluster.
+            operationId: getGroupClusterOverloadSimulation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster on which the overload protection simulation is running.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies the overload protection simulation.
+                  in: path
+                  name: simulationId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OverloadProtectionSimulationResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Overload Protection Simulation
+            tags:
+                - Overload Protection Simulation
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api overloadProtectionSimulation getClusterOverloadSimulation --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.GetGroupClusterOverloadSimulationApiParams{}
+                    	sdkResp, httpResp, err := client.OverloadProtectionSimulationApi.
+                    		GetGroupClusterOverloadSimulationWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/overloadSimulations/{simulationId}?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Overload-Protection-Simulation/operation/getGroupClusterOverloadSimulation
+            x-xgen-operation-id-override: getClusterOverloadSimulation
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/performanceAdvisor/dropIndexSuggestions:
         get:
             description: Returns the indexes that the Performance Advisor suggests to drop. The Performance Advisor suggests dropping unused, redundant, and hidden indexes to improve write performance and increase storage space.
@@ -94614,6 +95095,8 @@ tags:
       name: OpenAPI
     - description: Returns, adds, and edits organizational units in MongoDB Cloud.
       name: Organizations
+    - description: Returns and starts overload protection simulations for a cluster.
+      name: Overload Protection Simulation
     - description: Returns suggested indexes and slow query data for a database deployment. Also enables or disables MongoDB Cloud-managed slow operation thresholds. To view field values in a sample query, you must have the Project Data Access Read Only role or higher. Otherwise, MongoDB Cloud returns redacted data rather than the field values.
       name: Performance Advisor
     - description: Returns, adds, edits, and removes private endpoint services.
