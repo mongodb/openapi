@@ -374,6 +374,7 @@ components:
                     example: Bearer token123
                     format: password
                     type: string
+                    writeOnly: true
             required:
                 - name
                 - value
@@ -398,18 +399,24 @@ components:
                         - DELTA
                         - CUMULATIVE
                     type: string
+                authType:
+                    description: Authentication method the integration uses when exporting metrics to the endpoint. `HEADER` authenticates with the static HTTP headers provided in the `headers` field, which must be set when this value is used.
+                    enum:
+                        - HEADER
+                    type: string
                 endpoint:
                     description: OpenTelemetry collector endpoint URL. Must use HTTPS.
                     example: https://otel-collector.example.com:4318/v1/metrics
                     maxLength: 2048
                     type: string
                 headers:
-                    description: HTTP headers for authentication and configuration. Total size limit 2KB.
+                    description: HTTP headers for authentication and configuration. Total size limit 2KB. Required when `authType` is `HEADER`.
                     items:
                         $ref: '#/components/schemas/Header'
                     maxItems: 10
                     minItems: 1
                     type: array
+                    writeOnly: true
                 integrationType:
                     description: Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.
                     enum:
@@ -420,6 +427,8 @@ components:
                     items:
                         enum:
                             - ATLAS_STREAM_PROCESSING
+                            - MONGODB_METRICS
+                            - HARDWARE_METRICS
                         type: string
                     maxItems: 30
                     minItems: 1
@@ -434,8 +443,8 @@ components:
                     type: string
             required:
                 - aggregationTemporality
+                - authType
                 - endpoint
-                - headers
                 - integrationType
                 - metricSelection
                 - providerType
@@ -450,17 +459,23 @@ components:
                         - DELTA
                         - CUMULATIVE
                     type: string
+                authType:
+                    description: Authentication method the integration uses when exporting metrics to the endpoint.
+                    enum:
+                        - HEADER
+                    type: string
                 endpoint:
                     description: OpenTelemetry collector endpoint URL.
                     example: https://otel-collector.example.com:4318/v1/metrics
                     maxLength: 2048
                     type: string
-                headers:
-                    description: HTTP headers for authentication and configuration. Header values are redacted in responses.
+                headersRedacted:
+                    description: HTTP headers for authentication and configuration. Values are redacted and never returned in plaintext.
                     items:
-                        $ref: '#/components/schemas/Header'
+                        $ref: '#/components/schemas/RedactedHeader'
                     maxItems: 10
                     minItems: 1
+                    readOnly: true
                     type: array
                 integrationType:
                     description: Type of metric integration. Identifies which protocol will be used for the integration.
@@ -474,11 +489,14 @@ components:
                     minLength: 24
                     readOnly: true
                     type: string
+                    x-xgen-server-computed-immutable: true
                 metricSelection:
                     description: Array of metric categories to export. Determines which types of metrics are sent to the integration.
                     items:
                         enum:
                             - ATLAS_STREAM_PROCESSING
+                            - MONGODB_METRICS
+                            - HARDWARE_METRICS
                         type: string
                     maxItems: 30
                     minItems: 1
@@ -493,8 +511,8 @@ components:
                     type: string
             required:
                 - aggregationTemporality
+                - authType
                 - endpoint
-                - headers
                 - integrationType
                 - metricIntegrationId
                 - metricSelection
@@ -510,18 +528,24 @@ components:
                         - DELTA
                         - CUMULATIVE
                     type: string
+                authType:
+                    description: Authentication method the integration uses when exporting metrics to the endpoint. `HEADER` authenticates with the static HTTP headers provided in the `headers` field, which must be set when this value is used.
+                    enum:
+                        - HEADER
+                    type: string
                 endpoint:
                     description: OpenTelemetry collector endpoint URL. Must use HTTPS.
                     example: https://otel-collector.example.com:4318/v1/metrics
                     maxLength: 2048
                     type: string
                 headers:
-                    description: HTTP headers for authentication and configuration. Total size limit 2KB.
+                    description: HTTP headers for authentication and configuration. Total size limit 2KB. Required when `authType` is `HEADER`.
                     items:
                         $ref: '#/components/schemas/Header'
                     maxItems: 10
                     minItems: 1
                     type: array
+                    writeOnly: true
                 integrationType:
                     description: Type of metric integration. Identifies which protocol will be used for the integration. This value cannot be modified after the integration is created.
                     enum:
@@ -532,6 +556,8 @@ components:
                     items:
                         enum:
                             - ATLAS_STREAM_PROCESSING
+                            - MONGODB_METRICS
+                            - HARDWARE_METRICS
                         type: string
                     maxItems: 30
                     minItems: 1
@@ -546,8 +572,8 @@ components:
                     type: string
             required:
                 - aggregationTemporality
+                - authType
                 - endpoint
-                - headers
                 - integrationType
                 - metricSelection
                 - providerType
@@ -578,6 +604,23 @@ components:
                     type: integer
             required:
                 - results
+            type: object
+        RedactedHeader:
+            description: HTTP header with a redacted value.
+            properties:
+                name:
+                    description: Header name.
+                    example: Authorization
+                    readOnly: true
+                    type: string
+                value:
+                    description: Redacted header value.
+                    example: '********oken'
+                    readOnly: true
+                    type: string
+            required:
+                - name
+                - value
             type: object
     securitySchemes:
         DigestAuth:
@@ -623,15 +666,16 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 8c0f1badce0163749098fe61a46748f6877b8811
+    x-xgen-sha: f19cf29e143a5025abbffbb4d63e1abac836b184
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/metricIntegrations:
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns all metric integration configurations for the project. Optionally filter by integration type and provider type.
+                 Returns all metric integration configurations for the project. Optionally filter by integration type and provider type. Deprecated versions: v2-{2025-03-12}
             operationId: listGroupMetricIntegrations
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -704,12 +748,14 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-09-14"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/listGroupMetricIntegrations
         post:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Creates a new metric integration configuration identified by a unique ID.
+                 Creates a new metric integration configuration identified by a unique ID. Deprecated versions: v2-{2025-03-12}
             operationId: createGroupMetricIntegration
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -720,6 +766,7 @@ paths:
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/MetricIntegrationRequest'
+                        x-sunset: "2026-09-14"
                         x-xgen-preview:
                             name: metric-integrations
                             public: "false"
@@ -784,13 +831,15 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-09-14"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/createGroupMetricIntegration
     /api/atlas/v2/groups/{groupId}/metricIntegrations/{metricIntegrationId}:
         delete:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Removes the configuration for one metric integration identified by its unique ID.
+                 Removes the configuration for one metric integration identified by its unique ID. Deprecated versions: v2-{2025-03-12}
             operationId: deleteGroupMetricIntegration
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -854,12 +903,14 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-09-14"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/deleteGroupMetricIntegration
         get:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns the configuration for one metric integration identified by its unique ID.
+                 Returns the configuration for one metric integration identified by its unique ID. Deprecated versions: v2-{2025-03-12}
             operationId: getGroupMetricIntegration
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -925,12 +976,14 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-09-14"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/getGroupMetricIntegration
         put:
+            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Updates the configuration for one metric integration identified by its unique ID.
+                 Updates the configuration for one metric integration identified by its unique ID. Deprecated versions: v2-{2025-03-12}
             operationId: updateGroupMetricIntegration
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -947,6 +1000,7 @@ paths:
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/MetricIntegrationUpdateRequest'
+                        x-sunset: "2026-09-14"
                         x-xgen-preview:
                             name: metric-integrations
                             public: "false"
@@ -1011,6 +1065,7 @@ paths:
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-sunset: "2026-09-14"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Metric-Integrations/operation/updateGroupMetricIntegration
 security:
     - ServiceAccounts: []
