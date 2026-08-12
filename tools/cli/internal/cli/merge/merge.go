@@ -42,6 +42,8 @@ func (o *Opts) Run() error {
 		return err
 	}
 
+	tagLongRunningOperations(federated)
+
 	if o.gitSha != "" {
 		federated.Info.Extensions = map[string]any{
 			"x-xgen-sha": o.gitSha,
