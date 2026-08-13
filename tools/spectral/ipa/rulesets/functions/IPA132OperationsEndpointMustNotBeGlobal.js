@@ -8,6 +8,10 @@ const ERROR_MESSAGE =
  * Checks that an Operations endpoint defined by IPA-132 is not a standalone, global endpoint,
  * rejecting Operations endpoints mounted at the API root such as `/api/atlas/v2/operations`.
  *
+ * The existing `resourceBelongsToSingleParent` util is not reusable here: it requires the
+ * grandparent segment to be a path parameter, which rejects the collection-scoped Operations
+ * form `/parent/operations` that IPA-132 explicitly allows.
+ *
  * @param {string} input - The path key from the OpenAPI spec
  * @param {object} _ - Unused
  * @param {object} context - The context object containing the path, documentInventory and rule

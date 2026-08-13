@@ -16,9 +16,6 @@ testRule('xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource', [
         // Root-level Operations endpoints are leaves, their nesting is covered by
         // xgen-IPA-132-operations-endpoint-must-not-be-global
         '/api/atlas/v2/operations': {},
-        // Custom method suffixes are ignored, their methods are covered by
-        // xgen-IPA-132-operation-must-be-a-read-only-resource
-        '/api/atlas/v2/resourceName/operations/{operationId}:cancel': {},
       },
     },
     errors: [],
@@ -48,19 +45,19 @@ testRule('xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource', [
         code: 'xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource',
         message: ERROR_MESSAGE,
         path: ['paths', '/api/atlas/v2/resourceName/operations/subresource'],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource',
         message: ERROR_MESSAGE,
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}/subresource'],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource',
         message: ERROR_MESSAGE,
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}/{anotherId}'],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
     ],
   },
@@ -98,7 +95,7 @@ testRule('xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource', [
           'x-xgen-IPA-exception',
           'xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource',
         ],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
     ],
   },

@@ -1,25 +1,24 @@
 import { isPathParam } from './componentUtils.js';
-import { isCustomMethodIdentifier, removePrefix, stripCustomMethodName } from './resourceEvaluation.js';
+import { removePrefix } from './resourceEvaluation.js';
 
 export const OPERATIONS_SEGMENT = 'operations';
 
 /**
- * Splits a path into its resource identifier segments, ignoring the standard path prefix and any
- * custom method suffix (`:customMethod`), so that the segments describe the resource hierarchy only.
+ * Splits a path into its resource identifier segments, ignoring the standard path prefix, so that
+ * the segments describe the resource hierarchy only.
  *
  * @param {string} path the path to split
  * @returns {string[]} the resource identifier segments
  */
 function toResourceSegments(path) {
-  const pathWithoutCustomMethod = isCustomMethodIdentifier(path) ? stripCustomMethodName(path) : path;
-  return removePrefix(pathWithoutCustomMethod)
+  return removePrefix(path)
     .split('/')
     .filter((segment) => segment.length > 0);
 }
 
 /**
  * Checks if a path identifies an Operations resource collection defined by IPA-132, i.e. the path
- * ends with an `operations` segment. Any custom method suffix is ignored. For example:
+ * ends with an `operations` segment. For example:
  * '/api/atlas/v2/resourceName/operations' returns true
  * '/api/atlas/v2/resourceName/{pathParam}/operations' returns true
  * '/api/atlas/v2/operations' returns true
@@ -35,8 +34,7 @@ export function isOperationsCollectionPath(path) {
 
 /**
  * Checks if a path identifies a single Operations resource defined by IPA-132, i.e. the path ends
- * with an `operations` segment followed by a single path parameter. Any custom method suffix is
- * ignored. For example:
+ * with an `operations` segment followed by a single path parameter. For example:
  * '/api/atlas/v2/resourceName/operations/{operationId}' returns true
  * '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}' returns true
  * '/api/atlas/v2/resourceName/operations' returns false

@@ -1412,7 +1412,7 @@ Rules are based on [https://mongodb.github.io/ipa/132](https://mongodb.github.io
 
 #### xgen-IPA-132-operations-endpoint-must-not-be-global
 
- ![error](https://img.shields.io/badge/error-red) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Operations endpoints must not be defined as standalone, global endpoints with no parent
 resource in their path.
 
@@ -1424,12 +1424,11 @@ Rule checks for the following conditions:
   - The `operations` segment must be preceded by at least one parent resource segment
   - A root-level Operations endpoint, such as `/api/atlas/v2/operations` or
     `/api/atlas/v2/unauth/operations`, is a violation
-  - Custom method suffixes (`:customMethod`) are ignored when identifying Operations endpoints
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operation-must-be-a-read-only-resource
 
- ![error](https://img.shields.io/badge/error-red) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Operations endpoints are read-only and may only define the get method.
 
 ##### Implementation details
@@ -1438,14 +1437,11 @@ Rule checks for the following conditions:
   - Applies to Operations endpoints, i.e. paths ending with an `operations` segment or an
     `operations/{operationId}` suffix
   - The path item must not define `post`, `put`, `patch` or `delete` methods
-  - Custom method paths attached to an Operations endpoint, such as
-    `/resource/operations/{operationId}:cancel`, share the Operations resource identifier and
-    must not define mutating methods either
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource
 
- ![error](https://img.shields.io/badge/error-red) 
+ ![warn](https://img.shields.io/badge/warning-yellow) 
 Operations endpoints must be leaf resources, with no resources nested below them.
 
 ##### Implementation details
@@ -1456,7 +1452,6 @@ Rule checks for the following conditions:
     parameter, e.g. `.../operations` and `.../operations/{operationId}` are valid
   - Any further nesting, such as `.../operations/subresource` or
     `.../operations/{operationId}/subresource`, is a violation
-  - Custom method suffixes (`:customMethod`) are ignored when identifying Operations endpoints
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 

@@ -5,8 +5,7 @@ const FORBIDDEN_METHODS = ['post', 'put', 'patch', 'delete'];
 
 /**
  * Checks that an Operations endpoint defined by IPA-132 is a read-only resource, i.e. its path
- * items define no mutating HTTP methods. This includes custom methods attached to an Operations
- * endpoint, since they share the Operations resource identifier.
+ * items define no mutating HTTP methods.
  *
  * @param {string} input - The path key from the OpenAPI spec
  * @param {object} _ - Unused
@@ -29,7 +28,8 @@ function checkViolationsAndReturnErrors(pathItem, path, ruleName) {
   try {
     const errors = [];
     for (const method of FORBIDDEN_METHODS) {
-      if (pathItem[method]) {
+      // Key presence, not truthiness - a declared method with a null/empty value still advertises the route
+      if (method in pathItem) {
         errors.push({
           path: [...path, method],
           message: `Operations endpoints are read-only and do not allow the ${method} method.`,

@@ -59,34 +59,35 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
         code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
         message: 'Operations endpoints are read-only and do not allow the post method.',
         path: ['paths', '/api/atlas/v2/resourceName/operations', 'post'],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
         message: 'Operations endpoints are read-only and do not allow the put method.',
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}', 'put'],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
         message: 'Operations endpoints are read-only and do not allow the patch method.',
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}', 'patch'],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
         message: 'Operations endpoints are read-only and do not allow the delete method.',
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}', 'delete'],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
     ],
   },
   {
-    name: 'invalid custom method attached to an Operations endpoint',
+    name: 'invalid Operations endpoint with a declared but empty method',
     document: {
       paths: {
-        '/api/atlas/v2/resourceName/operations/{operationId}:cancel': {
-          post: {},
+        '/api/atlas/v2/resourceName/operations': {
+          get: {},
+          post: null,
         },
       },
     },
@@ -94,8 +95,8 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
       {
         code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
         message: 'Operations endpoints are read-only and do not allow the post method.',
-        path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}:cancel', 'post'],
-        severity: DiagnosticSeverity.Error,
+        path: ['paths', '/api/atlas/v2/resourceName/operations', 'post'],
+        severity: DiagnosticSeverity.Warning,
       },
     ],
   },
@@ -136,7 +137,7 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
           'x-xgen-IPA-exception',
           'xgen-IPA-132-operation-must-be-a-read-only-resource',
         ],
-        severity: DiagnosticSeverity.Error,
+        severity: DiagnosticSeverity.Warning,
       },
     ],
   },

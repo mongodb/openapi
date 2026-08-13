@@ -16,10 +16,6 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
       expect(isOperationsCollectionPath('/api/atlas/v2/operations')).toBe(true);
     });
 
-    it('ignores custom method suffixes', () => {
-      expect(isOperationsCollectionPath('/api/atlas/v2/resourceName/operations:customMethod')).toBe(true);
-    });
-
     it('rejects other paths', () => {
       expect(isOperationsCollectionPath('/api/atlas/v2/resourceName/operations/{operationId}')).toBe(false);
       expect(isOperationsCollectionPath('/api/atlas/v2/resourceName')).toBe(false);
@@ -34,10 +30,6 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
         isSingleOperationPath('/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/operations/{operationId}')
       ).toBe(true);
       expect(isSingleOperationPath('/api/atlas/v2/operations/{operationId}')).toBe(true);
-    });
-
-    it('ignores custom method suffixes', () => {
-      expect(isSingleOperationPath('/api/atlas/v2/resourceName/operations/{operationId}:cancel')).toBe(true);
     });
 
     it('rejects other paths', () => {
@@ -82,6 +74,10 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
     it('rejects nested Operations resources', () => {
       expect(isRootLevelOperationsPath('/api/atlas/v2/resourceName/operations')).toBe(false);
       expect(isRootLevelOperationsPath('/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}')).toBe(false);
+    });
+
+    it('rejects paths nested below a root-level operations segment', () => {
+      expect(isRootLevelOperationsPath('/api/atlas/v2/operations/subresource')).toBe(false);
     });
   });
 });
