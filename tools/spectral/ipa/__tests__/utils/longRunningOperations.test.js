@@ -45,6 +45,12 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
       expect(isOperationsPath('/api/atlas/v2/resourceName/operations/{operationId}')).toBe(true);
     });
 
+    it('ignores custom method paths, which are covered by a dedicated rule', () => {
+      expect(isOperationsPath('/api/atlas/v2/resourceName/operations:customMethod')).toBe(false);
+      expect(isOperationsPath('/api/atlas/v2/resourceName/operations/{operationId}:cancel')).toBe(false);
+      expect(containsOperationsSegment('/api/atlas/v2/resourceName/operations/{operationId}:cancel')).toBe(false);
+    });
+
     it('rejects paths nested below an Operations resource', () => {
       expect(isOperationsPath('/api/atlas/v2/resourceName/operations/subresource')).toBe(false);
       expect(isOperationsPath('/api/atlas/v2/resourceName/operations/{operationId}/subresource')).toBe(false);

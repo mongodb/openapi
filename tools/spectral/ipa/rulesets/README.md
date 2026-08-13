@@ -1429,7 +1429,8 @@ Rule checks for the following conditions:
 #### xgen-IPA-132-operation-must-be-a-read-only-resource
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Operations endpoints are read-only and may only define the get method.
+Operations endpoints are read-only and must not define the mutating methods `post`, `put`,
+`patch` or `delete`.
 
 ##### Implementation details
 Rule checks for the following conditions:

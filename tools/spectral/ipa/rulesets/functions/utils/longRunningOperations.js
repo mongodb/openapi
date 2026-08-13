@@ -1,5 +1,5 @@
 import { isPathParam } from './componentUtils.js';
-import { removePrefix } from './resourceEvaluation.js';
+import { isCustomMethodIdentifier, removePrefix } from './resourceEvaluation.js';
 
 export const OPERATIONS_SEGMENT = 'operations';
 
@@ -7,10 +7,18 @@ export const OPERATIONS_SEGMENT = 'operations';
  * Splits a path into its resource identifier segments, ignoring the standard path prefix, so that
  * the segments describe the resource hierarchy only.
  *
+ * Custom method paths (`:customMethod`) yield no segments, keeping them out of scope for the
+ * IPA-132 Operations rules: custom methods on Operations endpoints will be rejected by a dedicated
+ * rule, and flagging them here would contradict the IPA-109 requirement that custom methods use
+ * POST or GET.
+ *
  * @param {string} path the path to split
  * @returns {string[]} the resource identifier segments
  */
 function toResourceSegments(path) {
+  if (isCustomMethodIdentifier(path)) {
+    return [];
+  }
   return removePrefix(path)
     .split('/')
     .filter((segment) => segment.length > 0);
