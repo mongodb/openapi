@@ -21,7 +21,7 @@ export default (input, _, { path, documentInventory, rule }) => {
   }
 
   const errors = checkViolationsAndReturnErrors(input, path, ruleName);
-  return evaluateAndCollectAdoptionStatus(errors, ruleName, oas.paths[input] ?? {}, path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, oas.paths[input], path);
 };
 
 function checkViolationsAndReturnErrors(input, path, ruleName) {

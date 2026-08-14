@@ -7,9 +7,8 @@ export const OPERATIONS_SEGMENT = 'operations';
  * the segments describe the resource hierarchy only.
  *
  * Custom method paths (`:customMethod`) yield no segments, keeping them out of scope for the
- * IPA-132 Operations rules: custom methods on Operations endpoints will be rejected by a dedicated
- * rule, and flagging them here would contradict the IPA-109 requirement that custom methods use
- * POST or GET.
+ * IPA-132 Operations rules: flagging their methods here would contradict the IPA-109 requirement
+ * that custom methods use POST or GET.
  *
  * @param {string} path the path to split
  * @returns {string[]} the resource identifier segments
