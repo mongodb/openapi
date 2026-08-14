@@ -80,16 +80,3 @@ export function isOperationsPath(path) {
 export function containsOperationsSegment(path) {
   return toResourceSegments(path).includes(OPERATIONS_SEGMENT);
 }
-
-/**
- * Checks if a path identifies an Operations resource mounted at the API root, i.e. an `operations`
- * segment with no parent resource, such as '/api/atlas/v2/operations' or
- * '/api/atlas/v2/operations/{operationId}'. IPA-132 requires Operations resources to be nested
- * under the parent resource that spawned the operation.
- *
- * @param {string} path the path to evaluate
- * @returns {boolean} true if the path identifies a root-level Operations resource
- */
-export function isRootLevelOperationsPath(path) {
-  return isOperationsPath(path) && toResourceSegments(path)[0] === OPERATIONS_SEGMENT;
-}

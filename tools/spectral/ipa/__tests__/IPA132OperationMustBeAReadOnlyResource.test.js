@@ -1,22 +1,56 @@
 import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
+const readOnlyGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: {
+            properties: {
+              id: { readOnly: true },
+              status: { readOnly: true },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+const nonReadOnlyGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: {
+            properties: {
+              id: { readOnly: true },
+              status: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
   {
     name: 'valid read-only Operations endpoints',
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {},
+          get: readOnlyGet,
         },
         '/api/atlas/v2/resourceName/operations/{operationId}': {
-          get: {},
+          get: readOnlyGet,
         },
         '/api/atlas/v2/resourceName/{pathParam}/operations': {
-          get: {},
+          get: readOnlyGet,
         },
         '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}': {
-          get: {},
+          get: readOnlyGet,
         },
       },
     },
@@ -43,11 +77,11 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {},
+          get: readOnlyGet,
           post: {},
         },
         '/api/atlas/v2/resourceName/operations/{operationId}': {
-          get: {},
+          get: readOnlyGet,
           put: {},
           patch: {},
           delete: {},
@@ -86,7 +120,7 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {},
+          get: readOnlyGet,
           post: null,
         },
       },
@@ -101,11 +135,33 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
     ],
   },
   {
+    name: 'invalid Operation resource with properties that are not readOnly',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName/operations': {
+          get: nonReadOnlyGet,
+        },
+        '/api/atlas/v2/resourceName/operations/{operationId}': {
+          get: nonReadOnlyGet,
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
+        message:
+          'The Operation resource must be read-only. All properties of the GET response schema must be marked as readOnly: true.',
+        path: ['paths', '/api/atlas/v2/resourceName/operations'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'invalid Operations endpoints with exceptions',
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {},
+          get: readOnlyGet,
           post: {},
           'x-xgen-IPA-exception': {
             'xgen-IPA-132-operation-must-be-a-read-only-resource': 'reason',
@@ -120,7 +176,7 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {},
+          get: readOnlyGet,
           'x-xgen-IPA-exception': {
             'xgen-IPA-132-operation-must-be-a-read-only-resource': 'reason',
           },

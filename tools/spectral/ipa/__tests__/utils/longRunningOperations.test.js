@@ -3,7 +3,6 @@ import {
   containsOperationsSegment,
   isOperationsCollectionPath,
   isOperationsPath,
-  isRootLevelOperationsPath,
   isSingleOperationPath,
 } from '../../rulesets/functions/utils/longRunningOperations';
 
@@ -67,23 +66,6 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
     it('rejects paths without an operations segment', () => {
       expect(containsOperationsSegment('/api/atlas/v2/resourceName')).toBe(false);
       expect(containsOperationsSegment('/api/atlas/v2/resourceName/{operationId}')).toBe(false);
-    });
-  });
-
-  describe('isRootLevelOperationsPath', () => {
-    it('recognizes Operations resources mounted at the API root', () => {
-      expect(isRootLevelOperationsPath('/api/atlas/v2/operations')).toBe(true);
-      expect(isRootLevelOperationsPath('/api/atlas/v2/operations/{operationId}')).toBe(true);
-      expect(isRootLevelOperationsPath('/api/atlas/v2/unauth/operations')).toBe(true);
-    });
-
-    it('rejects nested Operations resources', () => {
-      expect(isRootLevelOperationsPath('/api/atlas/v2/resourceName/operations')).toBe(false);
-      expect(isRootLevelOperationsPath('/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}')).toBe(false);
-    });
-
-    it('rejects paths nested below a root-level operations segment', () => {
-      expect(isRootLevelOperationsPath('/api/atlas/v2/operations/subresource')).toBe(false);
     });
   });
 });
