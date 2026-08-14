@@ -14557,13 +14557,9 @@
         "description": "Estimated compute cost of running a cluster.",
         "properties": {
           "disclaimer": {
-            "description": "Human-readable notes about what the estimate does and does not cover. Suitable for rendering line-by-line to the user.",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 10,
+            "description": "Human-readable notes about what the estimate does and does not cover. Suitable for rendering to the user. Omitted for free-tier (M0) estimates.",
             "readOnly": true,
-            "type": "array"
+            "type": "string"
           },
           "hourlyEstimateCredits": {
             "description": "Estimated compute cost per hour, in Atlas credits. One Atlas credit converts 1:1 to one US dollar.",
@@ -14577,7 +14573,6 @@
           }
         },
         "required": [
-          "disclaimer",
           "hourlyEstimateCredits",
           "monthlyEstimateCredits"
         ],
@@ -58962,13 +58957,8 @@
         "type": "object"
       },
       "UnauthClusterCostEstimateAssumedDefaults": {
-        "description": "Standard defaults the server applied to produce a complete cluster configuration that could be priced. The reported cost reflects exactly this configuration.",
+        "description": "Standard defaults the server applied to produce a complete cluster configuration that could be priced. The reported cost reflects exactly this configuration. Omitted for free (M0) and Flex tiers, where the priced configuration is fully determined by the tier.",
         "properties": {
-          "backupEnabled": {
-            "description": "Whether the estimate assumes cloud backup is enabled.",
-            "readOnly": true,
-            "type": "boolean"
-          },
           "clusterType": {
             "description": "Topology the estimate assumes.",
             "example": "REPLICASET",
@@ -58988,27 +58978,13 @@
             "format": "int32",
             "readOnly": true,
             "type": "integer"
-          },
-          "encryptionAtRestProvider": {
-            "description": "Encryption-at-rest provider the estimate assumes.",
-            "example": "NONE",
-            "readOnly": true,
-            "type": "string"
-          },
-          "mongoDbMajorVersion": {
-            "description": "MongoDB major version the estimate assumes.",
-            "example": "8.0",
-            "readOnly": true,
-            "type": "string"
           }
         },
+        "readOnly": true,
         "required": [
-          "backupEnabled",
           "clusterType",
           "diskSizeGb",
-          "electableNodeCount",
-          "encryptionAtRestProvider",
-          "mongoDbMajorVersion"
+          "electableNodeCount"
         ],
         "title": "Unauthenticated Cluster Cost Estimate Assumed Defaults",
         "type": "object"
@@ -59026,13 +59002,14 @@
             "type": "string"
           },
           "instanceSize": {
-            "description": "Cluster tier to estimate. Only a fixed set of representative tiers is supported on the unauthenticated endpoint; for other tiers, use the authenticated cost-estimate endpoints.",
+            "description": "Cluster tier to estimate. Only a fixed set of representative tiers is supported on the unauthenticated endpoint (M0, FLEX, M10, M30); for other tiers, see https://www.mongodb.com/pricing or use the authenticated cost-estimate endpoints.",
             "enum": [
               "M0",
               "FLEX",
               "M10",
               "M30"
             ],
+            "example": "M10",
             "type": "string"
           },
           "regionName": {
@@ -59050,7 +59027,7 @@
         "type": "object"
       },
       "UnauthClusterCostEstimateResponse": {
-        "description": "Estimated hourly and monthly compute cost for a cluster of the requested tier in the requested region. Echoes the request inputs and the standard defaults the server applied.",
+        "description": "Estimated hourly and monthly compute cost for a cluster of the requested tier in the requested region. Echoes the request inputs and, for dedicated tiers, the standard defaults the server applied.",
         "properties": {
           "assumedDefaults": {
             "$ref": "#/components/schemas/UnauthClusterCostEstimateAssumedDefaults"
@@ -59086,7 +59063,6 @@
           }
         },
         "required": [
-          "assumedDefaults",
           "cloudProvider",
           "costEstimate",
           "instanceSize",
@@ -61480,7 +61456,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "511e65e222ff0fb70f753b761d93fc551e805977"
+    "x-xgen-sha": "f84b8e4346991132f70f5610809ad1b6af020975"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -112578,7 +112554,7 @@
                 "x-xgen-version": "preview"
               }
             },
-            "description": "Estimated hourly and monthly compute cost for the requested tier, with the standard defaults the server applied."
+            "description": "Estimated hourly and monthly compute cost for the requested tier, with the standard defaults the server applied for dedicated tiers."
           },
           "400": {
             "$ref": "#/components/responses/badRequest"
