@@ -1,5 +1,4 @@
-import { isPathParam } from './componentUtils.js';
-import { isCustomMethodIdentifier, removePrefix } from './resourceEvaluation.js';
+import { isCustomMethodIdentifier, isPathParam, removePrefix } from './resourceEvaluation.js';
 
 export const OPERATIONS_SEGMENT = 'operations';
 
@@ -79,4 +78,26 @@ export function isOperationsPath(path) {
  */
 export function containsOperationsSegment(path) {
   return toResourceSegments(path).includes(OPERATIONS_SEGMENT);
+}
+
+/**
+ * Checks that nothing is nested below the first `operations` segment of a path: the segment may
+ * only be followed by a single operation identifier path parameter. Paths without an `operations`
+ * segment are considered leaves. For example:
+ * '/api/atlas/v2/resourceName/operations' returns true
+ * '/api/atlas/v2/resourceName/operations/{operationId}' returns true
+ * '/api/atlas/v2/resourceName/operations/subresource' returns false
+ * '/api/atlas/v2/resourceName/operations/{operationId}/operations' returns false
+ *
+ * @param {string} path the path to evaluate
+ * @returns {boolean} true if nothing is nested below the first `operations` segment
+ */
+export function operationsSegmentIsLeaf(path) {
+  const segments = toResourceSegments(path);
+  const firstIndex = segments.indexOf(OPERATIONS_SEGMENT);
+  if (firstIndex === -1) {
+    return true;
+  }
+  const trailingSegments = segments.slice(firstIndex + 1);
+  return trailingSegments.length === 0 || (trailingSegments.length === 1 && isPathParam(trailingSegments[0]));
 }

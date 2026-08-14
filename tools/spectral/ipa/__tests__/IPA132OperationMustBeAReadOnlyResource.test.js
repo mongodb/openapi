@@ -1,6 +1,9 @@
 import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
+const READ_ONLY_SCHEMA_ERROR_MESSAGE =
+  'The Operation resource must be read-only. All properties of the GET response schema must be marked as readOnly: true.';
+
 const readOnlyGet = {
   responses: {
     200: {
@@ -73,7 +76,7 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
     errors: [],
   },
   {
-    name: 'invalid Operations endpoints with mutating methods',
+    name: 'invalid Operations endpoints with methods other than get',
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
@@ -85,6 +88,7 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
           put: {},
           patch: {},
           delete: {},
+          head: {},
         },
       },
     },
@@ -113,6 +117,12 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}', 'delete'],
         severity: DiagnosticSeverity.Warning,
       },
+      {
+        code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
+        message: 'Operations endpoints are read-only and do not allow the head method.',
+        path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}', 'head'],
+        severity: DiagnosticSeverity.Warning,
+      },
     ],
   },
   {
@@ -135,7 +145,7 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
     ],
   },
   {
-    name: 'invalid Operation resource with properties that are not readOnly',
+    name: 'invalid Operation resources with properties that are not readOnly, checked per path item',
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
@@ -149,9 +159,14 @@ testRule('xgen-IPA-132-operation-must-be-a-read-only-resource', [
     errors: [
       {
         code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
-        message:
-          'The Operation resource must be read-only. All properties of the GET response schema must be marked as readOnly: true.',
-        path: ['paths', '/api/atlas/v2/resourceName/operations'],
+        message: READ_ONLY_SCHEMA_ERROR_MESSAGE,
+        path: ['paths', '/api/atlas/v2/resourceName/operations', 'get'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-132-operation-must-be-a-read-only-resource',
+        message: READ_ONLY_SCHEMA_ERROR_MESSAGE,
+        path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}', 'get'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

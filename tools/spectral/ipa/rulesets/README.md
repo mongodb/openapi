@@ -1429,7 +1429,7 @@ Rule checks for the following conditions:
 #### xgen-IPA-132-operation-must-be-a-read-only-resource
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
-Operations endpoints are read-only. They must not define mutating methods, and all properties
+Operations endpoints are read-only. They may only define the get method, and all properties
 of the Operation resource must be readOnly.
 
 ##### Implementation details
@@ -1437,15 +1437,10 @@ Rule checks for the following conditions:
 
   - Applies to Operations endpoints, i.e. paths ending with an `operations` segment or an
     `operations/{operationId}` suffix
-  - The path item must not define any of the methods listed in the `forbiddenMethods` option
-  - All properties of the Operation resource GET response schema must be marked as
-    `readOnly: true`; this condition is evaluated once per Operations resource, on its
-    collection path item
+  - The path item must not define any HTTP method other than `get`
+  - All properties of every 2xx response schema of the `get` method must be marked as
+    `readOnly: true`; the condition is checked per path item
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
-
-##### Function options
-        - forbiddenMethods: Required array parameter listing the HTTP methods an Operations
-        endpoint must not define
 
 #### xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource
 

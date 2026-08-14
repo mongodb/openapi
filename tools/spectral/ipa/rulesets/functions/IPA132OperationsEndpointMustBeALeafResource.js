@@ -1,12 +1,12 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { containsOperationsSegment, isOperationsPath } from './utils/longRunningOperations.js';
+import { containsOperationsSegment, operationsSegmentIsLeaf } from './utils/longRunningOperations.js';
 
 const ERROR_MESSAGE =
   'Operations endpoints must be leaf resources. An `operations` segment may only be followed by a single operation identifier path parameter.';
 
 /**
  * Checks that an Operations resource defined by IPA-132 is a leaf resource, i.e. nothing is nested
- * below `operations` other than a single `{operationId}` path parameter.
+ * below the first `operations` segment other than a single `{operationId}` path parameter.
  *
  * @param {string} input - The path key from the OpenAPI spec
  * @param {object} _ - Unused
@@ -21,12 +21,12 @@ export default (input, _, { path, documentInventory, rule }) => {
   }
 
   const errors = checkViolationsAndReturnErrors(input, path, ruleName);
-  return evaluateAndCollectAdoptionStatus(errors, ruleName, oas.paths[input], path);
+  return evaluateAndCollectAdoptionStatus(errors, ruleName, oas.paths[input] ?? {}, path);
 };
 
 function checkViolationsAndReturnErrors(input, path, ruleName) {
   try {
-    if (!isOperationsPath(input)) {
+    if (!operationsSegmentIsLeaf(input)) {
       return [{ path, message: ERROR_MESSAGE }];
     }
     return [];

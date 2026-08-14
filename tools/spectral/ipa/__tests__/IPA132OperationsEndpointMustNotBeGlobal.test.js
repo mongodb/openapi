@@ -66,6 +66,22 @@ testRule('xgen-IPA-132-operations-endpoint-must-not-be-global', [
     ],
   },
   {
+    name: 'null path items are still validated',
+    document: {
+      paths: {
+        '/api/atlas/v2/operations': null,
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-operations-endpoint-must-not-be-global',
+        message: ERROR_MESSAGE,
+        path: ['paths', '/api/atlas/v2/operations'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'invalid root-level Operations endpoints with exceptions',
     document: {
       paths: {

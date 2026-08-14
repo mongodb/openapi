@@ -38,6 +38,9 @@ testRule('xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource', [
         '/api/atlas/v2/resourceName/operations/subresource': {},
         '/api/atlas/v2/resourceName/operations/{operationId}/subresource': {},
         '/api/atlas/v2/resourceName/operations/{operationId}/{anotherId}': {},
+        // Nesting below the first operations segment is a violation even when the path ends in
+        // another well-formed operations suffix
+        '/api/atlas/v2/resourceName/operations/{operationId}/operations': {},
       },
     },
     errors: [
@@ -57,6 +60,12 @@ testRule('xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource', [
         code: 'xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource',
         message: ERROR_MESSAGE,
         path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}/{anotherId}'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource',
+        message: ERROR_MESSAGE,
+        path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}/operations'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

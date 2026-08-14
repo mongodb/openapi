@@ -4,6 +4,7 @@ import {
   isOperationsCollectionPath,
   isOperationsPath,
   isSingleOperationPath,
+  operationsSegmentIsLeaf,
 } from '../../rulesets/functions/utils/longRunningOperations';
 
 describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
@@ -36,6 +37,10 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
       expect(isSingleOperationPath('/api/atlas/v2/resourceName/{pathParam}')).toBe(false);
       expect(isSingleOperationPath('/api/atlas/v2/resourceName/operations/{operationId}/subresource')).toBe(false);
     });
+
+    it('is lenient about the path parameter syntax, casing is covered by IPA-102', () => {
+      expect(isSingleOperationPath('/api/atlas/v2/resourceName/operations/{OperationId}')).toBe(true);
+    });
   });
 
   describe('isOperationsPath', () => {
@@ -66,6 +71,21 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
     it('rejects paths without an operations segment', () => {
       expect(containsOperationsSegment('/api/atlas/v2/resourceName')).toBe(false);
       expect(containsOperationsSegment('/api/atlas/v2/resourceName/{operationId}')).toBe(false);
+    });
+  });
+
+  describe('operationsSegmentIsLeaf', () => {
+    it('accepts leaf Operations endpoints and paths without an operations segment', () => {
+      expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations')).toBe(true);
+      expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/{operationId}')).toBe(true);
+      expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName')).toBe(true);
+    });
+
+    it('rejects nesting below the first operations segment', () => {
+      expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/subresource')).toBe(false);
+      expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/{operationId}/subresource')).toBe(false);
+      expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/{operationId}/operations')).toBe(false);
+      expect(operationsSegmentIsLeaf('/api/atlas/v2/operations/subresource')).toBe(false);
     });
   });
 });
