@@ -13796,18 +13796,6 @@
         },
         "type": "object"
       },
-      "CreateEphemeralClusterRequest": {
-        "description": "Create an Atlas Ephemeral cluster.",
-        "properties": {
-          "clusterName": {
-            "description": "Human-readable label that identifies the Ephemeral cluster. Defaults to `Cluster0`.",
-            "nullable": true,
-            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "CreateGCPEndpointGroupRequest": {
         "allOf": [
           {
@@ -21448,80 +21436,6 @@
           "content",
           "status"
         ],
-        "type": "object"
-      },
-      "EphemeralClusterCreated": {
-        "description": "Details for the Atlas Ephemeral cluster that was created.",
-        "properties": {
-          "claimUrl": {
-            "description": "Unique URL for claiming this Ephemeral cluster. Redirects to the Atlas sign-in or registration page, where a user signs in or creates an account to claim the cluster. Valid for 7 days after the cluster is created.",
-            "format": "uri",
-            "type": "string"
-          },
-          "clusterId": {
-            "description": "Unique identifier of the Ephemeral cluster. Use this ID to retrieve the cluster's status and details in a GET request.",
-            "type": "string"
-          },
-          "connectionString": {
-            "description": "Connection string that uses the `mongodb+srv://` protocol to connect to the Ephemeral cluster. This string includes the unredacted SCRAM credentials (username and password) for an automatically generated database user that Atlas grants the built-in `readWriteAnyDatabase` role.",
-            "type": "string"
-          },
-          "expiresAt": {
-            "description": "Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "type": "string"
-          },
-          "status": {
-            "description": "Status of the Ephemeral cluster.",
-            "enum": [
-              "ACTIVE",
-              "PAUSED"
-            ],
-            "type": "string"
-          },
-          "termsOfService": {
-            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "EphemeralClusterStatusResponse": {
-        "description": "Current status and details of an ephemeral Atlas cluster.",
-        "properties": {
-          "claimUrl": {
-            "description": "Unique URL for claiming this Ephemeral cluster. Redirects to the Atlas sign-in or registration page, where a user signs in or creates an account to claim the cluster. Valid for 7 days after the cluster is created.",
-            "format": "uri",
-            "type": "string"
-          },
-          "clusterId": {
-            "description": "Unique identifier of the Ephemeral cluster. Use this ID to retrieve the cluster's status and details in a GET request.",
-            "type": "string"
-          },
-          "connectionString": {
-            "description": "Connection string that uses the `mongodb+srv://` protocol to connect to the Ephemeral cluster. This string includes the SCRAM username of an automatically generated database user, but replaces the password with a placeholder. Atlas returns the password only in the create response.",
-            "nullable": true,
-            "type": "string"
-          },
-          "expiresAt": {
-            "description": "Date and time when the cluster will be paused and no longer accessible until it is claimed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "type": "string"
-          },
-          "status": {
-            "description": "Status of the Ephemeral cluster.",
-            "enum": [
-              "PROVISIONING",
-              "ACTIVE",
-              "PAUSED"
-            ],
-            "type": "string"
-          },
-          "termsOfService": {
-            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.",
-            "type": "string"
-          }
-        },
         "type": "object"
       },
       "EventSeverity": {
@@ -54749,7 +54663,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "c48344b2e3f3b913ac4493de7c6e97e89bab3716"
+    "x-xgen-sha": "68dd8afc28e425adeb599ae5bce42fa34cb3739b"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -90728,9 +90642,9 @@
                   "TRANSACTIONS_CURRENT_ACTIVE",
                   "TRANSACTIONS_CURRENT_INACTIVE",
                   "TRANSACTIONS_CURRENT_OPEN",
-                  "TRANSACTIONS_TOTAL_ABORTED",
-                  "TRANSACTIONS_TOTAL_COMMITTED",
-                  "TRANSACTIONS_TOTAL_STARTED",
+                  "TRANSACTIONS_ABORTED",
+                  "TRANSACTIONS_COMMITTED",
+                  "TRANSACTIONS_STARTED",
                   "CACHE_PRESSURE_PERCENTAGE",
                   "INGRESS_QUEUE_WAIT_TIME"
                 ],
@@ -109789,145 +109703,6 @@
         "x-xgen-operation-id-override": "listControlPlaneAddresses"
       }
     },
-    "/api/atlas/v2/unauth/ephemeralClusters/{clusterId}": {
-      "get": {
-        "description": "Returns the details for one Atlas Ephemeral cluster.\n\nTo learn more about Ephemeral clusters, see [Create an Atlas Ephemeral Cluster](https://dochub.mongodb.org/core/create-ephemeral-cluster) in the MongoDB Atlas documentation.",
-        "operationId": "getEphemeralCluster",
-        "parameters": [
-          {
-            "description": "Unique ID of the ephemeral cluster to look up.",
-            "in": "path",
-            "name": "clusterId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2025-03-12+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EphemeralClusterStatusResponse"
-                },
-                "x-xgen-version": "2025-03-12"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "security": [],
-        "summary": "Return One Ephemeral Atlas Cluster",
-        "tags": [
-          "Ephemeral Clusters"
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "go",
-            "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetEphemeralClusterApiParams{}\n\tsdkResp, httpResp, err := client.EphemeralClustersApi.\n\t\tGetEphemeralClusterWithParams(ctx, params).\n\t\tExecute()\n}\n"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl",
-            "source": "curl --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/unauth/ephemeralClusters/{clusterId}?pretty=true\""
-          }
-        ],
-        "x-xgen-atlascli": {
-          "skip": true
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/getEphemeralCluster"
-      }
-    },
-    "/api/atlas/v2/unauth/ephemeralClusters:create": {
-      "post": {
-        "description": "Creates an Atlas Ephemeral cluster and returns its connection and claim details.\n\nAn Ephemeral cluster is a temporary Free cluster that you can create and connect to without an Atlas account. Atlas pauses the cluster 2 days after creation and deletes it 7 days after creation unless you claim it to an Atlas account.\n\nClaiming an Ephemeral cluster converts it into a standard Free cluster with no expiration date and moves it into a new or existing Atlas organization. Until you claim the cluster, you can read and write its data but can't perform administrative operations, such as scaling the cluster, adding database users, or changing network access.\n\nAtlas deploys all Ephemeral clusters to AWS `us-east-1` and allows connections from any IP address (`0.0.0.0/0`). To learn more about Ephemeral clusters, see [Create an Atlas Ephemeral Cluster](https://dochub.mongodb.org/core/create-ephemeral-cluster) in the MongoDB Atlas documentation.",
-        "operationId": "createEphemeralCluster",
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.2025-03-12+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateEphemeralClusterRequest"
-              }
-            }
-          },
-          "description": "Ephemeral cluster to create.",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/vnd.atlas.2025-03-12+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EphemeralClusterCreated"
-                },
-                "x-xgen-version": "2025-03-12"
-              }
-            },
-            "description": "Created",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "security": [],
-        "summary": "Create One Ephemeral Atlas Cluster",
-        "tags": [
-          "Ephemeral Clusters"
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "go",
-            "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateEphemeralClusterApiParams{}\n\tsdkResp, httpResp, err := client.EphemeralClustersApi.\n\t\tCreateEphemeralClusterWithParams(ctx, params).\n\t\tExecute()\n}\n"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl",
-            "source": "curl --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/unauth/ephemeralClusters:create\" \\\n  -d '{ <Payload> }'"
-          }
-        ],
-        "x-xgen-atlascli": {
-          "skip": true
-        },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/createEphemeralCluster"
-      }
-    },
     "/api/atlas/v2/unauth/openapi/versions": {
       "get": {
         "description": "API that provides a list of available versions for a given environment.",
@@ -110376,10 +110151,6 @@
     {
       "description": "Returns and edits the Encryption at Rest using Customer Key Management configuration. MongoDB Cloud encrypts all storage whether or not you use your own key management.",
       "name": "Encryption at Rest using Customer Key Management"
-    },
-    {
-      "description": "Create and return Atlas Ephemeral clusters. An Ephemeral cluster is a temporary Atlas Free cluster that you can claim within 7 days to convert into a standard Free cluster.\n\nUse of this API, including any resources created through it, is governed by MongoDB’s [Cloud Terms of Service](https://www.mongodb.com/legal/terms-and-conditions/cloud) and [Privacy Policy](https://www.mongodb.com/legal/privacy/privacy-policy). By using this API to create an Ephemeral cluster, you agree to these terms.\n\nTo learn more about Ephemeral clusters, see [Create an Atlas Ephemeral Cluster](https://dochub.mongodb.org/core/create-ephemeral-cluster) in the MongoDB Atlas documentation.",
-      "name": "Ephemeral Clusters"
     },
     {
       "description": "Returns events. This collection remains under revision and may change.",
