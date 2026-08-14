@@ -1,6 +1,6 @@
 import { allPropertiesAreReadOnly } from './utils/resourceEvaluation.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { isOperationsPath } from './utils/longRunningOperations.js';
+import { isOperationsPath, isSingleOperationPath } from './utils/longRunningOperations.js';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 const READ_ONLY_SCHEMA_ERROR_MESSAGE =
@@ -23,11 +23,11 @@ export default (input, _, { path, documentInventory, rule }) => {
   }
 
   const pathItem = oas.paths[input] ?? {};
-  const errors = checkViolationsAndReturnErrors(pathItem, path, ruleName);
+  const errors = checkViolationsAndReturnErrors(input, pathItem, path, ruleName);
   return evaluateAndCollectAdoptionStatus(errors, ruleName, pathItem, path);
 };
 
-function checkViolationsAndReturnErrors(pathItem, path, ruleName) {
+function checkViolationsAndReturnErrors(input, pathItem, path, ruleName) {
   try {
     const errors = [];
     for (const method of HTTP_METHODS) {
@@ -40,9 +40,10 @@ function checkViolationsAndReturnErrors(pathItem, path, ruleName) {
       }
     }
 
-    // Every 2xx response schema of the get method must consist of readOnly properties only. The
-    // check is per path item, so the exception for a violation is placed on the flagged path item.
-    if (hasWritableGetResponseSchema(pathItem)) {
+    // The readOnly condition is checked on the single Operation endpoint, where the Get method is
+    // defined. The List method on the collection reuses the Operation resource schema and its
+    // response shape is validated by xgen-IPA-132-operation-endpoints-must-return-operation-response.
+    if (isSingleOperationPath(input) && hasWritableGetResponseSchema(pathItem)) {
       errors.push({ path: [...path, 'get'], message: READ_ONLY_SCHEMA_ERROR_MESSAGE });
     }
     return errors;

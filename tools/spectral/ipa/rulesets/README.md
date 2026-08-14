@@ -1438,8 +1438,9 @@ Rule checks for the following conditions:
   - Applies to Operations endpoints, i.e. paths ending with an `operations` segment or an
     `operations/{operationId}` suffix
   - The path item must not define any HTTP method other than `get`
-  - All properties of every 2xx response schema of the `get` method must be marked as
-    `readOnly: true`; the condition is checked per path item
+  - On the single Operation endpoint (`.../operations/{operationId}`), where the Get method
+    is defined, all properties of every 2xx response schema of the `get` method must be
+    marked as `readOnly: true`
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource

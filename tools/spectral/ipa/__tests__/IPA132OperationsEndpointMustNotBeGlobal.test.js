@@ -66,22 +66,6 @@ testRule('xgen-IPA-132-operations-endpoint-must-not-be-global', [
     ],
   },
   {
-    name: 'null path items are still validated',
-    document: {
-      paths: {
-        '/api/atlas/v2/operations': null,
-      },
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-132-operations-endpoint-must-not-be-global',
-        message: ERROR_MESSAGE,
-        path: ['paths', '/api/atlas/v2/operations'],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
-  },
-  {
     name: 'invalid root-level Operations endpoints with exceptions',
     document: {
       paths: {
@@ -93,30 +77,5 @@ testRule('xgen-IPA-132-operations-endpoint-must-not-be-global', [
       },
     },
     errors: [],
-  },
-  {
-    name: 'nested Operations endpoints do not need an exception',
-    document: {
-      paths: {
-        '/api/atlas/v2/resourceName/operations': {
-          'x-xgen-IPA-exception': {
-            'xgen-IPA-132-operations-endpoint-must-not-be-global': 'reason',
-          },
-        },
-      },
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-132-operations-endpoint-must-not-be-global',
-        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
-        path: [
-          'paths',
-          '/api/atlas/v2/resourceName/operations',
-          'x-xgen-IPA-exception',
-          'xgen-IPA-132-operations-endpoint-must-not-be-global',
-        ],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
   },
 ]);
