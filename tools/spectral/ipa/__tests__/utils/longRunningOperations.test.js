@@ -1,10 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   containsOperationsSegment,
+  isExactEnumMatch,
   isOperationsCollectionPath,
   isOperationsPath,
   isSingleOperationPath,
   operationsSegmentIsLeaf,
+  OPERATION_STATUS_ENUM,
+  OPERATION_TYPE_ENUM,
 } from '../../rulesets/functions/utils/longRunningOperations';
 
 describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
@@ -86,6 +89,27 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
       expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/{operationId}/subresource')).toBe(false);
       expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/{operationId}/operations')).toBe(false);
       expect(operationsSegmentIsLeaf('/api/atlas/v2/operations/subresource')).toBe(false);
+    });
+  });
+
+  describe('isExactEnumMatch', () => {
+    it('accepts exact matches in any order', () => {
+      expect(
+        isExactEnumMatch(
+          ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
+          OPERATION_STATUS_ENUM
+        )
+      ).toBe(true);
+      expect(isExactEnumMatch(['CUSTOM', 'DELETE', 'UPDATE', 'CREATE'], OPERATION_TYPE_ENUM)).toBe(true);
+    });
+
+    it('rejects missing, extra, duplicate or undefined values', () => {
+      expect(
+        isExactEnumMatch(['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED'], OPERATION_STATUS_ENUM)
+      ).toBe(false);
+      expect(isExactEnumMatch([...OPERATION_STATUS_ENUM, 'CANCELLING'], OPERATION_STATUS_ENUM)).toBe(false);
+      expect(isExactEnumMatch(['CREATE', 'CREATE', 'UPDATE', 'DELETE'], OPERATION_TYPE_ENUM)).toBe(false);
+      expect(isExactEnumMatch(undefined, OPERATION_TYPE_ENUM)).toBe(false);
     });
   });
 });

@@ -1458,6 +1458,59 @@ Rule checks for the following conditions:
     `.../operations/{operationId}/subresource`, is a violation
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-132-operation-endpoints-must-return-operation-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Operation endpoints must return the OperationResponse schema to report long-running
+operation status.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to 2xx JSON responses of GET methods on Operations endpoints
+  - The single Operation endpoint (`.../operations/{operationId}`) must reference the
+    `OperationResponse` schema
+  - The Operations collection endpoint (`.../operations`) must return a paginated response
+    whose `results` items reference the `OperationResponse` schema; the paginated wrapper
+    may be a referenced or an inline schema
+  - Inline Operation schemas are violations, the response must reference the predefined
+    `OperationResponse` schema
+  - Responses with `x-xgen-IPA-exception` for this rule at the content media type level are
+    excluded from validation
+
+#### xgen-IPA-132-operation-status-must-use-the-standard-status-enum
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+An Operation must report progress through a status field, using exactly the enum PENDING,
+IN_PROGRESS, SUCCEEDED, FAILED, CANCELED, SUPERSEDED.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - The schema must define a `status` property
+  - The `status` enum must contain exactly the values `PENDING`, `IN_PROGRESS`, `SUCCEEDED`,
+    `FAILED`, `CANCELED` and `SUPERSEDED`, in any order
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operation-response-must-include-core-metadata
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+An OperationResponse must include stable core metadata for the operation record: a required
+operationId, a required operationType, a required createdAt and a required updatedAt.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - The properties `operationId`, `operationType`, `createdAt` and `updatedAt` must be
+    defined and listed as required
+  - The `operationType` enum must contain exactly the values `CREATE`, `UPDATE`, `DELETE`
+    and `CUSTOM`, in any order
+  - A `customMethod` property must be defined and must not be listed as required: it is
+    required only when `operationType` is `CUSTOM`, which cannot be validated statically
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 

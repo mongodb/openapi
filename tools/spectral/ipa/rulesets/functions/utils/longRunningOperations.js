@@ -100,3 +100,25 @@ export function operationsSegmentIsLeaf(path) {
   const trailingSegments = segments.slice(firstIndex + 1);
   return trailingSegments.length === 0 || (trailingSegments.length === 1 && isPathParam(trailingSegments[0]));
 }
+
+export const OPERATION_RESPONSE_SCHEMA_NAME = 'OperationResponse';
+
+export const OPERATION_STATUS_ENUM = ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'];
+
+export const OPERATION_TYPE_ENUM = ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'];
+
+/**
+ * Checks if the enum values defined in a schema match an expected set of values exactly, in any
+ * order.
+ *
+ * @param {string[]|undefined} enumValues the enum values defined in the schema
+ * @param {string[]} expectedValues the expected enum values
+ * @returns {boolean} true if the enum values match the expected values exactly
+ */
+export function isExactEnumMatch(enumValues, expectedValues) {
+  return (
+    Array.isArray(enumValues) &&
+    enumValues.length === expectedValues.length &&
+    expectedValues.every((value) => enumValues.includes(value))
+  );
+}
