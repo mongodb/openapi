@@ -1630,6 +1630,61 @@ Rule checks for the following conditions:
     violation
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-132-lro-initiation-must-return-202-accepted-with-location
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+A method that starts a long-running operation must return 202 Accepted with a Location
+header pointing at the Operation resource URI that clients poll for status.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to mutating methods that declare a 202 response; the
+    `x-xgen-long-running-operation` extension is derived from the 202 during the merge
+    step, so the rule behaves identically on merged and per-service specs
+  - Legacy operations that predate IPA-132 are excluded from validation, whether marked
+    `legacy: true` during the merge step or matched by the shared legacy operationId list
+  - The 202 response must declare a `Location` header; header names are compared
+    case-insensitively
+  - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-lro-must-not-return-success-status-code-other-than-202
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+A method that starts a long-running operation must not return anything other than 202
+Accepted as a success status code.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to mutating methods that declare a 202 response; the
+    `x-xgen-long-running-operation` extension is derived from the 202 during the merge
+    step, so the rule behaves identically on merged and per-service specs
+  - Legacy operations that predate IPA-132 are excluded from validation, whether marked
+    `legacy: true` during the merge step or matched by the shared legacy operationId list
+  - The operation must not declare any 2xx response other than 202, including wildcard
+    response codes such as `2XX`
+  - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-lro-202-response-must-not-include-content
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+A long-running operation must not return a body with 202 Accepted. The operation handle is
+conveyed through the Location header.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to mutating methods that declare a 202 response; the
+    `x-xgen-long-running-operation` extension is derived from the 202 during the merge
+    step, so the rule behaves identically on merged and per-service specs
+  - Legacy operations that predate IPA-132 are excluded from validation, whether marked
+    `legacy: true` during the merge step or matched by the shared legacy operationId list
+  - No media type of the 202 response may declare a schema
+  - Media types carrying only versioning metadata, such as `x-xgen-version`, without a
+    schema, are allowed
+  - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 

@@ -15,8 +15,8 @@
 package merge
 
 import (
-	"encoding/json"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,20 +24,19 @@ import (
 )
 
 // TestLegacyLongRunningOperationIDs_MatchSharedList pins the generated Go map to the shared
-// list the IPA-132 validation rules consume. On failure, run go generate ./... in tools/cli.
+// JavaScript module the IPA-132 validation rules import. On failure, run go generate ./... in
+// tools/cli.
 func TestLegacyLongRunningOperationIDs_MatchSharedList(t *testing.T) {
-	data, err := os.ReadFile("../../../../spectral/ipa/rulesets/functions/utils/legacyLongRunningOperations.json")
+	data, err := os.ReadFile("../../../../spectral/ipa/rulesets/functions/utils/legacyLroOperationIds.js")
 	require.NoError(t, err)
 
-	var list struct {
-		OperationIDs []string `json:"operationIds"`
-	}
-	require.NoError(t, json.Unmarshal(data, &list))
+	matches := regexp.MustCompile(`'([a-zA-Z0-9]+)',`).FindAllStringSubmatch(string(data), -1)
+	require.NotEmpty(t, matches, "no operationIds found in the shared list")
 
-	assert.Len(t, legacyLongRunningOperationIDs, len(list.OperationIDs),
+	assert.Len(t, legacyLongRunningOperationIDs, len(matches),
 		"the generated map and the shared list differ in size; run go generate ./... in tools/cli")
-	for _, operationID := range list.OperationIDs {
-		assert.Contains(t, legacyLongRunningOperationIDs, operationID,
+	for _, match := range matches {
+		assert.Contains(t, legacyLongRunningOperationIDs, match[1],
 			"missing from the generated map; run go generate ./... in tools/cli")
 	}
 }

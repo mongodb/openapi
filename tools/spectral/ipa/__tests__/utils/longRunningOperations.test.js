@@ -1,10 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   containsOperationsSegment,
+  isCompliantLongRunningOperation,
   isExactEnumMatch,
   isOperationsCollectionPath,
   isOperationsPath,
   isSingleOperationPath,
+  LEGACY_LRO_OPERATION_IDS,
   operationsSegmentIsLeaf,
   usesComposition,
 } from '../../rulesets/functions/utils/longRunningOperations';
@@ -115,6 +117,54 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
       expect(usesComposition({ oneOf: [{ type: 'object' }] })).toBe(true);
       expect(usesComposition({ anyOf: [{ type: 'object' }] })).toBe(true);
       expect(usesComposition({ type: 'object', properties: { id: { type: 'string' } } })).toBe(false);
+    });
+  });
+
+  describe('isCompliantLongRunningOperation', () => {
+    it('selects operations declaring a 202 response, with or without the extension', () => {
+      expect(isCompliantLongRunningOperation({ operationId: 'createGroupThing', responses: { 202: {} } })).toBe(true);
+      expect(
+        isCompliantLongRunningOperation({
+          operationId: 'createGroupThing',
+          responses: { 202: {} },
+          'x-xgen-long-running-operation': { legacy: false },
+        })
+      ).toBe(true);
+    });
+
+    it('ignores operations without a 202 response, even when the extension is present', () => {
+      expect(isCompliantLongRunningOperation({ operationId: 'createGroupThing', responses: { 201: {} } })).toBe(false);
+      expect(
+        isCompliantLongRunningOperation({
+          operationId: 'createGroupThing',
+          responses: { 201: {} },
+          'x-xgen-long-running-operation': { legacy: false },
+        })
+      ).toBe(false);
+      expect(isCompliantLongRunningOperation({ operationId: 'createGroupThing' })).toBe(false);
+    });
+
+    it('excludes operations marked legacy by the merge step', () => {
+      expect(
+        isCompliantLongRunningOperation({
+          operationId: 'createGroupThing',
+          responses: { 202: {} },
+          'x-xgen-long-running-operation': { legacy: true },
+        })
+      ).toBe(false);
+    });
+
+    it('excludes operations matched by the shared legacy operationId list', () => {
+      expect(isCompliantLongRunningOperation({ operationId: 'deleteGroupCluster', responses: { 202: {} } })).toBe(
+        false
+      );
+    });
+  });
+
+  describe('LEGACY_LRO_OPERATION_IDS', () => {
+    it('is loaded from the shared legacy operation list', () => {
+      expect(LEGACY_LRO_OPERATION_IDS.size).toBeGreaterThan(0);
+      expect(LEGACY_LRO_OPERATION_IDS.has('deleteGroupCluster')).toBe(true);
     });
   });
 });
