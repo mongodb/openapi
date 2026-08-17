@@ -1,6 +1,6 @@
 import { resolveObject } from './utils/componentUtils.js';
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getSchemaNameFromRef, getSchemaRef } from './utils/methodUtils.js';
+import { getSchemaNameFromRef } from './utils/methodUtils.js';
 import {
   isOperationsCollectionPath,
   isSingleOperationPath,
@@ -13,7 +13,7 @@ const OPERATIONS_COLLECTION_ERROR_MESSAGE = `The Operations collection endpoint 
 /**
  * Checks that Operations endpoints defined by IPA-132 return the OperationResponse schema: the
  * single Operation endpoint must reference it directly, and the Operations collection endpoint
- * must return a paginated response whose results items reference it.
+ * must reference a paginated wrapper schema whose results items reference it.
  *
  * @param {string} input - The media type from the response content of the GET method
  * @param {object} _ - Unused
@@ -23,16 +23,18 @@ export default (input, _, { path, documentInventory, rule }) => {
   const ruleName = rule.name;
   const resourcePath = path[1];
   const responseCode = path[4];
-  const oas = documentInventory.unresolved;
-  const contentPerMediaType = resolveObject(oas, path);
 
   if (
     !responseCode.startsWith('2') ||
-    !contentPerMediaType ||
-    !contentPerMediaType.schema ||
     !input.endsWith('json') ||
     (!isSingleOperationPath(resourcePath) && !isOperationsCollectionPath(resourcePath))
   ) {
+    return;
+  }
+
+  const oas = documentInventory.unresolved;
+  const contentPerMediaType = resolveObject(oas, path);
+  if (!contentPerMediaType || !contentPerMediaType.schema) {
     return;
   }
 
@@ -49,10 +51,10 @@ function checkViolationsAndReturnErrors(resourcePath, schema, oas, path, ruleNam
       return [{ path, message: SINGLE_OPERATION_ERROR_MESSAGE }];
     }
 
-    // The Operations collection response may reference a paginated wrapper schema, or define the
-    // paginated wrapper inline; the results items must reference the Operation schema either way
-    const wrapperSchema = getReferencedSchema(schema, oas) ?? schema;
-    const resultsItems = wrapperSchema?.properties?.results?.items;
+    // The Operations collection response must reference a paginated wrapper schema, since inline
+    // paginated schemas are rejected by xgen-IPA-110-collections-use-paginated-prefix
+    const wrapperSchema = getReferencedSchema(schema, oas);
+    const resultsItems = getResultsItems(wrapperSchema);
     if (resultsItems && schemaReferencesOperationResponse(resultsItems)) {
       return [];
     }
@@ -63,14 +65,33 @@ function checkViolationsAndReturnErrors(resourcePath, schema, oas, path, ruleNam
 }
 
 function schemaReferencesOperationResponse(schema) {
-  const schemaRef = getSchemaRef(schema);
-  return schemaRef !== undefined && getSchemaNameFromRef(schemaRef) === OPERATION_RESPONSE_SCHEMA_NAME;
+  return schema.$ref !== undefined && getSchemaNameFromRef(schema.$ref) === OPERATION_RESPONSE_SCHEMA_NAME;
 }
 
 function getReferencedSchema(schema, oas) {
-  const schemaRef = schema.$ref;
-  if (!schemaRef) {
+  if (!schema.$ref) {
     return undefined;
   }
-  return oas.components?.schemas?.[getSchemaNameFromRef(schemaRef)];
+  return oas.components?.schemas?.[getSchemaNameFromRef(schema.$ref)];
+}
+
+/**
+ * Finds the results items schema of a paginated wrapper. The results property may be defined
+ * directly on the wrapper, or within one of its allOf sub-schemas, which Spectral does not flatten.
+ */
+function getResultsItems(wrapperSchema) {
+  if (!wrapperSchema) {
+    return undefined;
+  }
+  const directItems = wrapperSchema.properties?.results?.items;
+  if (directItems) {
+    return directItems;
+  }
+  for (const subSchema of wrapperSchema.allOf ?? []) {
+    const items = subSchema.properties?.results?.items;
+    if (items) {
+      return items;
+    }
+  }
+  return undefined;
 }

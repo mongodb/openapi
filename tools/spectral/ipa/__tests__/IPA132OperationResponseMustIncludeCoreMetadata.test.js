@@ -33,6 +33,25 @@ testRule('xgen-IPA-132-operation-response-must-include-core-metadata', [
     errors: [],
   },
   {
+    name: 'valid OperationResponse composed with allOf',
+    document: {
+      components: {
+        schemas: {
+          OperationResponse: {
+            allOf: [{ $ref: '#/components/schemas/OperationMetadata' }, validOperationResponse],
+          },
+          OperationMetadata: {
+            type: 'object',
+            properties: {
+              statusMessage: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'documents without an OperationResponse schema are ignored',
     document: {
       components: {

@@ -1,5 +1,10 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { isExactEnumMatch, OPERATION_STATUS_ENUM } from './utils/longRunningOperations.js';
+import {
+  getMergedProperties,
+  getMergedRequired,
+  isExactEnumMatch,
+  OPERATION_STATUS_ENUM,
+} from './utils/longRunningOperations.js';
 
 const MISSING_STATUS_ERROR_MESSAGE = 'OperationResponse must report progress through a status field.';
 const STATUS_REQUIRED_ERROR_MESSAGE = 'The status property must be listed as required.';
@@ -21,14 +26,14 @@ export default (input, _, { path, rule }) => {
 
 function checkViolationsAndReturnErrors(schema, path, ruleName) {
   try {
-    const status = schema.properties?.status;
+    // Properties and required lists may be spread across allOf sub-schemas
+    const status = getMergedProperties(schema).status;
     if (!status) {
       return [{ path, message: MISSING_STATUS_ERROR_MESSAGE }];
     }
 
     const errors = [];
-    const required = Array.isArray(schema.required) ? schema.required : [];
-    if (!required.includes('status')) {
+    if (!getMergedRequired(schema).includes('status')) {
       errors.push({ path: [...path, 'properties', 'status'], message: STATUS_REQUIRED_ERROR_MESSAGE });
     }
     if (!isExactEnumMatch(status.enum, OPERATION_STATUS_ENUM)) {

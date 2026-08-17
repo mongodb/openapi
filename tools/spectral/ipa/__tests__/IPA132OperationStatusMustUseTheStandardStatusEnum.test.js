@@ -51,6 +51,25 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
     errors: [],
   },
   {
+    name: 'valid OperationResponse composed with allOf',
+    document: {
+      components: {
+        schemas: {
+          OperationResponse: {
+            allOf: [{ $ref: '#/components/schemas/OperationMetadata' }, operationResponseWithStandardStatus],
+          },
+          OperationMetadata: {
+            type: 'object',
+            properties: {
+              operationId: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'documents without an OperationResponse schema are ignored',
     document: {
       components: {

@@ -38,6 +38,27 @@ const components = {
         },
       },
     },
+    PaginatedMetadata: {
+      type: 'object',
+      properties: {
+        totalCount: { type: 'integer' },
+      },
+    },
+    // A paginated wrapper composed with allOf, which Spectral does not flatten
+    PaginatedAllOfOperationResponse: {
+      allOf: [
+        { $ref: '#/components/schemas/PaginatedMetadata' },
+        {
+          type: 'object',
+          properties: {
+            results: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/OperationResponse' },
+            },
+          },
+        },
+      ],
+    },
     ApiError: {
       type: 'object',
       properties: {
@@ -84,7 +105,19 @@ const paginatedOperationResponseGet = {
   },
 };
 
-// The paginated wrapper may also be defined inline
+const paginatedAllOfOperationResponseGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: { $ref: '#/components/schemas/PaginatedAllOfOperationResponse' },
+        },
+      },
+    },
+  },
+};
+
+// Inline paginated wrappers are rejected, consistent with xgen-IPA-110-collections-use-paginated-prefix
 const inlinePaginatedOperationResponseGet = {
   responses: {
     200: {
@@ -98,6 +131,21 @@ const inlinePaginatedOperationResponseGet = {
                 items: { $ref: '#/components/schemas/OperationResponse' },
               },
             },
+          },
+        },
+      },
+    },
+  },
+};
+
+const operationResponseArrayGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/OperationResponse' },
           },
         },
       },
@@ -158,7 +206,7 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
           get: operationResponseGetWithNotFound,
         },
         '/api/atlas/v2/resourceName/{pathParam}/operations': {
-          get: inlinePaginatedOperationResponseGet,
+          get: paginatedAllOfOperationResponseGet,
         },
         '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}': {
           get: operationResponseGet,
@@ -232,6 +280,60 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
       paths: {
         '/api/atlas/v2/resourceName/operations': {
           get: paginatedOrderResponseGet,
+        },
+      },
+      components,
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-operation-endpoints-must-return-operation-response',
+        message: OPERATIONS_COLLECTION_ERROR_MESSAGE,
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName/operations',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-08-05+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid single Operation endpoint returning an array of OperationResponse',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName/operations/{operationId}': {
+          get: operationResponseArrayGet,
+        },
+      },
+      components,
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-operation-endpoints-must-return-operation-response',
+        message: SINGLE_OPERATION_ERROR_MESSAGE,
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName/operations/{operationId}',
+          'get',
+          'responses',
+          '200',
+          'content',
+          'application/vnd.atlas.2024-08-05+json',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid Operations collection with an inline paginated wrapper',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName/operations': {
+          get: inlinePaginatedOperationResponseGet,
         },
       },
       components,

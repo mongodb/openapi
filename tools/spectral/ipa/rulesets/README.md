@@ -1470,9 +1470,9 @@ Rule checks for the following conditions:
   - Applies to 2xx JSON responses of GET methods on Operations endpoints
   - The single Operation endpoint (`.../operations/{operationId}`) must reference the
     `OperationResponse` schema
-  - The Operations collection endpoint (`.../operations`) must return a paginated response
-    whose `results` items reference the `OperationResponse` schema; the paginated wrapper
-    may be a referenced or an inline schema
+  - The Operations collection endpoint (`.../operations`) must reference a paginated wrapper
+    schema whose `results` items reference the `OperationResponse` schema; inline paginated
+    wrappers are rejected, consistent with `xgen-IPA-110-collections-use-paginated-prefix`
   - Inline Operation schemas are violations, the response must reference the predefined
     `OperationResponse` schema
   - Responses with `x-xgen-IPA-exception` for this rule at the content media type level are

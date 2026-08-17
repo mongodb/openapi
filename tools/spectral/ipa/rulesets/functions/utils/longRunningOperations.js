@@ -122,3 +122,33 @@ export function isExactEnumMatch(enumValues, expectedValues) {
     expectedValues.every((value) => enumValues.includes(value))
   );
 }
+
+/**
+ * Collects the properties of a schema, merging the properties of its allOf sub-schemas, which
+ * Spectral does not flatten during resolution.
+ *
+ * @param {object} schema the schema to collect properties for
+ * @returns {object} the properties of the schema and all of its allOf sub-schemas
+ */
+export function getMergedProperties(schema) {
+  const properties = { ...(schema.properties ?? {}) };
+  for (const subSchema of schema.allOf ?? []) {
+    Object.assign(properties, getMergedProperties(subSchema));
+  }
+  return properties;
+}
+
+/**
+ * Collects the required property names of a schema, merging the required lists of its allOf
+ * sub-schemas, which Spectral does not flatten during resolution.
+ *
+ * @param {object} schema the schema to collect required property names for
+ * @returns {string[]} the required property names of the schema and all of its allOf sub-schemas
+ */
+export function getMergedRequired(schema) {
+  const required = Array.isArray(schema.required) ? [...schema.required] : [];
+  for (const subSchema of schema.allOf ?? []) {
+    required.push(...getMergedRequired(subSchema));
+  }
+  return required;
+}

@@ -1,5 +1,10 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { isExactEnumMatch, OPERATION_TYPE_ENUM } from './utils/longRunningOperations.js';
+import {
+  getMergedProperties,
+  getMergedRequired,
+  isExactEnumMatch,
+  OPERATION_TYPE_ENUM,
+} from './utils/longRunningOperations.js';
 
 const CORE_METADATA_FIELDS = ['operationId', 'operationType', 'createdAt', 'updatedAt'];
 const OPERATION_TYPE_ENUM_ERROR_MESSAGE = `The operationType field must use exactly the enum [${OPERATION_TYPE_ENUM.join(', ')}].`;
@@ -25,8 +30,9 @@ export default (input, _, { path, rule }) => {
 
 function checkViolationsAndReturnErrors(schema, path, ruleName) {
   try {
-    const properties = schema.properties ?? {};
-    const required = Array.isArray(schema.required) ? schema.required : [];
+    // Properties and required lists may be spread across allOf sub-schemas
+    const properties = getMergedProperties(schema);
+    const required = getMergedRequired(schema);
     const errors = [];
 
     for (const field of CORE_METADATA_FIELDS) {
