@@ -305,18 +305,34 @@ components:
                         $ref: '#/components/schemas/ApiError'
             description: Unauthorized.
     schemas:
-        ApiChartsDashboardImportResponseView:
-            description: Imported dashboard and associated imported items.
+        AdaptiveSettingsOverrides:
+            additionalProperties: true
+            description: Map of customer-specified overrides for Adaptive Settings, applied on a best-effort basis. Each supported entry that you specify in this object takes precedence over the corresponding Atlas-managed default. For example, if a setting is enabled by default, you can add an override to disable it for your cluster.
+            type: object
+        AdaptiveSettingsResponse:
+            description: Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.
+            externalDocs:
+                description: Adaptive Settings
+                url: https://dochub.mongodb.org/core/adaptive-settings
             properties:
-                dashboard:
-                    $ref: '#/components/schemas/ImportedDashboard'
-                items:
-                    description: Imported items.
-                    items:
-                        $ref: '#/components/schemas/ImportedItem'
-                    type: array
+                adaptiveSettingsOverrides:
+                    $ref: '#/components/schemas/AdaptiveSettingsOverrides'
+                effectiveAdaptiveSettings:
+                    additionalProperties: true
+                    description: The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that your cluster's current MongoDB version doesn't support, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.
+                    readOnly: true
+                    type: object
             required:
-                - items
+                - effectiveAdaptiveSettings
+            type: object
+        AdaptiveSettingsUpdateRequest:
+            description: Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.
+            externalDocs:
+                description: Adaptive Settings
+                url: https://dochub.mongodb.org/core/adaptive-settings
+            properties:
+                adaptiveSettingsOverrides:
+                    $ref: '#/components/schemas/AdaptiveSettingsOverrides'
             type: object
         ApiError:
             properties:
@@ -374,38 +390,6 @@ components:
                 - description
                 - field
             type: object
-        ImportedDashboard:
-            description: Imported dashboard.
-            properties:
-                embeddingId:
-                    description: Embedding ID of the item. This field only returns if embedding is enabled for the entity.
-                    type: string
-                id:
-                    description: ID of the dashboard.
-                    type: string
-                title:
-                    description: Title of the dashboard.
-                    type: string
-            required:
-                - id
-                - title
-            type: object
-        ImportedItem:
-            description: Imported Item.
-            properties:
-                embeddingId:
-                    description: Embedding ID of the item. This will only be returned if embedding is enabled for the entity.
-                    type: string
-                id:
-                    description: ID of the item.
-                    type: string
-                title:
-                    description: Title of the item.
-                    type: string
-            required:
-                - id
-                - title
-            type: object
     securitySchemes:
         DigestAuth:
             scheme: digest
@@ -435,7 +419,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-charts-dashboards+json" \
+          --header "Accept: application/vnd.atlas.private-preview-adaptive-settings+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -453,19 +437,20 @@ info:
     x-xgen-sha: ce05833808bf5324729321429faf6deb18564d45
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Exports the specified Charts dashboard.
-            operationId: exportGroupChartsDashboard
+                 Returns the Adaptive Settings for the specified cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
+            operationId: getGroupClusterAdaptiveSettings
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
-                - description: ID of the dashboard to export.
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
                   in: path
-                  name: dashboardId
+                  name: clusterName
                   required: true
                   schema:
                     type: string
@@ -474,119 +459,98 @@ paths:
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                description: This resource returns an exported Charts dashboard. You can use this response to import to the Charts Dashboard Import endpoint.
-                                type: string
+                                $ref: '#/components/schemas/AdaptiveSettingsResponse'
                             x-xgen-preview:
-                                name: charts-dashboards
+                                name: adaptive-settings
                                 public: "false"
-                            x-xgen-version: private-preview-charts-dashboards
-                    description: OK
-                "400":
-                    $ref: '#/components/responses/badRequest'
+                            x-xgen-version: private-preview-adaptive-settings
+                    description: OK.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Export One Charts Dashboard
+            summary: Return Adaptive Settings for One Cluster
             tags:
-                - Charts Dashboards
+                - Clusters
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api chartsDashboards exportChartsDashboard --help
+                  source: atlas api clusters getClusterAdaptiveSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards/{dashboardId}:export?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings?pretty=true"
             x-rolesRequirements:
-                - Project Data Access Admin
-                - Project Data Access Read Only
-                - Project Data Access Read Write
-                - Project Stream Processing Owner
+                - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/exportGroupChartsDashboard
-            x-xgen-operation-id-override: exportChartsDashboard
-    /api/atlas/v2/groups/{groupId}/chartsDashboards:import:
-        post:
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterAdaptiveSettings
+            x-xgen-operation-id-override: getClusterAdaptiveSettings
+        patch:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Imports the Charts dashboard that the template specifies. Optionally, you can specify `overwrite=true` to import into an existing dashboard.
-            operationId: importGroupChartsDashboards
+                 Updates the client-provided Adaptive Settings overrides for the specified cluster and returns the resulting Adaptive Settings, including the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            operationId: updateGroupClusterAdaptiveSettings
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
-                - description: Setting this to true enables importing into an existing dashboard.
-                  in: query
-                  name: overwrite
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
                   schema:
-                    type: boolean
+                    type: string
             requestBody:
                 content:
                     application/vnd.atlas.preview+json:
-                        examples:
-                            Sample import response body:
-                                description: Sample import response body
-                                value:
-                                    dashboards:
-                                        dashboard-1:
-                                            description: Dashboard description
-                                            embedding:
-                                                anonymousAuthEnabled: true
-                                            filters: []
-                                            layout: []
-                                            title: Dashboard title
-                                    dataSources:
-                                        data-source-1:
-                                            alias: 'Sample Data: Movies'
-                                            collection: movies
-                                            database: sample_data
-                                            deployment: sample-data-cluster
-                                            sourceType: cluster
-                                    exportVersion: 9
-                                    items:
-                                        item-1:
-                                            calculatedFields: []
-                                            query: null
-                                            sample: false
-                                    queries: {}
                         schema:
-                            type: object
+                            $ref: '#/components/schemas/AdaptiveSettingsUpdateRequest'
                         x-xgen-preview:
-                            name: charts-dashboards
+                            name: adaptive-settings
                             public: "false"
-                        x-xgen-version: private-preview-charts-dashboards
-                description: Schema corresponding to the response fetched from an exported dashboard.
+                        x-xgen-version: private-preview-adaptive-settings
+                description: Adaptive Settings overrides to apply to the specified cluster. Omitting `adaptiveSettingsOverrides` is a no-op.
                 required: true
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/ApiChartsDashboardImportResponseView'
+                                $ref: '#/components/schemas/AdaptiveSettingsResponse'
                             x-xgen-preview:
-                                name: charts-dashboards
+                                name: adaptive-settings
                                 public: "false"
-                            x-xgen-version: private-preview-charts-dashboards
-                    description: OK
+                            x-xgen-version: private-preview-adaptive-settings
+                    description: OK.
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
                 "400":
                     $ref: '#/components/responses/badRequest'
                 "401":
@@ -595,25 +559,25 @@ paths:
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Import One Charts Dashboard
+            summary: Update Adaptive Settings for One Cluster
             tags:
-                - Charts Dashboards
+                - Clusters
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api chartsDashboards importChartsDashboards --help
+                  source: atlas api clusters updateClusterAdaptiveSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards:import" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings" \
                       -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
@@ -622,23 +586,23 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/chartsDashboards:import" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings" \
                       -d '{ <Payload> }'
             x-rolesRequirements:
                 - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Charts-Dashboards/operation/importGroupChartsDashboards
-            x-xgen-operation-id-override: importChartsDashboards
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterAdaptiveSettings
+            x-xgen-operation-id-override: updateClusterAdaptiveSettings
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns, adds, and edits Charts Dashboard instances. This resource applies only to projects with a Charts tenant, and requires your Project ID.
-      name: Charts Dashboards
+    - description: Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.
+      name: Clusters
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
