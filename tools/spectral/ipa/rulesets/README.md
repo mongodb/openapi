@@ -1488,7 +1488,7 @@ IN_PROGRESS, SUCCEEDED, FAILED, CANCELED, SUPERSEDED.
 Rule checks for the following conditions:
 
   - Applies to the OperationResponse component schema
-  - The schema must define a `status` property
+  - The schema must define a `status` property, listed as required
   - The `status` enum must contain exactly the values `PENDING`, `IN_PROGRESS`, `SUCCEEDED`,
     `FAILED`, `CANCELED` and `SUPERSEDED`, in any order
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation

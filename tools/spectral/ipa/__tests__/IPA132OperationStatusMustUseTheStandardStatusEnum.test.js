@@ -2,6 +2,7 @@ import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
 const MISSING_STATUS_ERROR_MESSAGE = 'OperationResponse must report progress through a status field.';
+const STATUS_REQUIRED_ERROR_MESSAGE = 'The status property must be listed as required.';
 const STATUS_ENUM_ERROR_MESSAGE =
   'The status field must use exactly the enum [PENDING, IN_PROGRESS, SUCCEEDED, FAILED, CANCELED, SUPERSEDED].';
 
@@ -13,6 +14,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
         schemas: {
           OperationResponse: {
             type: 'object',
+            required: ['status'],
             properties: {
               status: {
                 type: 'string',
@@ -32,6 +34,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
         schemas: {
           OperationResponse: {
             type: 'object',
+            required: ['status'],
             properties: {
               status: {
                 type: 'string',
@@ -90,12 +93,39 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
     ],
   },
   {
+    name: 'invalid status property not listed as required',
+    document: {
+      components: {
+        schemas: {
+          OperationResponse: {
+            type: 'object',
+            properties: {
+              status: {
+                type: 'string',
+                enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-operation-status-must-use-the-standard-status-enum',
+        message: STATUS_REQUIRED_ERROR_MESSAGE,
+        path: ['components', 'schemas', 'OperationResponse', 'properties', 'status'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'invalid status enum with non-standard values',
     document: {
       components: {
         schemas: {
           OperationResponse: {
             type: 'object',
+            required: ['status'],
             properties: {
               status: {
                 type: 'string',
@@ -122,6 +152,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
         schemas: {
           OperationResponse: {
             type: 'object',
+            required: ['status'],
             properties: {
               status: {
                 type: 'string',
@@ -148,6 +179,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
         schemas: {
           OperationResponse: {
             type: 'object',
+            required: ['status'],
             properties: {
               status: {
                 type: 'string',
@@ -194,6 +226,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
         schemas: {
           OperationResponse: {
             type: 'object',
+            required: ['status'],
             properties: {
               status: {
                 type: 'string',

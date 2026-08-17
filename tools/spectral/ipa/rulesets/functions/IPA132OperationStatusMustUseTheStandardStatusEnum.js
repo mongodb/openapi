@@ -2,6 +2,7 @@ import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/c
 import { isExactEnumMatch, OPERATION_STATUS_ENUM } from './utils/longRunningOperations.js';
 
 const MISSING_STATUS_ERROR_MESSAGE = 'OperationResponse must report progress through a status field.';
+const STATUS_REQUIRED_ERROR_MESSAGE = 'The status property must be listed as required.';
 const STATUS_ENUM_ERROR_MESSAGE = `The status field must use exactly the enum [${OPERATION_STATUS_ENUM.join(', ')}].`;
 
 /**
@@ -24,10 +25,16 @@ function checkViolationsAndReturnErrors(schema, path, ruleName) {
     if (!status) {
       return [{ path, message: MISSING_STATUS_ERROR_MESSAGE }];
     }
-    if (!isExactEnumMatch(status.enum, OPERATION_STATUS_ENUM)) {
-      return [{ path: [...path, 'properties', 'status'], message: STATUS_ENUM_ERROR_MESSAGE }];
+
+    const errors = [];
+    const required = Array.isArray(schema.required) ? schema.required : [];
+    if (!required.includes('status')) {
+      errors.push({ path: [...path, 'properties', 'status'], message: STATUS_REQUIRED_ERROR_MESSAGE });
     }
-    return [];
+    if (!isExactEnumMatch(status.enum, OPERATION_STATUS_ENUM)) {
+      errors.push({ path: [...path, 'properties', 'status'], message: STATUS_ENUM_ERROR_MESSAGE });
+    }
+    return errors;
   } catch (e) {
     return handleInternalError(ruleName, path, e);
   }
