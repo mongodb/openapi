@@ -1614,6 +1614,22 @@ Rule checks for the following conditions:
     data, so the response is returned within the request cycle
   - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-132-operations-endpoint-must-not-define-custom-methods
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Operations endpoints must not define custom methods. Control actions require mutating
+methods, which the read-only Operations resource does not allow.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to custom method paths (`:customMethod`) whose resource identifier, the part
+    before the colon, is an Operations endpoint, i.e. ends with an `operations` segment or
+    an `operations/{operationId}` suffix
+  - Any custom method attached to the Operations collection or to a single Operation is a
+    violation
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 
