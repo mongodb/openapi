@@ -6,22 +6,26 @@ const STATUS_REQUIRED_ERROR_MESSAGE = 'The status property must be listed as req
 const STATUS_ENUM_ERROR_MESSAGE =
   'The status field must use exactly the enum [PENDING, IN_PROGRESS, SUCCEEDED, FAILED, CANCELED, SUPERSEDED].';
 
+const STANDARD_STATUS_ENUM = ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'];
+
+const operationResponseWithStandardStatus = {
+  type: 'object',
+  required: ['status'],
+  properties: {
+    status: {
+      type: 'string',
+      enum: STANDARD_STATUS_ENUM,
+    },
+  },
+};
+
 testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
   {
     name: 'valid OperationResponse with the standard status enum',
     document: {
       components: {
         schemas: {
-          OperationResponse: {
-            type: 'object',
-            required: ['status'],
-            properties: {
-              status: {
-                type: 'string',
-                enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
-              },
-            },
-          },
+          OperationResponse: operationResponseWithStandardStatus,
         },
       },
     },
@@ -33,8 +37,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
       components: {
         schemas: {
           OperationResponse: {
-            type: 'object',
-            required: ['status'],
+            ...operationResponseWithStandardStatus,
             properties: {
               status: {
                 type: 'string',
@@ -99,12 +102,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
         schemas: {
           OperationResponse: {
             type: 'object',
-            properties: {
-              status: {
-                type: 'string',
-                enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
-              },
-            },
+            properties: operationResponseWithStandardStatus.properties,
           },
         },
       },
@@ -124,8 +122,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
       components: {
         schemas: {
           OperationResponse: {
-            type: 'object',
-            required: ['status'],
+            ...operationResponseWithStandardStatus,
             properties: {
               status: {
                 type: 'string',
@@ -151,8 +148,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
       components: {
         schemas: {
           OperationResponse: {
-            type: 'object',
-            required: ['status'],
+            ...operationResponseWithStandardStatus,
             properties: {
               status: {
                 type: 'string',
@@ -178,8 +174,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
       components: {
         schemas: {
           OperationResponse: {
-            type: 'object',
-            required: ['status'],
+            ...operationResponseWithStandardStatus,
             properties: {
               status: {
                 type: 'string',
@@ -225,14 +220,7 @@ testRule('xgen-IPA-132-operation-status-must-use-the-standard-status-enum', [
       components: {
         schemas: {
           OperationResponse: {
-            type: 'object',
-            required: ['status'],
-            properties: {
-              status: {
-                type: 'string',
-                enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
-              },
-            },
+            ...operationResponseWithStandardStatus,
             'x-xgen-IPA-exception': {
               'xgen-IPA-132-operation-status-must-use-the-standard-status-enum': 'reason',
             },

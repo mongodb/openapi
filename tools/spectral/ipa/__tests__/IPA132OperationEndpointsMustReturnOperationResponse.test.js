@@ -47,92 +47,125 @@ const components = {
   },
 };
 
+const operationResponseGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: { $ref: '#/components/schemas/OperationResponse' },
+        },
+      },
+    },
+  },
+};
+
+const operationResponseGetWithNotFound = {
+  responses: {
+    ...operationResponseGet.responses,
+    404: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: { $ref: '#/components/schemas/ApiError' },
+        },
+      },
+    },
+  },
+};
+
+const paginatedOperationResponseGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: { $ref: '#/components/schemas/PaginatedOperationResponse' },
+        },
+      },
+    },
+  },
+};
+
+// The paginated wrapper may also be defined inline
+const inlinePaginatedOperationResponseGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: {
+            type: 'object',
+            properties: {
+              results: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/OperationResponse' },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+const orderGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: { $ref: '#/components/schemas/Order' },
+        },
+      },
+    },
+  },
+};
+
+const paginatedOrderResponseGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: { $ref: '#/components/schemas/PaginatedOrderResponse' },
+        },
+      },
+    },
+  },
+};
+
+const inlineSchemaGet = {
+  responses: {
+    200: {
+      content: {
+        'application/vnd.atlas.2024-08-05+json': {
+          schema: {
+            type: 'object',
+            properties: {
+              operationId: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
   {
     name: 'valid Operations endpoints returning OperationResponse',
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/PaginatedOperationResponse' },
-                  },
-                },
-              },
-            },
-          },
+          get: paginatedOperationResponseGet,
         },
         '/api/atlas/v2/resourceName/operations/{operationId}': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/OperationResponse' },
-                  },
-                },
-              },
-              404: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/ApiError' },
-                  },
-                },
-              },
-            },
-          },
+          get: operationResponseGetWithNotFound,
         },
         '/api/atlas/v2/resourceName/{pathParam}/operations': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    // The paginated wrapper may also be defined inline
-                    schema: {
-                      type: 'object',
-                      properties: {
-                        results: {
-                          type: 'array',
-                          items: { $ref: '#/components/schemas/OperationResponse' },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          get: inlinePaginatedOperationResponseGet,
         },
         '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/OperationResponse' },
-                  },
-                },
-              },
-            },
-          },
+          get: operationResponseGet,
         },
         // Not an Operations endpoint, the returned schema is not restricted
         '/api/atlas/v2/resourceName/{pathParam}': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/Order' },
-                  },
-                },
-              },
-            },
-          },
+          get: orderGet,
         },
       },
       components,
@@ -144,17 +177,7 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations/{operationId}': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/Order' },
-                  },
-                },
-              },
-            },
-          },
+          get: orderGet,
         },
       },
       components,
@@ -181,22 +204,7 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations/{operationId}': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: {
-                      type: 'object',
-                      properties: {
-                        operationId: { type: 'string' },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          get: inlineSchemaGet,
         },
       },
       components,
@@ -223,17 +231,7 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/PaginatedOrderResponse' },
-                  },
-                },
-              },
-            },
-          },
+          get: paginatedOrderResponseGet,
         },
       },
       components,
@@ -260,17 +258,7 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
     document: {
       paths: {
         '/api/atlas/v2/resourceName/operations': {
-          get: {
-            responses: {
-              200: {
-                content: {
-                  'application/vnd.atlas.2024-08-05+json': {
-                    schema: { $ref: '#/components/schemas/OperationResponse' },
-                  },
-                },
-              },
-            },
-          },
+          get: operationResponseGet,
         },
       },
       components,
