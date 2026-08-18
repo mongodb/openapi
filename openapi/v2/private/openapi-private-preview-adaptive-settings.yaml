@@ -305,6 +305,35 @@ components:
                         $ref: '#/components/schemas/ApiError'
             description: Unauthorized.
     schemas:
+        AdaptiveSettingsOverrides:
+            additionalProperties: true
+            description: Map of customer-specified overrides for Adaptive Settings, applied on a best-effort basis. Each supported entry that you specify in this object takes precedence over the corresponding Atlas-managed default. For example, if a setting is enabled by default, you can add an override to disable it for your cluster.
+            type: object
+        AdaptiveSettingsResponse:
+            description: Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.
+            externalDocs:
+                description: Adaptive Settings
+                url: https://dochub.mongodb.org/core/adaptive-settings
+            properties:
+                adaptiveSettingsOverrides:
+                    $ref: '#/components/schemas/AdaptiveSettingsOverrides'
+                effectiveAdaptiveSettings:
+                    additionalProperties: true
+                    description: The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that your cluster's current MongoDB version doesn't support, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.
+                    readOnly: true
+                    type: object
+            required:
+                - effectiveAdaptiveSettings
+            type: object
+        AdaptiveSettingsUpdateRequest:
+            description: Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.
+            externalDocs:
+                description: Adaptive Settings
+                url: https://dochub.mongodb.org/core/adaptive-settings
+            properties:
+                adaptiveSettingsOverrides:
+                    $ref: '#/components/schemas/AdaptiveSettingsOverrides'
+            type: object
         ApiError:
             properties:
                 badRequestDetail:
@@ -361,42 +390,6 @@ components:
                 - description
                 - field
             type: object
-        SqlInterfaceStatusResponse:
-            properties:
-                status:
-                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
-                    enum:
-                        - "ON"
-                        - "OFF"
-                    type: string
-                supported:
-                    default: false
-                    description: Whether the cluster tier and type support SQL Interface.
-                    readOnly: true
-                    type: boolean
-                unsupportedReason:
-                    description: Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.
-                    enum:
-                        - UNSUPPORTED_TIER
-                        - UNSUPPORTED_TYPE
-                        - UNSUPPORTED_MONGODB_VERSION
-                    nullable: true
-                    readOnly: true
-                    type: string
-            required:
-                - status
-            type: object
-        SqlInterfaceStatusUpdateRequest:
-            properties:
-                status:
-                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
-                    enum:
-                        - "ON"
-                        - "OFF"
-                    type: string
-            required:
-                - status
-            type: object
     securitySchemes:
         DigestAuth:
             scheme: digest
@@ -426,7 +419,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-sql-interface+json" \
+          --header "Accept: application/vnd.atlas.private-preview-adaptive-settings+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -444,13 +437,13 @@ info:
     x-xgen-sha: 98e58f88e059896aa922d5cb7367b08c9ca750d4
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns the current SQL Interface status, either ON or OFF, for the specified cluster. If no status is configured, this resource returns OFF. The response also indicates whether SQL Interface is supported for this cluster.
-            operationId: getGroupClusterSqlInterface
+                 Returns the Adaptive Settings for the specified cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.
+            operationId: getGroupClusterAdaptiveSettings
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -460,69 +453,67 @@ paths:
                   name: clusterName
                   required: true
                   schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                                $ref: '#/components/schemas/AdaptiveSettingsResponse'
                             x-xgen-preview:
-                                name: sql-interface
-                            x-xgen-version: private-preview-sql-interface
-                    description: SQL Interface status successfully retrieved.
+                                name: adaptive-settings
+                                public: "false"
+                            x-xgen-version: private-preview-adaptive-settings
+                    description: OK.
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Return SQL Interface Status
+            summary: Return Adaptive Settings for One Cluster
             tags:
                 - Clusters
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api clusters getClusterSqlInterface --help
+                  source: atlas api clusters getClusterAdaptiveSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings?pretty=true"
             x-rolesRequirements:
                 - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterSqlInterface
-            x-xgen-operation-id-override: getClusterSqlInterface
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterAdaptiveSettings
+            x-xgen-operation-id-override: getClusterAdaptiveSettings
         patch:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.
-            operationId: updateGroupClusterSqlInterface
+                 Updates the client-provided Adaptive Settings overrides for the specified cluster and returns the resulting Adaptive Settings, including the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Owner role.
+            operationId: updateGroupClusterAdaptiveSettings
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
@@ -537,22 +528,24 @@ paths:
                 content:
                     application/vnd.atlas.preview+json:
                         schema:
-                            $ref: '#/components/schemas/SqlInterfaceStatusUpdateRequest'
+                            $ref: '#/components/schemas/AdaptiveSettingsUpdateRequest'
                         x-xgen-preview:
-                            name: sql-interface
-                        x-xgen-version: private-preview-sql-interface
-                description: Desired SQL Interface status for the cluster.
+                            name: adaptive-settings
+                            public: "false"
+                        x-xgen-version: private-preview-adaptive-settings
+                description: Adaptive Settings overrides to apply to the specified cluster. Omitting `adaptiveSettingsOverrides` is a no-op.
                 required: true
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                                $ref: '#/components/schemas/AdaptiveSettingsResponse'
                             x-xgen-preview:
-                                name: sql-interface
-                            x-xgen-version: private-preview-sql-interface
-                    description: SQL Interface status successfully updated.
+                                name: adaptive-settings
+                                public: "false"
+                            x-xgen-version: private-preview-adaptive-settings
+                    description: OK.
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
@@ -570,23 +563,21 @@ paths:
                     $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
-                "500":
-                    $ref: '#/components/responses/internalServerError'
-            summary: Update SQL Interface Status
+            summary: Update Adaptive Settings for One Cluster
             tags:
                 - Clusters
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api clusters updateClusterSqlInterface --help
+                  source: atlas api clusters updateClusterAdaptiveSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings" \
                       -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
@@ -595,16 +586,15 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings" \
                       -d '{ <Payload> }'
             x-rolesRequirements:
-                - Project Cluster Manager
-                - Project Replica Set Manager
+                - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface
-            x-xgen-operation-id-override: updateClusterSqlInterface
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterAdaptiveSettings
+            x-xgen-operation-id-override: updateClusterAdaptiveSettings
 security:
     - ServiceAccounts: []
     - DigestAuth: []
