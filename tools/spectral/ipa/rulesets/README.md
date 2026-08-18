@@ -1406,4 +1406,58 @@ This rule includes two configuration options:
 
 
 
+### IPA-132
+
+Rules are based on [https://mongodb.github.io/ipa/132](https://mongodb.github.io/ipa/132).
+
+#### xgen-IPA-132-operations-endpoint-must-not-be-global
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Operations endpoints must not be defined as standalone, global endpoints with no parent
+resource in their path.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to Operations endpoints, i.e. paths ending with an `operations` segment or an
+    `operations/{operationId}` suffix
+  - The `operations` segment must be preceded by at least one parent resource segment
+  - A root-level Operations endpoint, such as `/api/atlas/v2/operations` or
+    `/api/atlas/v2/unauth/operations`, is a violation
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operation-must-be-a-read-only-resource
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Operations endpoints are read-only. They may only define the get method, and all properties
+of the Operation resource must be readOnly.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to Operations endpoints, i.e. paths ending with an `operations` segment or an
+    `operations/{operationId}` suffix
+  - The path item must not define any HTTP method other than `get`
+  - On the single Operation endpoint (`.../operations/{operationId}`), where the Get method
+    is defined, all properties of every 2xx response schema of the `get` method must be
+    marked as `readOnly: true`
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Operations endpoints must be leaf resources, with no resources nested below them.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to paths containing an `operations` segment
+  - An `operations` segment may only be followed by a single operation identifier path
+    parameter, e.g. `.../operations` and `.../operations/{operationId}` are valid
+  - Any further nesting, such as `.../operations/subresource` or
+    `.../operations/{operationId}/subresource`, is a violation
+  - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+
+
 

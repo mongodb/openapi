@@ -1,0 +1,74 @@
+# IPA-132: Long-Running Operations
+# https://mongodb.github.io/ipa/132
+
+functions:
+  - IPA132OperationsEndpointMustNotBeGlobal
+  - IPA132OperationMustBeAReadOnlyResource
+  - IPA132OperationsEndpointMustBeALeafResource
+
+rules:
+  xgen-IPA-132-operations-endpoint-must-not-be-global:
+    description: |
+      Operations endpoints must not be defined as standalone, global endpoints with no parent
+      resource in their path.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+
+        - Applies to Operations endpoints, i.e. paths ending with an `operations` segment or an
+          `operations/{operationId}` suffix
+        - The `operations` segment must be preceded by at least one parent resource segment
+        - A root-level Operations endpoint, such as `/api/atlas/v2/operations` or
+          `/api/atlas/v2/unauth/operations`, is a violation
+        - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operations-endpoint-must-not-be-global'
+    severity: warn
+    given: $.paths
+    then:
+      field: '@key'
+      function: IPA132OperationsEndpointMustNotBeGlobal
+
+  xgen-IPA-132-operation-must-be-a-read-only-resource:
+    description: |
+      Operations endpoints are read-only. They may only define the get method, and all properties
+      of the Operation resource must be readOnly.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+
+        - Applies to Operations endpoints, i.e. paths ending with an `operations` segment or an
+          `operations/{operationId}` suffix
+        - The path item must not define any HTTP method other than `get`
+        - On the single Operation endpoint (`.../operations/{operationId}`), where the Get method
+          is defined, all properties of every 2xx response schema of the `get` method must be
+          marked as `readOnly: true`
+        - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-must-be-a-read-only-resource'
+    severity: warn
+    given: $.paths
+    then:
+      field: '@key'
+      function: IPA132OperationMustBeAReadOnlyResource
+
+  xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource:
+    description: |
+      Operations endpoints must be leaf resources, with no resources nested below them.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+
+        - Applies to paths containing an `operations` segment
+        - An `operations` segment may only be followed by a single operation identifier path
+          parameter, e.g. `.../operations` and `.../operations/{operationId}` are valid
+        - Any further nesting, such as `.../operations/subresource` or
+          `.../operations/{operationId}/subresource`, is a violation
+        - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource'
+    severity: warn
+    given: $.paths
+    then:
+      field: '@key'
+      function: IPA132OperationsEndpointMustBeALeafResource

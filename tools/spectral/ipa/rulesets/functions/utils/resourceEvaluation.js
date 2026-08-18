@@ -51,6 +51,27 @@ export function isSingleResourceIdentifier(path) {
   return isResourceCollectionIdentifier(collectionPath);
 }
 
+/**
+ * Checks whether a resource is root-level, i.e. mounted directly under the API prefix with no
+ * parent resource. Both the resource collection path and the single resource path are recognized.
+ * For example:
+ * '/resource' returns true
+ * '/resource/{id}' returns true
+ * '/parent/{id}/resource' returns false
+ * '/parent/resource/{id}' returns false
+ *
+ * @param {string} resourcePath a path for a resource
+ * @returns {boolean}
+ */
+export function isRootLevelResource(resourcePath) {
+  const path = removePrefix(resourcePath);
+  const sections = path.split('/').filter((section) => section.length > 0);
+  if (sections.length > 0 && isPathParam(sections[sections.length - 1])) {
+    sections.pop();
+  }
+  return sections.length === 1;
+}
+
 export function isCustomMethodIdentifier(path) {
   return path.includes(':');
 }

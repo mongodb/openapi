@@ -4,6 +4,7 @@ import {
   getResourcePathItems,
   isReadOnlyResource,
   isResourceCollectionIdentifier,
+  isRootLevelResource,
   isSingleResourceIdentifier,
   isSingletonResource,
 } from '../../rulesets/functions/utils/resourceEvaluation';
@@ -587,6 +588,24 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       it(`returns ${testCase.expected} for ${testCase.description}`, () => {
         expect(isReadOnlyResource(testCase.resourcePathItems)).toEqual(testCase.expected);
       });
+    });
+  });
+
+  describe('isRootLevelResource', () => {
+    it('recognizes root-level resources', () => {
+      expect(isRootLevelResource('/api/atlas/v2/resourceName')).toBe(true);
+      expect(isRootLevelResource('/api/atlas/v2/resourceName/{id}')).toBe(true);
+      expect(isRootLevelResource('/api/atlas/v2/operations')).toBe(true);
+      expect(isRootLevelResource('/api/atlas/v2/operations/{operationId}')).toBe(true);
+      expect(isRootLevelResource('/api/atlas/v2/unauth/resourceName')).toBe(true);
+    });
+
+    it('rejects resources with a parent', () => {
+      expect(isRootLevelResource('/api/atlas/v2/resourceName/childResource')).toBe(false);
+      expect(isRootLevelResource('/api/atlas/v2/resourceName/{id}/childResource')).toBe(false);
+      expect(isRootLevelResource('/api/atlas/v2/resourceName/childResource/{id}')).toBe(false);
+      expect(isRootLevelResource('/api/atlas/v2/resourceName/operations')).toBe(false);
+      expect(isRootLevelResource('/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}')).toBe(false);
     });
   });
 });
