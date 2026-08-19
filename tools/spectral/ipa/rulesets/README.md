@@ -1492,14 +1492,14 @@ Rule checks for the following conditions:
 
   - Applies to the OperationResponse component schema
   - Each field listed in the rule's functionOptions must be defined and listed as required
-  - Properties and required lists spread across allOf sub-schemas are merged before
-    validation; composition through oneOf/anyOf is not merged and is reported as missing
-    fields
-  - Covers the required-field checks of the IPA-132-operation-status-must-use-the-standard-status-enum,
-    IPA-132-operation-response-must-include-core-metadata and
-    IPA-132-operations-must-expire-after-a-finite-retention-period guidelines; for the
-    latter, only the expiresAt declaration is statically checkable, the retention behavior
-    itself is not
+  - The schema may be composed with allOf, e.g. when the OpenAPI generator emits Java class
+    inheritance as an allOf composition; the properties and required lists of all allOf
+    sub-schemas are combined before validation, since Spectral resolves references but does
+    not flatten allOf
+  - oneOf and anyOf describe alternative schemas rather than one combined schema, so they
+    are not merged: fields declared only inside oneOf or anyOf are reported as missing
+  - For expiresAt, only the field declaration is validated; the retention behavior and the
+    404 after expiry are backend-defined
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operation-response-must-define-optional-fields
@@ -1516,12 +1516,8 @@ Rule checks for the following conditions:
   - Each field listed in the rule's functionOptions must be defined and must not be listed
     as required: the condition under which it is present is a runtime state that cannot be
     validated statically
-  - Properties and required lists spread across allOf sub-schemas are merged before
-    validation
-  - Covers the conditional-field checks of the IPA-132-operation-response-must-include-core-metadata,
-    IPA-132-failed-lros-must-report-a-structured-error,
-    IPA-132-successful-lros-must-reference-the-result-resource and
-    IPA-132-in-progress-operations-must-expose-retry-after-seconds guidelines
+  - The properties and required lists of all allOf sub-schemas are combined before
+    validation, since Spectral does not flatten allOf
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operation-response-must-use-standard-enum-values
@@ -1538,13 +1534,9 @@ Rule checks for the following conditions:
   - Each enum field listed in the rule's functionOptions must use exactly the listed values,
     in any order
   - Fields that are not defined are skipped: top-level field presence is validated by the
-    required-fields and optional-fields rules, and the nested `retryStrategy` field is
-    optional by the IPA-132-failed-lros-must-report-a-structured-error guideline
-  - Properties spread across allOf sub-schemas are merged before validation, with enums
-    declared by several sub-schemas applied intersected
-  - Covers the enum checks of the IPA-132-operation-status-must-use-the-standard-status-enum,
-    IPA-132-operation-response-must-include-core-metadata and
-    IPA-132-failed-lros-must-report-a-structured-error guidelines
+    required-fields and optional-fields rules
+  - The properties of all allOf sub-schemas are combined before validation, since Spectral
+    does not flatten allOf; enums declared by several sub-schemas apply intersected
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operation-response-must-define-nested-object-structure
@@ -1561,9 +1553,8 @@ Rule checks for the following conditions:
     properties
   - Fields that are not defined are skipped: their presence is validated by the
     optional-fields rule
-  - Properties spread across allOf sub-schemas are merged before validation
-  - Covers the error object structure check of the
-    IPA-132-failed-lros-must-report-a-structured-error guideline
+  - The properties of all allOf sub-schemas are combined before validation, since Spectral
+    does not flatten allOf
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operations-should-expose-status-fields
@@ -1580,7 +1571,8 @@ Rule checks for the following conditions:
     `statusMessage`, `progress` and `estimatedCompletionTime`
   - The progress object should define `completed`, `total` and `unit` properties
   - Kept separate from the must-level rules because it enforces should-level guidance
-  - Properties spread across allOf sub-schemas are merged before validation
+  - The properties of all allOf sub-schemas are combined before validation, since Spectral
+    does not flatten allOf
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
