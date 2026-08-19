@@ -71,6 +71,20 @@ testRule('xgen-IPA-132-operation-response-must-define-nested-object-structure', 
     errors: [],
   },
   {
+    name: 'composed schemas are skipped',
+    document: {
+      components: {
+        schemas: {
+          // Composition is rejected by the required-fields rule, so this rule stays silent
+          OperationResponse: {
+            allOf: [{ type: 'object', properties: { statusMessage: { type: 'string' } } }],
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid error object missing structured properties',
     document: {
       components: {

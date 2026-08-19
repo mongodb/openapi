@@ -1,10 +1,13 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getMergedProperties, getMergedRequired, getPropertyPath } from './utils/longRunningOperations.js';
+import { usesComposition } from './utils/longRunningOperations.js';
+
+const COMPOSITION_ERROR_MESSAGE =
+  'OperationResponse must define its properties directly, without allOf, oneOf or anyOf composition.';
 
 /**
- * Checks that the OperationResponse schema defined by IPA-132 defines every field the standard
- * marks as always required, and lists each of them in the schema's required array. The field
- * names are provided declaratively through the rule's functionOptions.
+ * Checks that the OperationResponse schema defined by IPA-132 is a single flat schema defining
+ * every field the standard marks as always required, each listed in the schema's required array.
+ * The field names are provided declaratively through the rule's functionOptions.
  *
  * @param {object} input - The OperationResponse schema object
  * @param {object} opts - The rule's functionOptions, carrying the required field names
@@ -18,18 +21,21 @@ export default (input, opts, { path, rule }) => {
 
 function checkViolationsAndReturnErrors(schema, fields, path, ruleName) {
   try {
-    // Properties and required lists may be spread across allOf sub-schemas
-    const properties = getMergedProperties(schema);
-    const required = getMergedRequired(schema);
+    // There is one and only one OperationResponse: a flat schema, so composition is a violation
+    if (usesComposition(schema)) {
+      return [{ path, message: COMPOSITION_ERROR_MESSAGE }];
+    }
+
+    const properties = schema.properties ?? {};
+    const required = schema.required ?? [];
     const errors = [];
 
     for (const field of fields) {
       if (!properties[field]) {
         errors.push({ path, message: `OperationResponse must define the ${field} property.` });
       } else if (!required.includes(field)) {
-        // Anchor at the property's actual location, which may sit inside an allOf sub-schema
         errors.push({
-          path: [...path, ...getPropertyPath(schema, field)],
+          path: [...path, 'properties', field],
           message: `The ${field} property must be listed as required.`,
         });
       }

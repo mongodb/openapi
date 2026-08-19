@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getMergedProperties, getPropertyPath, isExactEnumMatch } from './utils/longRunningOperations.js';
+import { isExactEnumMatch, usesComposition } from './utils/longRunningOperations.js';
 
 /**
  * Checks that every enum field of the OperationResponse schema defined by IPA-132 uses exactly
@@ -12,6 +12,10 @@ import { getMergedProperties, getPropertyPath, isExactEnumMatch } from './utils/
  * @param {object} context - The context object containing the path, documentInventory and rule
  */
 export default (input, opts, { path, rule }) => {
+  // Composed schemas are rejected by the required-fields rule
+  if (usesComposition(input)) {
+    return;
+  }
   const ruleName = rule.name;
   const errors = checkViolationsAndReturnErrors(input, opts.enums, path, ruleName);
   return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
@@ -19,8 +23,7 @@ export default (input, opts, { path, rule }) => {
 
 function checkViolationsAndReturnErrors(schema, enums, path, ruleName) {
   try {
-    // Properties may be spread across allOf sub-schemas
-    const properties = getMergedProperties(schema);
+    const properties = schema.properties ?? {};
     const errors = [];
 
     for (const { field, parent, values } of enums) {
@@ -28,12 +31,11 @@ function checkViolationsAndReturnErrors(schema, enums, path, ruleName) {
       let propertyPath;
       if (parent) {
         const parentProperty = properties[parent];
-        property = parentProperty ? getMergedProperties(parentProperty)[field] : undefined;
-        // Anchor at the parent property's actual location, which may sit inside an allOf sub-schema
-        propertyPath = [...path, ...(getPropertyPath(schema, parent) ?? [])];
+        property = parentProperty?.properties?.[field];
+        propertyPath = [...path, 'properties', parent];
       } else {
         property = properties[field];
-        propertyPath = [...path, ...(getPropertyPath(schema, field) ?? [])];
+        propertyPath = [...path, 'properties', field];
       }
 
       // Absent fields are the required-fields and optional-fields rules' concern

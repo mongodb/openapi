@@ -32,25 +32,6 @@ testRule('xgen-IPA-132-operations-should-expose-status-fields', [
     errors: [],
   },
   {
-    name: 'valid OperationResponse composed with allOf',
-    document: {
-      components: {
-        schemas: {
-          OperationResponse: {
-            allOf: [{ $ref: '#/components/schemas/OperationMetadata' }, operationResponseWithStatusFields],
-          },
-          OperationMetadata: {
-            type: 'object',
-            properties: {
-              operationId: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-    errors: [],
-  },
-  {
     name: 'documents without an OperationResponse schema are ignored',
     document: {
       components: {
@@ -60,6 +41,20 @@ testRule('xgen-IPA-132-operations-should-expose-status-fields', [
             properties: {
               id: { type: 'string' },
             },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'composed schemas are skipped',
+    document: {
+      components: {
+        schemas: {
+          // Composition is rejected by the required-fields rule, so this rule stays silent
+          OperationResponse: {
+            allOf: [{ type: 'object', properties: { statusMessage: { type: 'string' } } }],
           },
         },
       },

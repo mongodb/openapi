@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getMergedProperties, getPropertyPath } from './utils/longRunningOperations.js';
+import { usesComposition } from './utils/longRunningOperations.js';
 
 /**
  * Checks that every nested object field of the OperationResponse schema defined by IPA-132
@@ -12,6 +12,10 @@ import { getMergedProperties, getPropertyPath } from './utils/longRunningOperati
  * @param {object} context - The context object containing the path, documentInventory and rule
  */
 export default (input, opts, { path, rule }) => {
+  // Composed schemas are rejected by the required-fields rule
+  if (usesComposition(input)) {
+    return;
+  }
   const ruleName = rule.name;
   const errors = checkViolationsAndReturnErrors(input, opts.objects, path, ruleName);
   return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
@@ -19,8 +23,7 @@ export default (input, opts, { path, rule }) => {
 
 function checkViolationsAndReturnErrors(schema, objects, path, ruleName) {
   try {
-    // Properties may be spread across allOf sub-schemas
-    const schemaProperties = getMergedProperties(schema);
+    const schemaProperties = schema.properties ?? {};
     const errors = [];
 
     for (const { field, properties } of objects) {
@@ -30,13 +33,11 @@ function checkViolationsAndReturnErrors(schema, objects, path, ruleName) {
         continue;
       }
 
-      const objectProperties = getMergedProperties(objectSchema);
-      // Anchor at the object property's actual location, which may sit inside an allOf sub-schema
-      const fieldPath = [...path, ...(getPropertyPath(schema, field) ?? [])];
+      const objectProperties = objectSchema.properties ?? {};
       for (const property of properties) {
         if (!objectProperties[property]) {
           errors.push({
-            path: fieldPath,
+            path: [...path, 'properties', field],
             message: `The ${field} object must define a ${property} property.`,
           });
         }

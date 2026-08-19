@@ -6,8 +6,7 @@ import {
   isOperationsPath,
   isSingleOperationPath,
   operationsSegmentIsLeaf,
-  getMergedProperties,
-  getPropertyPath,
+  usesComposition,
 } from '../../rulesets/functions/utils/longRunningOperations';
 
 describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
@@ -110,50 +109,12 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
     });
   });
 
-  describe('getMergedProperties', () => {
-    it('combines keyword maps conjunctively instead of overwriting them', () => {
-      const schema = {
-        properties: {
-          status: { type: 'string', enum: ['PENDING', 'SUCCEEDED', 'FAILED'] },
-        },
-        allOf: [{ properties: { status: { description: 'Lifecycle state.' } } }],
-      };
-      const merged = getMergedProperties(schema);
-      expect(merged.status.enum).toEqual(['PENDING', 'SUCCEEDED', 'FAILED']);
-      expect(merged.status.description).toBe('Lifecycle state.');
-    });
-
-    it('intersects enums declared by several allOf members', () => {
-      const schema = {
-        properties: {
-          status: { enum: ['PENDING', 'DONE'] },
-        },
-        allOf: [{ properties: { status: { enum: ['PENDING', 'SUCCEEDED', 'FAILED'] } } }],
-      };
-      expect(getMergedProperties(schema).status.enum).toEqual(['PENDING']);
-    });
-
-    it('merges nested property maps recursively', () => {
-      const schema = {
-        allOf: [
-          { properties: { error: { properties: { code: { type: 'string' } } } } },
-          { properties: { error: { properties: { message: { type: 'string' } } } } },
-        ],
-      };
-      const merged = getMergedProperties(schema);
-      expect(Object.keys(merged.error.properties)).toEqual(['code', 'message']);
-    });
-  });
-
-  describe('getPropertyPath', () => {
-    it('locates properties defined directly and within allOf members', () => {
-      const schema = {
-        properties: { operationId: { type: 'string' } },
-        allOf: [{ allOf: [{ properties: { createdAt: { type: 'string' } } }] }],
-      };
-      expect(getPropertyPath(schema, 'operationId')).toEqual(['properties', 'operationId']);
-      expect(getPropertyPath(schema, 'createdAt')).toEqual(['allOf', 0, 'allOf', 0, 'properties', 'createdAt']);
-      expect(getPropertyPath(schema, 'unknown')).toBeUndefined();
+  describe('usesComposition', () => {
+    it('detects allOf, oneOf and anyOf composition', () => {
+      expect(usesComposition({ allOf: [{ type: 'object' }] })).toBe(true);
+      expect(usesComposition({ oneOf: [{ type: 'object' }] })).toBe(true);
+      expect(usesComposition({ anyOf: [{ type: 'object' }] })).toBe(true);
+      expect(usesComposition({ type: 'object', properties: { id: { type: 'string' } } })).toBe(false);
     });
   });
 });

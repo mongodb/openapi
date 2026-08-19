@@ -27,25 +27,6 @@ testRule('xgen-IPA-132-operation-response-must-define-required-fields', [
     errors: [],
   },
   {
-    name: 'valid OperationResponse composed with allOf',
-    document: {
-      components: {
-        schemas: {
-          OperationResponse: {
-            allOf: [{ $ref: '#/components/schemas/OperationMetadata' }, validOperationResponse],
-          },
-          OperationMetadata: {
-            type: 'object',
-            properties: {
-              statusMessage: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-    errors: [],
-  },
-  {
     name: 'documents without an OperationResponse schema are ignored',
     document: {
       components: {
@@ -113,38 +94,48 @@ testRule('xgen-IPA-132-operation-response-must-define-required-fields', [
     ],
   },
   {
-    name: 'invalid required field defined only within an allOf member',
+    name: 'invalid OperationResponse composed with allOf',
     document: {
       components: {
         schemas: {
+          // There is one and only one OperationResponse: composition is not allowed
           OperationResponse: {
-            allOf: [
-              {
-                type: 'object',
-                required: ['operationId', 'status', 'operationType', 'updatedAt', 'expiresAt'],
-                properties: {
-                  operationId: { type: 'string' },
-                  status: {
-                    type: 'string',
-                    enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
-                  },
-                  operationType: { type: 'string', enum: ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'] },
-                  createdAt: { type: 'string', format: 'date-time' },
-                  updatedAt: { type: 'string', format: 'date-time' },
-                  expiresAt: { type: 'string', format: 'date-time' },
-                },
-              },
-            ],
+            allOf: [{ $ref: '#/components/schemas/OperationMetadata' }, validOperationResponse],
+          },
+          OperationMetadata: {
+            type: 'object',
+            properties: {
+              statusMessage: { type: 'string' },
+            },
           },
         },
       },
     },
     errors: [
-      // The violation anchors at the property's actual location inside the allOf member
       {
         code: 'xgen-IPA-132-operation-response-must-define-required-fields',
-        message: 'The createdAt property must be listed as required.',
-        path: ['components', 'schemas', 'OperationResponse', 'allOf', '0', 'properties', 'createdAt'],
+        message: 'OperationResponse must define its properties directly, without allOf, oneOf or anyOf composition.',
+        path: ['components', 'schemas', 'OperationResponse'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
+    name: 'invalid OperationResponse composed with oneOf',
+    document: {
+      components: {
+        schemas: {
+          OperationResponse: {
+            oneOf: [validOperationResponse],
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-operation-response-must-define-required-fields',
+        message: 'OperationResponse must define its properties directly, without allOf, oneOf or anyOf composition.',
+        path: ['components', 'schemas', 'OperationResponse'],
         severity: DiagnosticSeverity.Warning,
       },
     ],
