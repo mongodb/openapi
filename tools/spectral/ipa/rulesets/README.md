@@ -1467,16 +1467,19 @@ operation status.
 ##### Implementation details
 Rule checks for the following conditions:
 
-  - Applies to 2xx JSON responses of GET methods on Operations endpoints
+  - Applies to 2xx responses of GET methods on Operations endpoints; responses defined as
+    references to `components.responses` are followed
+  - Every 2xx response must define at least one JSON media type carrying a schema
   - The single Operation endpoint (`.../operations/{operationId}`) must reference the
     `OperationResponse` schema
   - The Operations collection endpoint (`.../operations`) must reference a paginated wrapper
-    schema whose `results` items reference the `OperationResponse` schema; inline paginated
-    wrappers are rejected, consistent with `xgen-IPA-110-collections-use-paginated-prefix`
+    schema that defines the `results` array directly; inline and `allOf`-composed wrappers
+    are rejected, consistent with `xgen-IPA-110-collections-use-paginated-prefix` and
+    `xgen-IPA-110-collections-response-define-results-array`
   - Inline Operation schemas are violations, the response must reference the predefined
     `OperationResponse` schema
-  - Responses with `x-xgen-IPA-exception` for this rule at the content media type level are
-    excluded from validation
+  - Responses with `x-xgen-IPA-exception` for this rule at the response level are excluded
+    from validation
 
 #### xgen-IPA-132-operation-response-must-define-required-fields
 
@@ -1490,7 +1493,8 @@ Rule checks for the following conditions:
   - Applies to the OperationResponse component schema
   - Each field listed in the rule's functionOptions must be defined and listed as required
   - Properties and required lists spread across allOf sub-schemas are merged before
-    validation
+    validation; composition through oneOf/anyOf is not merged and is reported as missing
+    fields
   - Covers the required-field checks of the IPA-132-operation-status-must-use-the-standard-status-enum
     and IPA-132-operation-response-must-include-core-metadata guidelines
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -1530,9 +1534,11 @@ Rule checks for the following conditions:
   - Applies to the OperationResponse component schema
   - Each enum field listed in the rule's functionOptions must use exactly the listed values,
     in any order
-  - Fields that are not defined are skipped: their presence is validated by the
-    required-fields and optional-fields rules
-  - Properties spread across allOf sub-schemas are merged before validation
+  - Fields that are not defined are skipped: top-level field presence is validated by the
+    required-fields and optional-fields rules, and the nested `retryStrategy` field is
+    optional by the IPA-132-failed-lros-must-report-a-structured-error guideline
+  - Properties spread across allOf sub-schemas are merged before validation, with enums
+    declared by several sub-schemas applied intersected
   - Covers the enum checks of the IPA-132-operation-status-must-use-the-standard-status-enum,
     IPA-132-operation-response-must-include-core-metadata and
     IPA-132-failed-lros-must-report-a-structured-error guidelines
@@ -1567,10 +1573,11 @@ can reason about in-flight work.
 Rule checks for the following conditions:
 
   - Applies to the OperationResponse component schema
-  - The schema should define `statusMessage`, `progress` and `estimatedCompletionTime`
-    properties
+  - The schema should define the fields listed in the rule's functionOptions:
+    `statusMessage`, `progress` and `estimatedCompletionTime`
   - The progress object should define `completed`, `total` and `unit` properties
   - Kept separate from the must-level rules because it enforces should-level guidance
+  - Properties spread across allOf sub-schemas are merged before validation
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 

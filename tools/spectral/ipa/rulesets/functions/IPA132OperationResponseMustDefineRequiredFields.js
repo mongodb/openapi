@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getMergedProperties, getMergedRequired } from './utils/longRunningOperations.js';
+import { getMergedProperties, getMergedRequired, getPropertyPath } from './utils/longRunningOperations.js';
 
 /**
  * Checks that the OperationResponse schema defined by IPA-132 defines every field the standard
@@ -27,8 +27,9 @@ function checkViolationsAndReturnErrors(schema, fields, path, ruleName) {
       if (!properties[field]) {
         errors.push({ path, message: `OperationResponse must define the ${field} property.` });
       } else if (!required.includes(field)) {
+        // Anchor at the property's actual location, which may sit inside an allOf sub-schema
         errors.push({
-          path: [...path, 'properties', field],
+          path: [...path, ...getPropertyPath(schema, field)],
           message: `The ${field} property must be listed as required.`,
         });
       }

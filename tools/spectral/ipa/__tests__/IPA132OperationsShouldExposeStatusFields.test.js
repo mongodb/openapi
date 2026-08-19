@@ -83,19 +83,19 @@ testRule('xgen-IPA-132-operations-should-expose-status-fields', [
     errors: [
       {
         code: 'xgen-IPA-132-operations-should-expose-status-fields',
-        message: 'OperationResponse should define a statusMessage property.',
+        message: 'OperationResponse should define the statusMessage property.',
         path: ['components', 'schemas', 'OperationResponse'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-132-operations-should-expose-status-fields',
-        message: 'OperationResponse should define a progress property.',
+        message: 'OperationResponse should define the progress property.',
         path: ['components', 'schemas', 'OperationResponse'],
         severity: DiagnosticSeverity.Warning,
       },
       {
         code: 'xgen-IPA-132-operations-should-expose-status-fields',
-        message: 'OperationResponse should define a estimatedCompletionTime property.',
+        message: 'OperationResponse should define the estimatedCompletionTime property.',
         path: ['components', 'schemas', 'OperationResponse'],
         severity: DiagnosticSeverity.Warning,
       },
@@ -125,7 +125,7 @@ testRule('xgen-IPA-132-operations-should-expose-status-fields', [
     errors: [
       {
         code: 'xgen-IPA-132-operations-should-expose-status-fields',
-        message: 'The progress object should define a unit property.',
+        message: 'The progress object should define the unit property.',
         path: ['components', 'schemas', 'OperationResponse', 'properties', 'progress'],
         severity: DiagnosticSeverity.Warning,
       },

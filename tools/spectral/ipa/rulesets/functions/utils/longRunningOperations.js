@@ -103,10 +103,6 @@ export function operationsSegmentIsLeaf(path) {
 
 export const OPERATION_RESPONSE_SCHEMA_NAME = 'OperationResponse';
 
-export const OPERATION_STATUS_ENUM = ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'];
-
-export const OPERATION_TYPE_ENUM = ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'];
-
 /**
  * Checks if the enum values defined in a schema match an expected set of values exactly, in any
  * order.
@@ -125,17 +121,68 @@ export function isExactEnumMatch(enumValues, expectedValues) {
 
 /**
  * Collects the properties of a schema, merging the properties of its allOf sub-schemas, which
- * Spectral does not flatten during resolution.
+ * Spectral does not flatten during resolution. allOf is conjunctive, so a property re-declared
+ * by several sub-schemas combines the keywords of every declaration instead of overwriting them:
+ * enums apply intersected, and nested property maps are merged recursively. Composition through
+ * oneOf/anyOf is not merged, and circular references, which Spectral leaves as unresolved $ref
+ * stubs, contribute nothing.
  *
  * @param {object} schema the schema to collect properties for
  * @returns {object} the properties of the schema and all of its allOf sub-schemas
  */
 export function getMergedProperties(schema) {
-  const properties = { ...(schema.properties ?? {}) };
+  const properties = Object.create(null);
+  mergePropertyMaps(properties, schema.properties);
   for (const subSchema of schema.allOf ?? []) {
-    Object.assign(properties, getMergedProperties(subSchema));
+    mergePropertyMaps(properties, getMergedProperties(subSchema));
   }
   return properties;
+}
+
+function mergePropertyMaps(target, source) {
+  for (const [name, definition] of Object.entries(source ?? {})) {
+    const existing = target[name];
+    if (!existing) {
+      target[name] = definition;
+      continue;
+    }
+    const merged = { ...existing, ...definition };
+    if (Array.isArray(existing.enum) && Array.isArray(definition.enum)) {
+      merged.enum = definition.enum.filter((value) => existing.enum.includes(value));
+    } else if (existing.enum !== undefined || definition.enum !== undefined) {
+      merged.enum = definition.enum ?? existing.enum;
+    }
+    if (existing.properties !== undefined && definition.properties !== undefined) {
+      const mergedNested = Object.create(null);
+      mergePropertyMaps(mergedNested, existing.properties);
+      mergePropertyMaps(mergedNested, definition.properties);
+      merged.properties = mergedNested;
+    }
+    target[name] = merged;
+  }
+}
+
+/**
+ * Finds the JSONPath segments locating a property within a schema, descending into allOf
+ * sub-schemas, so that violations anchor at the property's actual document location instead of a
+ * location that only exists after merging.
+ *
+ * @param {object} schema the schema defining the property
+ * @param {string} property the property name to locate
+ * @returns {(string|number)[]|undefined} the path segments relative to the schema, or undefined
+ */
+export function getPropertyPath(schema, property) {
+  if (schema.properties?.[property]) {
+    return ['properties', property];
+  }
+  const subSchemas = schema.allOf ?? [];
+  for (let i = 0; i < subSchemas.length; i++) {
+    const subPath = getPropertyPath(subSchemas[i], property);
+    if (subPath) {
+      return ['allOf', i, ...subPath];
+    }
+  }
+  return undefined;
 }
 
 /**

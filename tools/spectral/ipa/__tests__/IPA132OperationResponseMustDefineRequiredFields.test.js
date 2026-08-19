@@ -106,6 +106,42 @@ testRule('xgen-IPA-132-operation-response-must-define-required-fields', [
     ],
   },
   {
+    name: 'invalid required field defined only within an allOf member',
+    document: {
+      components: {
+        schemas: {
+          OperationResponse: {
+            allOf: [
+              {
+                type: 'object',
+                required: ['operationId', 'status', 'operationType', 'updatedAt'],
+                properties: {
+                  operationId: { type: 'string' },
+                  status: {
+                    type: 'string',
+                    enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
+                  },
+                  operationType: { type: 'string', enum: ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'] },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
+    errors: [
+      // The violation anchors at the property's actual location inside the allOf member
+      {
+        code: 'xgen-IPA-132-operation-response-must-define-required-fields',
+        message: 'The createdAt property must be listed as required.',
+        path: ['components', 'schemas', 'OperationResponse', 'allOf', '0', 'properties', 'createdAt'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'invalid OperationResponse with an exception',
     document: {
       components: {

@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getMergedProperties } from './utils/longRunningOperations.js';
+import { getMergedProperties, getPropertyPath } from './utils/longRunningOperations.js';
 
 /**
  * Checks that every nested object field of the OperationResponse schema defined by IPA-132
@@ -31,10 +31,12 @@ function checkViolationsAndReturnErrors(schema, objects, path, ruleName) {
       }
 
       const objectProperties = getMergedProperties(objectSchema);
+      // Anchor at the object property's actual location, which may sit inside an allOf sub-schema
+      const fieldPath = [...path, ...(getPropertyPath(schema, field) ?? [])];
       for (const property of properties) {
         if (!objectProperties[property]) {
           errors.push({
-            path: [...path, 'properties', field],
+            path: fieldPath,
             message: `The ${field} object must define a ${property} property.`,
           });
         }

@@ -6,8 +6,8 @@ import {
   isOperationsPath,
   isSingleOperationPath,
   operationsSegmentIsLeaf,
-  OPERATION_STATUS_ENUM,
-  OPERATION_TYPE_ENUM,
+  getMergedProperties,
+  getPropertyPath,
 } from '../../rulesets/functions/utils/longRunningOperations';
 
 describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
@@ -94,22 +94,66 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
 
   describe('isExactEnumMatch', () => {
     it('accepts exact matches in any order', () => {
-      expect(
-        isExactEnumMatch(
-          ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
-          OPERATION_STATUS_ENUM
-        )
-      ).toBe(true);
-      expect(isExactEnumMatch(['CUSTOM', 'DELETE', 'UPDATE', 'CREATE'], OPERATION_TYPE_ENUM)).toBe(true);
+      expect(isExactEnumMatch(['SUCCEEDED', 'PENDING', 'FAILED'], ['PENDING', 'SUCCEEDED', 'FAILED'])).toBe(true);
+      expect(isExactEnumMatch(['CUSTOM', 'DELETE', 'UPDATE', 'CREATE'], ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'])).toBe(
+        true
+      );
     });
 
     it('rejects missing, extra, duplicate or undefined values', () => {
-      expect(
-        isExactEnumMatch(['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED'], OPERATION_STATUS_ENUM)
-      ).toBe(false);
-      expect(isExactEnumMatch([...OPERATION_STATUS_ENUM, 'CANCELLING'], OPERATION_STATUS_ENUM)).toBe(false);
-      expect(isExactEnumMatch(['CREATE', 'CREATE', 'UPDATE', 'DELETE'], OPERATION_TYPE_ENUM)).toBe(false);
-      expect(isExactEnumMatch(undefined, OPERATION_TYPE_ENUM)).toBe(false);
+      expect(isExactEnumMatch(['PENDING', 'SUCCEEDED'], ['PENDING', 'SUCCEEDED', 'FAILED'])).toBe(false);
+      expect(isExactEnumMatch(['PENDING', 'SUCCEEDED', 'FAILED', 'CANCELED'], ['PENDING', 'SUCCEEDED', 'FAILED'])).toBe(
+        false
+      );
+      expect(isExactEnumMatch(['CREATE', 'CREATE', 'UPDATE'], ['CREATE', 'UPDATE', 'DELETE'])).toBe(false);
+      expect(isExactEnumMatch(undefined, ['CREATE', 'UPDATE'])).toBe(false);
+    });
+  });
+
+  describe('getMergedProperties', () => {
+    it('combines keyword maps conjunctively instead of overwriting them', () => {
+      const schema = {
+        properties: {
+          status: { type: 'string', enum: ['PENDING', 'SUCCEEDED', 'FAILED'] },
+        },
+        allOf: [{ properties: { status: { description: 'Lifecycle state.' } } }],
+      };
+      const merged = getMergedProperties(schema);
+      expect(merged.status.enum).toEqual(['PENDING', 'SUCCEEDED', 'FAILED']);
+      expect(merged.status.description).toBe('Lifecycle state.');
+    });
+
+    it('intersects enums declared by several allOf members', () => {
+      const schema = {
+        properties: {
+          status: { enum: ['PENDING', 'DONE'] },
+        },
+        allOf: [{ properties: { status: { enum: ['PENDING', 'SUCCEEDED', 'FAILED'] } } }],
+      };
+      expect(getMergedProperties(schema).status.enum).toEqual(['PENDING']);
+    });
+
+    it('merges nested property maps recursively', () => {
+      const schema = {
+        allOf: [
+          { properties: { error: { properties: { code: { type: 'string' } } } } },
+          { properties: { error: { properties: { message: { type: 'string' } } } } },
+        ],
+      };
+      const merged = getMergedProperties(schema);
+      expect(Object.keys(merged.error.properties)).toEqual(['code', 'message']);
+    });
+  });
+
+  describe('getPropertyPath', () => {
+    it('locates properties defined directly and within allOf members', () => {
+      const schema = {
+        properties: { operationId: { type: 'string' } },
+        allOf: [{ allOf: [{ properties: { createdAt: { type: 'string' } } }] }],
+      };
+      expect(getPropertyPath(schema, 'operationId')).toEqual(['properties', 'operationId']);
+      expect(getPropertyPath(schema, 'createdAt')).toEqual(['allOf', 0, 'allOf', 0, 'properties', 'createdAt']);
+      expect(getPropertyPath(schema, 'unknown')).toBeUndefined();
     });
   });
 });

@@ -57,6 +57,54 @@ testRule('xgen-IPA-132-operation-response-must-use-standard-enum-values', [
     errors: [],
   },
   {
+    name: 'valid enum re-declared by an allOf member carrying only a description',
+    document: {
+      components: {
+        schemas: {
+          // allOf is conjunctive: the description-only re-declaration must not clobber the enum
+          OperationResponse: {
+            ...validOperationResponse,
+            allOf: [{ properties: { status: { description: 'Lifecycle state.' } } }],
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid enum masked by a correct allOf member',
+    document: {
+      components: {
+        schemas: {
+          OperationResponse: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', enum: ['PENDING', 'DONE'] },
+            },
+            allOf: [
+              {
+                properties: {
+                  status: {
+                    enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    },
+    errors: [
+      // The effective enum is the intersection of both declarations, [PENDING]
+      {
+        code: 'xgen-IPA-132-operation-response-must-use-standard-enum-values',
+        message: STATUS_ENUM_ERROR_MESSAGE,
+        path: ['components', 'schemas', 'OperationResponse', 'properties', 'status'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
+  {
     name: 'enum fields that are not defined are skipped',
     document: {
       components: {

@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getMergedProperties, isExactEnumMatch } from './utils/longRunningOperations.js';
+import { getMergedProperties, getPropertyPath, isExactEnumMatch } from './utils/longRunningOperations.js';
 
 /**
  * Checks that every enum field of the OperationResponse schema defined by IPA-132 uses exactly
@@ -29,10 +29,11 @@ function checkViolationsAndReturnErrors(schema, enums, path, ruleName) {
       if (parent) {
         const parentProperty = properties[parent];
         property = parentProperty ? getMergedProperties(parentProperty)[field] : undefined;
-        propertyPath = [...path, 'properties', parent];
+        // Anchor at the parent property's actual location, which may sit inside an allOf sub-schema
+        propertyPath = [...path, ...(getPropertyPath(schema, parent) ?? [])];
       } else {
         property = properties[field];
-        propertyPath = [...path, 'properties', field];
+        propertyPath = [...path, ...(getPropertyPath(schema, field) ?? [])];
       }
 
       // Absent fields are the required-fields and optional-fields rules' concern
