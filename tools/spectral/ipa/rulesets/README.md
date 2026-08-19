@@ -1485,7 +1485,7 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 The OperationResponse schema must define every field the IPA-132 standard marks as always
-required: operationId, status, operationType, createdAt and updatedAt.
+required: operationId, status, operationType, createdAt, updatedAt and expiresAt.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -1495,8 +1495,11 @@ Rule checks for the following conditions:
   - Properties and required lists spread across allOf sub-schemas are merged before
     validation; composition through oneOf/anyOf is not merged and is reported as missing
     fields
-  - Covers the required-field checks of the IPA-132-operation-status-must-use-the-standard-status-enum
-    and IPA-132-operation-response-must-include-core-metadata guidelines
+  - Covers the required-field checks of the IPA-132-operation-status-must-use-the-standard-status-enum,
+    IPA-132-operation-response-must-include-core-metadata and
+    IPA-132-operations-must-expire-after-a-finite-retention-period guidelines; for the
+    latter, only the expiresAt declaration is statically checkable, the retention behavior
+    itself is not
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operation-response-must-define-optional-fields

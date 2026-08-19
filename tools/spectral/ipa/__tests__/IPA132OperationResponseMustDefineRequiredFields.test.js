@@ -3,13 +3,14 @@ import { DiagnosticSeverity } from '@stoplight/types';
 
 const validOperationResponse = {
   type: 'object',
-  required: ['operationId', 'status', 'operationType', 'createdAt', 'updatedAt'],
+  required: ['operationId', 'status', 'operationType', 'createdAt', 'updatedAt', 'expiresAt'],
   properties: {
     operationId: { type: 'string' },
     status: { type: 'string', enum: ['PENDING', 'IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'CANCELED', 'SUPERSEDED'] },
     operationType: { type: 'string', enum: ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'] },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
+    expiresAt: { type: 'string', format: 'date-time' },
   },
 };
 
@@ -99,6 +100,12 @@ testRule('xgen-IPA-132-operation-response-must-define-required-fields', [
       },
       {
         code: 'xgen-IPA-132-operation-response-must-define-required-fields',
+        message: 'OperationResponse must define the expiresAt property.',
+        path: ['components', 'schemas', 'OperationResponse'],
+        severity: DiagnosticSeverity.Warning,
+      },
+      {
+        code: 'xgen-IPA-132-operation-response-must-define-required-fields',
         message: 'The createdAt property must be listed as required.',
         path: ['components', 'schemas', 'OperationResponse', 'properties', 'createdAt'],
         severity: DiagnosticSeverity.Warning,
@@ -114,7 +121,7 @@ testRule('xgen-IPA-132-operation-response-must-define-required-fields', [
             allOf: [
               {
                 type: 'object',
-                required: ['operationId', 'status', 'operationType', 'updatedAt'],
+                required: ['operationId', 'status', 'operationType', 'updatedAt', 'expiresAt'],
                 properties: {
                   operationId: { type: 'string' },
                   status: {
@@ -124,6 +131,7 @@ testRule('xgen-IPA-132-operation-response-must-define-required-fields', [
                   operationType: { type: 'string', enum: ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'] },
                   createdAt: { type: 'string', format: 'date-time' },
                   updatedAt: { type: 'string', format: 'date-time' },
+                  expiresAt: { type: 'string', format: 'date-time' },
                 },
               },
             ],
