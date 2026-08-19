@@ -6,8 +6,11 @@ functions:
   - IPA132OperationMustBeAReadOnlyResource
   - IPA132OperationsEndpointMustBeALeafResource
   - IPA132OperationEndpointsMustReturnOperationResponse
-  - IPA132OperationStatusMustUseTheStandardStatusEnum
-  - IPA132OperationResponseMustIncludeCoreMetadata
+  - IPA132OperationResponseMustDefineRequiredFields
+  - IPA132OperationResponseMustDefineOptionalFields
+  - IPA132OperationResponseMustUseStandardEnumValues
+  - IPA132OperationResponseMustDefineNestedObjectStructure
+  - IPA132OperationsShouldExposeStatusFields
 
 aliases:
   OperationResponseSchema:
@@ -106,45 +109,152 @@ rules:
       field: '@key'
       function: IPA132OperationEndpointsMustReturnOperationResponse
 
-  xgen-IPA-132-operation-status-must-use-the-standard-status-enum:
+  xgen-IPA-132-operation-response-must-define-required-fields:
     description: |
-      An Operation must report progress through a status field, using exactly the enum PENDING,
-      IN_PROGRESS, SUCCEEDED, FAILED, CANCELED, SUPERSEDED.
+      The OperationResponse schema must define every field the IPA-132 standard marks as always
+      required: operationId, status, operationType, createdAt and updatedAt.
 
       ##### Implementation details
       Rule checks for the following conditions:
 
         - Applies to the OperationResponse component schema
-        - The schema must define a `status` property, listed as required
-        - The `status` enum must contain exactly the values `PENDING`, `IN_PROGRESS`, `SUCCEEDED`,
-          `FAILED`, `CANCELED` and `SUPERSEDED`, in any order
+        - Each field listed in the rule's functionOptions must be defined and listed as required
+        - Properties and required lists spread across allOf sub-schemas are merged before
+          validation
+        - Covers the required-field checks of the IPA-132-operation-status-must-use-the-standard-status-enum
+          and IPA-132-operation-response-must-include-core-metadata guidelines
         - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
-    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-status-must-use-the-standard-status-enum'
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-define-required-fields'
     severity: warn
     given: '#OperationResponseSchema'
     then:
-      function: IPA132OperationStatusMustUseTheStandardStatusEnum
+      function: IPA132OperationResponseMustDefineRequiredFields
+      functionOptions:
+        fields:
+          - operationId
+          - status
+          - operationType
+          - createdAt
+          - updatedAt
 
-  xgen-IPA-132-operation-response-must-include-core-metadata:
+  xgen-IPA-132-operation-response-must-define-optional-fields:
     description: |
-      An OperationResponse must include stable core metadata for the operation record: a required
-      operationId, a required operationType, a required createdAt and a required updatedAt.
+      The OperationResponse schema must define every field the IPA-132 standard marks as
+      conditionally present, and none of them may be listed as required: customMethod, error,
+      resultHref and retryAfterSeconds are present only under runtime conditions.
 
       ##### Implementation details
       Rule checks for the following conditions:
 
         - Applies to the OperationResponse component schema
-        - The properties `operationId`, `operationType`, `createdAt` and `updatedAt` must be
-          defined and listed as required
-        - The `operationType` enum must contain exactly the values `CREATE`, `UPDATE`, `DELETE`
-          and `CUSTOM`, in any order
-        - A `customMethod` property must be defined and must not be listed as required: it is
-          required only when `operationType` is `CUSTOM`, which cannot be validated statically
+        - Each field listed in the rule's functionOptions must be defined and must not be listed
+          as required: the condition under which it is present is a runtime state that cannot be
+          validated statically
+        - Properties and required lists spread across allOf sub-schemas are merged before
+          validation
+        - Covers the conditional-field checks of the IPA-132-operation-response-must-include-core-metadata,
+          IPA-132-failed-lros-must-report-a-structured-error,
+          IPA-132-successful-lros-must-reference-the-result-resource and
+          IPA-132-in-progress-operations-must-expose-retry-after-seconds guidelines
         - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
-    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-include-core-metadata'
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-define-optional-fields'
     severity: warn
     given: '#OperationResponseSchema'
     then:
-      function: IPA132OperationResponseMustIncludeCoreMetadata
+      function: IPA132OperationResponseMustDefineOptionalFields
+      functionOptions:
+        fields:
+          - name: customMethod
+            condition: when operationType is CUSTOM
+          - name: error
+            condition: when the operation has FAILED
+          - name: resultHref
+            condition: when the operation has SUCCEEDED
+          - name: retryAfterSeconds
+            condition: while the operation is in a non-terminal state
+
+  xgen-IPA-132-operation-response-must-use-standard-enum-values:
+    description: |
+      Every enum field of the OperationResponse schema must use exactly the standard enum values
+      defined by IPA-132: the status lifecycle enum, the operationType enum and the retryStrategy
+      enum of the error object.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+
+        - Applies to the OperationResponse component schema
+        - Each enum field listed in the rule's functionOptions must use exactly the listed values,
+          in any order
+        - Fields that are not defined are skipped: their presence is validated by the
+          required-fields and optional-fields rules
+        - Properties spread across allOf sub-schemas are merged before validation
+        - Covers the enum checks of the IPA-132-operation-status-must-use-the-standard-status-enum,
+          IPA-132-operation-response-must-include-core-metadata and
+          IPA-132-failed-lros-must-report-a-structured-error guidelines
+        - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-use-standard-enum-values'
+    severity: warn
+    given: '#OperationResponseSchema'
+    then:
+      function: IPA132OperationResponseMustUseStandardEnumValues
+      functionOptions:
+        enums:
+          - field: status
+            values: [PENDING, IN_PROGRESS, SUCCEEDED, FAILED, CANCELED, SUPERSEDED]
+          - field: operationType
+            values: [CREATE, UPDATE, DELETE, CUSTOM]
+          - field: retryStrategy
+            parent: error
+            values: [IMMEDIATE, BACKOFF, NONE]
+
+  xgen-IPA-132-operation-response-must-define-nested-object-structure:
+    description: |
+      Every nested object field of the OperationResponse schema must define the properties the
+      IPA-132 standard requires of it: the error object must define code, message and retryable.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+
+        - Applies to the OperationResponse component schema
+        - Each nested object field listed in the rule's functionOptions must define the listed
+          properties
+        - Fields that are not defined are skipped: their presence is validated by the
+          optional-fields rule
+        - Properties spread across allOf sub-schemas are merged before validation
+        - Covers the error object structure check of the
+          IPA-132-failed-lros-must-report-a-structured-error guideline
+        - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-define-nested-object-structure'
+    severity: warn
+    given: '#OperationResponseSchema'
+    then:
+      function: IPA132OperationResponseMustDefineNestedObjectStructure
+      functionOptions:
+        objects:
+          - field: error
+            properties: [code, message, retryable]
+
+  xgen-IPA-132-operations-should-expose-status-fields:
+    description: |
+      An Operation should expose statusMessage, progress, and estimatedCompletionTime so clients
+      can reason about in-flight work.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+
+        - Applies to the OperationResponse component schema
+        - The schema should define `statusMessage`, `progress` and `estimatedCompletionTime`
+          properties
+        - The progress object should define `completed`, `total` and `unit` properties
+        - Kept separate from the must-level rules because it enforces should-level guidance
+        - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operations-should-expose-status-fields'
+    severity: warn
+    given: '#OperationResponseSchema'
+    then:
+      function: IPA132OperationsShouldExposeStatusFields
