@@ -112,4 +112,33 @@ testRule('xgen-IPA-132-list-method-must-not-be-lro', [
     },
     errors: [],
   },
+  {
+    name: 'compliant List method does not need an exception',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName': {
+          get: {
+            ...syncList,
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-132-list-method-must-not-be-lro': 'reason',
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-list-method-must-not-be-lro',
+        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName',
+          'get',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-132-list-method-must-not-be-lro',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);

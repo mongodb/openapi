@@ -130,4 +130,33 @@ testRule('xgen-IPA-132-get-method-must-not-be-lro', [
     },
     errors: [],
   },
+  {
+    name: 'compliant Get method does not need an exception',
+    document: {
+      paths: {
+        '/api/atlas/v2/resourceName/{pathParam}': {
+          get: {
+            ...syncGet,
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-132-get-method-must-not-be-lro': 'reason',
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-132-get-method-must-not-be-lro',
+        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+        path: [
+          'paths',
+          '/api/atlas/v2/resourceName/{pathParam}',
+          'get',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-132-get-method-must-not-be-lro',
+        ],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
+  },
 ]);
