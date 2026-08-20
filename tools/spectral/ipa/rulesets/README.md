@@ -1458,6 +1458,134 @@ Rule checks for the following conditions:
     `.../operations/{operationId}/subresource`, is a violation
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-132-operation-endpoints-must-return-operation-response
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Operation endpoints must return the OperationResponse schema to report long-running
+operation status.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to 2xx responses of GET methods on Operations endpoints; the response content
+    is defined inline, `components.responses` is reserved for error responses
+  - Every 2xx response must define at least one JSON media type carrying a schema
+  - The single Operation endpoint (`.../operations/{operationId}`) must reference the
+    `OperationResponse` schema
+  - The Operations collection endpoint (`.../operations`) must reference a paginated wrapper
+    schema that defines the `results` array directly; inline and `allOf`-composed wrappers
+    are rejected, consistent with `xgen-IPA-110-collections-use-paginated-prefix` and
+    `xgen-IPA-110-collections-response-define-results-array`
+  - Inline Operation schemas are violations, the response must reference the predefined
+    `OperationResponse` schema
+  - Responses with `x-xgen-IPA-exception` for this rule at the response level are excluded
+    from validation
+
+#### xgen-IPA-132-operation-response-must-not-use-composition
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The OperationResponse schema must define its properties directly. There is one and only one
+OperationResponse, so allOf, oneOf and anyOf composition is a violation.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - The schema must not use allOf, oneOf or anyOf composition
+  - The other OperationResponse schema rules skip composed schemas, relying on this rule to
+    reject them
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operation-response-must-define-required-fields
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The OperationResponse schema must define every field the IPA-132 standard marks as always
+required: operationId, status, operationType, createdAt, updatedAt and expiresAt.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - Each field listed in the rule's functionOptions must be defined and listed as required
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
+  - For expiresAt, only the field declaration is validated; the retention behavior and the
+    404 after expiry are backend-defined
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operation-response-must-define-optional-fields
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The OperationResponse schema must define every field the IPA-132 standard marks as
+conditionally present, and none of them may be listed as required: customMethod, error,
+resultHref and retryAfterSeconds are present only under runtime conditions.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - Each field listed in the rule's functionOptions must be defined and must not be listed
+    as required: the condition under which it is present is a runtime state that cannot be
+    validated statically
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operation-response-must-use-standard-enum-values
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Every enum field of the OperationResponse schema must use exactly the standard enum values
+defined by IPA-132: the status lifecycle enum, the operationType enum and the retryStrategy
+enum of the error object.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - Each enum field listed in the rule's functionOptions must use exactly the listed values,
+    in any order
+  - Fields that are not defined are skipped: top-level field presence is validated by the
+    required-fields and optional-fields rules
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operation-response-must-define-nested-object-structure
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Every nested object field of the OperationResponse schema must define the properties the
+IPA-132 standard requires of it: the error object must define code, message and retryable.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - Each nested object field listed in the rule's functionOptions must define the listed
+    properties
+  - Fields that are not defined are skipped: their presence is validated by the
+    optional-fields rule
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-operations-should-expose-status-fields
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+An Operation should expose statusMessage, progress, and estimatedCompletionTime so clients
+can reason about in-flight work.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - The schema should define the fields listed in the rule's functionOptions:
+    `statusMessage`, `progress` and `estimatedCompletionTime`
+  - The progress object should define `completed`, `total` and `unit` properties
+  - Kept separate from the must-level rules because it enforces should-level guidance
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 

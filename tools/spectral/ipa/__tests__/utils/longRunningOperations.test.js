@@ -1,10 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   containsOperationsSegment,
+  isExactEnumMatch,
   isOperationsCollectionPath,
   isOperationsPath,
   isSingleOperationPath,
   operationsSegmentIsLeaf,
+  usesComposition,
 } from '../../rulesets/functions/utils/longRunningOperations';
 
 describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
@@ -86,6 +88,33 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
       expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/{operationId}/subresource')).toBe(false);
       expect(operationsSegmentIsLeaf('/api/atlas/v2/resourceName/operations/{operationId}/operations')).toBe(false);
       expect(operationsSegmentIsLeaf('/api/atlas/v2/operations/subresource')).toBe(false);
+    });
+  });
+
+  describe('isExactEnumMatch', () => {
+    it('accepts exact matches in any order', () => {
+      expect(isExactEnumMatch(['SUCCEEDED', 'PENDING', 'FAILED'], ['PENDING', 'SUCCEEDED', 'FAILED'])).toBe(true);
+      expect(isExactEnumMatch(['CUSTOM', 'DELETE', 'UPDATE', 'CREATE'], ['CREATE', 'UPDATE', 'DELETE', 'CUSTOM'])).toBe(
+        true
+      );
+    });
+
+    it('rejects missing, extra, duplicate or undefined values', () => {
+      expect(isExactEnumMatch(['PENDING', 'SUCCEEDED'], ['PENDING', 'SUCCEEDED', 'FAILED'])).toBe(false);
+      expect(isExactEnumMatch(['PENDING', 'SUCCEEDED', 'FAILED', 'CANCELED'], ['PENDING', 'SUCCEEDED', 'FAILED'])).toBe(
+        false
+      );
+      expect(isExactEnumMatch(['CREATE', 'CREATE', 'UPDATE'], ['CREATE', 'UPDATE', 'DELETE'])).toBe(false);
+      expect(isExactEnumMatch(undefined, ['CREATE', 'UPDATE'])).toBe(false);
+    });
+  });
+
+  describe('usesComposition', () => {
+    it('detects allOf, oneOf and anyOf composition', () => {
+      expect(usesComposition({ allOf: [{ type: 'object' }] })).toBe(true);
+      expect(usesComposition({ oneOf: [{ type: 'object' }] })).toBe(true);
+      expect(usesComposition({ anyOf: [{ type: 'object' }] })).toBe(true);
+      expect(usesComposition({ type: 'object', properties: { id: { type: 'string' } } })).toBe(false);
     });
   });
 });
