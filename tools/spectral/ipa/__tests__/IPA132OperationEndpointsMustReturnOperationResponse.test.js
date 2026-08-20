@@ -68,24 +68,6 @@ const components = {
       },
     },
   },
-  responses: {
-    OperationResponseOk: {
-      description: 'Operation status.',
-      content: {
-        'application/vnd.atlas.2024-08-05+json': {
-          schema: { $ref: '#/components/schemas/OperationResponse' },
-        },
-      },
-    },
-    OrderOk: {
-      description: 'An order.',
-      content: {
-        'application/vnd.atlas.2024-08-05+json': {
-          schema: { $ref: '#/components/schemas/Order' },
-        },
-      },
-    },
-  },
 };
 
 const operationResponseGet = {
@@ -228,14 +210,6 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
         '/api/atlas/v2/resourceName/{pathParam}/operations': {
           get: paginatedOperationResponseGet,
         },
-        // The response may be defined as a reference to a shared component response
-        '/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}': {
-          get: {
-            responses: {
-              200: { $ref: '#/components/responses/OperationResponseOk' },
-            },
-          },
-        },
         // Not an Operations endpoint, the returned schema is not restricted
         '/api/atlas/v2/resourceName/{pathParam}': {
           get: orderGet,
@@ -295,29 +269,6 @@ testRule('xgen-IPA-132-operation-endpoints-must-return-operation-response', [
           'content',
           'application/vnd.atlas.2024-08-05+json',
         ],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
-  },
-  {
-    name: 'invalid single Operation endpoint referencing a shared non-Operation response',
-    document: {
-      paths: {
-        '/api/atlas/v2/resourceName/operations/{operationId}': {
-          get: {
-            responses: {
-              200: { $ref: '#/components/responses/OrderOk' },
-            },
-          },
-        },
-      },
-      components,
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-132-operation-endpoints-must-return-operation-response',
-        message: SINGLE_OPERATION_ERROR_MESSAGE,
-        path: ['paths', '/api/atlas/v2/resourceName/operations/{operationId}', 'get', 'responses', '200'],
         severity: DiagnosticSeverity.Warning,
       },
     ],

@@ -1467,8 +1467,8 @@ operation status.
 ##### Implementation details
 Rule checks for the following conditions:
 
-  - Applies to 2xx responses of GET methods on Operations endpoints; responses defined as
-    references to `components.responses` are followed
+  - Applies to 2xx responses of GET methods on Operations endpoints; the response content
+    is defined inline, `components.responses` is reserved for error responses
   - Every 2xx response must define at least one JSON media type carrying a schema
   - The single Operation endpoint (`.../operations/{operationId}`) must reference the
     `OperationResponse` schema
