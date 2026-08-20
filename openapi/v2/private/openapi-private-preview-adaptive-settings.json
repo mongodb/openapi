@@ -411,6 +411,46 @@
       }
     },
     "schemas": {
+      "AdaptiveSettingsOverrides": {
+        "additionalProperties": true,
+        "description": "Map of customer-specified overrides for Adaptive Settings, applied on a best-effort basis. Each supported entry that you specify in this object takes precedence over the corresponding Atlas-managed default. For example, if a setting is enabled by default, you can add an override to disable it for your cluster.",
+        "type": "object"
+      },
+      "AdaptiveSettingsResponse": {
+        "description": "Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.",
+        "externalDocs": {
+          "description": "Adaptive Settings",
+          "url": "https://dochub.mongodb.org/core/adaptive-settings"
+        },
+        "properties": {
+          "adaptiveSettingsOverrides": {
+            "$ref": "#/components/schemas/AdaptiveSettingsOverrides"
+          },
+          "effectiveAdaptiveSettings": {
+            "additionalProperties": true,
+            "description": "The effective state of Adaptive Settings currently applied to your cluster, based on your overrides and Atlas-managed defaults. Atlas-managed defaults can vary by MongoDB version, so the same setting may default differently across clusters running different versions. If you set an override for a setting that your cluster's current MongoDB version doesn't support, the override doesn't take effect and the effective value reflects the Atlas-managed default instead.",
+            "readOnly": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "effectiveAdaptiveSettings"
+        ],
+        "type": "object"
+      },
+      "AdaptiveSettingsUpdateRequest": {
+        "description": "Adaptive Settings for a cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults.",
+        "externalDocs": {
+          "description": "Adaptive Settings",
+          "url": "https://dochub.mongodb.org/core/adaptive-settings"
+        },
+        "properties": {
+          "adaptiveSettingsOverrides": {
+            "$ref": "#/components/schemas/AdaptiveSettingsOverrides"
+          }
+        },
+        "type": "object"
+      },
       "ApiError": {
         "properties": {
           "badRequestDetail": {
@@ -456,22 +496,6 @@
         ],
         "type": "object"
       },
-      "AssociatedInvoice": {
-        "description": "An invoice associated with an organization.",
-        "properties": {
-          "invoiceId": {
-            "description": "Unique 24-hexadecimal digit identifier for an invoice.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "orgId": {
-            "description": "Unique 24-hexadecimal digit identifier for an organization.",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "BadRequestDetail": {
         "description": "Bad request detail.",
         "properties": {
@@ -502,55 +526,6 @@
           "field"
         ],
         "type": "object"
-      },
-      "OrgAssociatedInvoiceResponse": {
-        "description": "Response containing associated invoices for an organization.",
-        "properties": {
-          "associatedInvoices": {
-            "description": "List of invoices associated with the organization for the specified period.",
-            "items": {
-              "$ref": "#/components/schemas/AssociatedInvoice"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "month": {
-            "description": "Two-digit number that represents the month of the associated invoices.",
-            "example": "01",
-            "readOnly": true,
-            "type": "string"
-          },
-          "year": {
-            "description": "Four-digit number that represents the year of the associated invoices.",
-            "example": "2024",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "ReportGenerationRequest": {
-        "properties": {
-          "reportFormat": {
-            "description": "Format of the report.",
-            "enum": [
-              "CSV"
-            ],
-            "type": "string"
-          },
-          "reportType": {
-            "description": "Type of report to generate.",
-            "enum": [
-              "FOCUS"
-            ],
-            "type": "string"
-          },
-          "version": {
-            "description": "Version of the report format specification.",
-            "type": "string"
-          }
-        },
-        "type": "object"
       }
     },
     "securitySchemes": {
@@ -571,7 +546,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-invoicereporting+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-adaptive-settings+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -583,42 +558,27 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/orgs/{orgId}/associatedInvoices": {
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings": {
       "get": {
-        "deprecated": true,
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns a list of invoice IDs for the specified organization and month/year. Optionally includes invoices from linked organizations. Deprecated versions: v2-{2025-03-12}",
-        "operationId": "getOrgAssociatedInvoices",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the Adaptive Settings for the specified cluster, including client-provided overrides and the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Read Only role.",
+        "operationId": "getGroupClusterAdaptiveSettings",
         "parameters": [
           {
-            "$ref": "#/components/parameters/orgId"
+            "$ref": "#/components/parameters/envelope"
           },
           {
-            "description": "The month for which to retrieve invoices (1-12). Defaults to current month.",
-            "in": "query",
-            "name": "month",
-            "schema": {
-              "format": "int64",
-              "maximum": 12,
-              "minimum": 1,
-              "type": "integer"
-            }
+            "$ref": "#/components/parameters/groupId"
           },
           {
-            "description": "The year for which to retrieve invoices. Defaults to current year.",
-            "in": "query",
-            "name": "year",
-            "schema": {
-              "format": "int64",
-              "minimum": 2000,
-              "type": "integer"
-            }
+            "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Whether to include invoices from linked organizations. Defaults to false.",
-            "in": "query",
-            "name": "includeLinkedOrgs",
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
             "schema": {
-              "type": "boolean"
+              "type": "string"
             }
           }
         ],
@@ -627,15 +587,16 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrgAssociatedInvoiceResponse"
+                  "$ref": "#/components/schemas/AdaptiveSettingsResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "invoicereporting"
+                  "name": "adaptive-settings",
+                  "public": "false"
                 },
-                "x-xgen-version": "private-preview-invoicereporting"
+                "x-xgen-version": "private-preview-adaptive-settings"
               }
             },
-            "description": "Associated invoices retrieved successfully",
+            "description": "OK.",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -644,9 +605,6 @@
                 "$ref": "#/components/headers/HeaderRateLimitRemaining"
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -657,58 +615,62 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return Associated Invoices",
+        "summary": "Return Adaptive Settings for One Cluster",
         "tags": [
-          "Invoices"
+          "Clusters"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api invoices getOrgAssociatedInvoices --help"
+            "source": "atlas api clusters getClusterAdaptiveSettings --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings?pretty=true\""
           }
         ],
         "x-rolesRequirements": [
-          "Organization Billing Viewer"
+          "Project Read Only"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-sunset": "2026-09-16",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgAssociatedInvoices"
-      }
-    },
-    "/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport": {
-      "post": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Generates and downloads a report for the specified invoice.",
-        "operationId": "generateOrgInvoiceAndDownloadReport",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterAdaptiveSettings",
+        "x-xgen-operation-id-override": "getClusterAdaptiveSettings"
+      },
+      "patch": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Updates the client-provided Adaptive Settings overrides for the specified cluster and returns the resulting Adaptive Settings, including the effective settings derived from those overrides and Atlas-managed defaults. To use this resource, the requesting Service Account or API Key must have the Project Owner role.",
+        "operationId": "updateGroupClusterAdaptiveSettings",
         "parameters": [
           {
-            "$ref": "#/components/parameters/orgId"
+            "$ref": "#/components/parameters/envelope"
           },
           {
-            "description": "Unique string that identifies the invoice for which to generate the report.",
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
             "in": "path",
-            "name": "invoiceId",
+            "name": "clusterName",
             "required": true,
             "schema": {
               "type": "string"
@@ -719,32 +681,33 @@
           "content": {
             "application/vnd.atlas.preview+json": {
               "schema": {
-                "$ref": "#/components/schemas/ReportGenerationRequest"
+                "$ref": "#/components/schemas/AdaptiveSettingsUpdateRequest"
               },
               "x-xgen-preview": {
-                "name": "invoicereporting"
+                "name": "adaptive-settings",
+                "public": "false"
               },
-              "x-xgen-version": "private-preview-invoicereporting"
+              "x-xgen-version": "private-preview-adaptive-settings"
             }
           },
-          "description": "Generate and Download Invoice Report request body.",
+          "description": "Adaptive Settings overrides to apply to the specified cluster. Omitting `adaptiveSettingsOverrides` is a no-op.",
           "required": true
         },
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.preview+gzip": {
-                "example": "invoice_abc123_focus.csv.gz\n",
+              "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/AdaptiveSettingsResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "invoicereporting"
+                  "name": "adaptive-settings",
+                  "public": "false"
                 },
-                "x-xgen-version": "private-preview-invoicereporting"
+                "x-xgen-version": "private-preview-adaptive-settings"
               }
             },
-            "description": "Report generated successfully",
+            "description": "OK.",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -766,44 +729,44 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Generate and Download Invoice Report",
+        "summary": "Update Adaptive Settings for One Cluster",
         "tags": [
-          "Invoices"
+          "Clusters"
         ],
         "x-beta": true,
         "x-codeSamples": [
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api invoices generateInvoiceReport --help"
+            "source": "atlas api clusters updateClusterAdaptiveSettings --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+gzip\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings\" \\\n  -d '{ <Payload> }'"
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+gzip\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/adaptiveSettings\" \\\n  -d '{ <Payload> }'"
           }
         ],
         "x-rolesRequirements": [
-          "Organization Billing Viewer"
+          "Project Owner"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport",
-        "x-xgen-operation-id-override": "generateInvoiceReport"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterAdaptiveSettings",
+        "x-xgen-operation-id-override": "updateClusterAdaptiveSettings"
       }
     }
   },
@@ -822,8 +785,8 @@
   ],
   "tags": [
     {
-      "description": "Returns invoices.",
-      "name": "Invoices"
+      "description": "Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.",
+      "name": "Clusters"
     }
   ],
   "x-externalLinks": [

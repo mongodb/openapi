@@ -942,6 +942,11 @@
             "description": "Unique 24-hexadecimal digit string that identifies the interface endpoint.",
             "readOnly": true,
             "type": "string"
+          },
+          "regionName": {
+            "description": "Region name of the private endpoint.",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -6049,6 +6054,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "regionName": {
+            "description": "Region name of the private endpoint.",
+            "readOnly": true,
+            "type": "string"
+          },
           "status": {
             "description": "State of the Azure Private Link Service connection when MongoDB Cloud received this request.",
             "enum": [
@@ -6966,7 +6976,6 @@
       },
       "BadRequestDetail": {
         "description": "Bad request detail.",
-        "nullable": true,
         "properties": {
           "fields": {
             "description": "Describes all violations in a client request.",
@@ -8972,7 +8981,7 @@
           {
             "properties": {
               "_id": {
-                "description": "Unique 24-hexadecimal digit string that identifies the role.",
+                "description": "Unique 24-hexadecimal digit string that identifies the role. Pass this value as the `roleId` path parameter when you request, update, or remove this Azure Service Principal. Azure Service Principals return this identifier as `_id`, while Amazon Web Services (AWS) IAM roles and Google Service Accounts return it as `roleId`.",
                 "example": "32b6e34b3d91647abb20e7b8",
                 "pattern": "^([a-f0-9]{24})$",
                 "readOnly": true,
@@ -11587,6 +11596,40 @@
         },
         "type": "object"
       },
+      "ConnectionsEstablishmentRateLimitRejectedRawMetricThresholdView": {
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured `metricThreshold.threshold`.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "$ref": "#/components/schemas/RawMetricUnits"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
+        "type": "object"
+      },
       "ConnectionsMaxRawMetricThresholdView": {
         "properties": {
           "metricName": {
@@ -12122,13 +12165,13 @@
                 "type": "array"
               },
               "gcpProjectId": {
-                "description": "Unique string that identifies the Google Cloud project in which you created the endpoints.",
-                "example": "p-fdeeb3e43b8e733e5ab627b1",
+                "description": "Unique string that identifies the Google Cloud project in which you created the endpoints. Specify the Google Cloud project ID or project number.",
+                "example": "my-project-12345",
                 "externalDocs": {
                   "description": "Google Cloud Creating and Managing Projects",
                   "url": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
                 },
-                "pattern": "^p-[0-9a-z]{24}$",
+                "pattern": "^([a-z][a-z0-9-]{4,28}[a-z0-9]|[0-9]{1,20})$",
                 "type": "string",
                 "writeOnly": true
               }
@@ -12438,12 +12481,11 @@
         "type": "object"
       },
       "DBRoleToExecute": {
-        "description": "The name of a built-in or custom DB Role to connect to an Atlas Cluster.",
+        "description": "Name of a built-in or custom DB Role to connect to a MongoDB Cloud Cluster.",
         "externalDocs": {
           "description": "Built-in Roles",
           "url": "https://www.mongodb.com/docs/atlas/mongodb-users-roles-and-privileges/#mongodb-atlasrole-atlasAdmin"
         },
-        "nullable": true,
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -14730,6 +14772,11 @@
             "description": "Toggle sending query shape metrics that includes query hash and metrics on latency, execution frequency, documents returned, and timestamps.",
             "type": "boolean"
           },
+          "sendShardingMetrics": {
+            "default": false,
+            "description": "Toggle sending sharding metrics that includes sharding distribution and chunk metrics per cluster, shard, and collection.",
+            "type": "boolean"
+          },
           "sendUserProvidedResourceTags": {
             "default": false,
             "description": "Toggle sending user provided group and cluster resource tags with the Datadog metrics.",
@@ -16012,6 +16059,7 @@
                 "enum": [
                   "CROSS_REGION_SUPPORTED_REGION_MODIFIED",
                   "ENDPOINT_SERVICE_CREATED",
+                  "ENDPOINT_SERVICE_CREATION_RETRIED",
                   "ENDPOINT_SERVICE_DELETED",
                   "INTERFACE_ENDPOINT_CREATED",
                   "INTERFACE_ENDPOINT_DELETED",
@@ -16392,6 +16440,7 @@
               {
                 "enum": [
                   "AI_MODELS_APIS_USAGE_TIER_UPDATED",
+                  "AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE",
                   "AI_MODELS_APIS_FREE_TOKENS_ADMIN_ADJUSTED"
                 ],
                 "title": "AI Models APIs Event Types",
@@ -16920,7 +16969,6 @@
         "type": "object"
       },
       "DiskBackupExportJobRequest": {
-        "nullable": true,
         "properties": {
           "customData": {
             "description": "Collection of key-value pairs that represent custom data to add to the metadata file that MongoDB Cloud uploads to the bucket when the export job finishes.",
@@ -17630,7 +17678,6 @@
           },
           "propertyName": "cloudProvider"
         },
-        "nullable": true,
         "properties": {
           "cloudProvider": {
             "description": "Human-readable label that identifies the cloud provider.",
@@ -19483,6 +19530,7 @@
               "FTS_INDEX_UPDATED",
               "FTS_INDEX_PARTITIONS_CHANGED",
               "FTS_INDEX_REBUILT",
+              "FTS_INDEX_DEFINITION_ROLLED_BACK",
               "FTS_INDEX_DELETED",
               "FTS_INDEX_CLEANED_UP",
               "FTS_INDEX_STALE",
@@ -19915,6 +19963,10 @@
               "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE",
               "NODE_HIDDEN_BY_ADMIN",
               "NODE_UNHIDDEN_BY_ADMIN",
+              "DISK_WARMING_PROCESS_NODE_HIDDEN_BY_ADMIN",
+              "DISK_WARMING_PROCESS_NODE_UNHIDDEN_BY_ADMIN",
+              "DISK_WARMING_PROCESS_INSTANCE_CANCELLED_BY_ADMIN",
+              "DISK_WARMING_PROCESS_DISK_TAG_READY_BY_ADMIN",
               "CLUSTER_CREATED_VIA_ANIS",
               "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
               "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
@@ -19923,7 +19975,9 @@
               "CLUSTER_MONGUARD_DISABLED",
               "CLUSTER_MONGODB_VERSION_UPDATED",
               "VOLUME_IMPAIRED",
-              "VOLUME_IMPAIRED_RESOLVED"
+              "VOLUME_IMPAIRED_RESOLVED",
+              "SQL_INTERFACE_ENABLED",
+              "SQL_INTERFACE_DISABLED"
             ],
             "title": "Atlas Audit Types",
             "type": "string"
@@ -20070,6 +20124,7 @@
             "enum": [
               "CROSS_REGION_SUPPORTED_REGION_MODIFIED",
               "ENDPOINT_SERVICE_CREATED",
+              "ENDPOINT_SERVICE_CREATION_RETRIED",
               "ENDPOINT_SERVICE_DELETED",
               "INTERFACE_ENDPOINT_CREATED",
               "INTERFACE_ENDPOINT_DELETED",
@@ -20686,6 +20741,7 @@
           {
             "enum": [
               "AI_MODELS_APIS_USAGE_TIER_UPDATED",
+              "AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE",
               "AI_MODELS_APIS_FREE_TOKENS_ADMIN_ADJUSTED"
             ],
             "title": "AI Models APIs Event Types",
@@ -20924,6 +20980,7 @@
           "FTS_INDEX_UPDATED",
           "FTS_INDEX_PARTITIONS_CHANGED",
           "FTS_INDEX_REBUILT",
+          "FTS_INDEX_DEFINITION_ROLLED_BACK",
           "FTS_INDEX_DELETED",
           "FTS_INDEX_CLEANED_UP",
           "FTS_INDEX_STALE",
@@ -24432,14 +24489,14 @@
             "type": "boolean"
           },
           "dayOfWeek": {
-            "description": "One-based integer that represents the day of the week that the maintenance window starts.\n\n- `1`: Sunday.\n- `2`: Monday.\n- `3`: Tuesday.\n- `4`: Wednesday.\n- `5`: Thursday.\n- `6`: Friday.\n- `7`: Saturday.",
+            "description": "One-based integer that represents the day of the week, in the project's configured time zone (see `timeZoneId`), that the maintenance window starts.\n\n- `1`: Sunday.\n- `2`: Monday.\n- `3`: Tuesday.\n- `4`: Wednesday.\n- `5`: Thursday.\n- `6`: Friday.\n- `7`: Saturday.",
             "format": "int32",
             "maximum": 7,
             "minimum": 1,
             "type": "integer"
           },
           "hourOfDay": {
-            "description": "Zero-based integer that represents the hour of the of the day that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon.",
+            "description": "Zero-based integer that represents the hour of the day, in the project's configured time zone (see `timeZoneId`), that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon. If you haven't changed your project's time zone, this defaults to UTC.",
             "format": "int32",
             "maximum": 23,
             "minimum": 0,
@@ -24596,6 +24653,10 @@
       "GroupSettings": {
         "description": "Collection of settings that configures the project.",
         "properties": {
+          "isAtlasHomePageAiAssistantEnabled": {
+            "description": "Flag that indicates whether the MongoDB Assistant on the Atlas Home Page is enabled for the specified project.",
+            "type": "boolean"
+          },
           "isClusterAiAssistantEnabled": {
             "description": "Flag that indicates whether the AI Cluster Assistant is enabled for the specified project.",
             "type": "boolean"
@@ -25249,6 +25310,7 @@
             "CACHE_USAGE_USED": "#/components/schemas/DataMetricAlertView",
             "COMPUTED_MEMORY": "#/components/schemas/DataMetricAlertView",
             "CONNECTIONS": "#/components/schemas/RawMetricAlertView",
+            "CONNECTIONS_ESTABLISHMENT_RATE_LIMIT_REJECTED": "#/components/schemas/RawMetricAlertView",
             "CONNECTIONS_MAX": "#/components/schemas/RawMetricAlertView",
             "CONNECTIONS_PERCENT": "#/components/schemas/RawMetricAlertView",
             "CURSORS_TOTAL_CLIENT_CURSORS_SIZE": "#/components/schemas/RawMetricAlertView",
@@ -25667,6 +25729,7 @@
             "CACHE_USAGE_USED": "#/components/schemas/DataMetricEventView",
             "COMPUTED_MEMORY": "#/components/schemas/DataMetricEventView",
             "CONNECTIONS": "#/components/schemas/RawMetricEventView",
+            "CONNECTIONS_ESTABLISHMENT_RATE_LIMIT_REJECTED": "#/components/schemas/RawMetricEventView",
             "CONNECTIONS_MAX": "#/components/schemas/RawMetricEventView",
             "CONNECTIONS_PERCENT": "#/components/schemas/RawMetricEventView",
             "CURSORS_TOTAL_CLIENT_CURSORS_SIZE": "#/components/schemas/RawMetricEventView",
@@ -26007,6 +26070,7 @@
             "CACHE_USAGE_USED": "#/components/schemas/CacheUsageUsedDataMetricThresholdView",
             "COMPUTED_MEMORY": "#/components/schemas/ComputedMemoryDataMetricThresholdView",
             "CONNECTIONS": "#/components/schemas/ConnectionsRawMetricThresholdView",
+            "CONNECTIONS_ESTABLISHMENT_RATE_LIMIT_REJECTED": "#/components/schemas/ConnectionsEstablishmentRateLimitRejectedRawMetricThresholdView",
             "CONNECTIONS_MAX": "#/components/schemas/ConnectionsMaxRawMetricThresholdView",
             "CONNECTIONS_PERCENT": "#/components/schemas/ConnectionsPercentRawMetricThresholdView",
             "CURSORS_TOTAL_CLIENT_CURSORS_SIZE": "#/components/schemas/CursorsTotalClientCursorsSizeRawMetricThresholdView",
@@ -26258,6 +26322,9 @@
           },
           {
             "$ref": "#/components/schemas/ConnectionsRawMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/ConnectionsEstablishmentRateLimitRejectedRawMetricThresholdView"
           },
           {
             "$ref": "#/components/schemas/ConnectionsMaxRawMetricThresholdView"
@@ -31181,6 +31248,10 @@
           "SHADOW_CLUSTER_REPLAY_STATUS_UPDATE",
           "NODE_HIDDEN_BY_ADMIN",
           "NODE_UNHIDDEN_BY_ADMIN",
+          "DISK_WARMING_PROCESS_NODE_HIDDEN_BY_ADMIN",
+          "DISK_WARMING_PROCESS_NODE_UNHIDDEN_BY_ADMIN",
+          "DISK_WARMING_PROCESS_INSTANCE_CANCELLED_BY_ADMIN",
+          "DISK_WARMING_PROCESS_DISK_TAG_READY_BY_ADMIN",
           "CLUSTER_CREATED_VIA_ANIS",
           "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
           "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
@@ -31189,7 +31260,9 @@
           "CLUSTER_MONGUARD_DISABLED",
           "CLUSTER_MONGODB_VERSION_UPDATED",
           "VOLUME_IMPAIRED",
-          "VOLUME_IMPAIRED_RESOLVED"
+          "VOLUME_IMPAIRED_RESOLVED",
+          "SQL_INTERFACE_ENABLED",
+          "SQL_INTERFACE_DISABLED"
         ],
         "example": "CLUSTER_CREATED",
         "title": "Atlas Audit Types",
@@ -34138,7 +34211,6 @@
       },
       "OrgServiceAccountRequest": {
         "description": "Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters. Note that API Keys cannot be specified in the same request.",
-        "nullable": true,
         "properties": {
           "description": {
             "description": "Human readable description for the Service Account.",
@@ -34915,76 +34987,6 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/CloudProviderRegions"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
-            "format": "int32",
-            "minimum": 0,
-            "readOnly": true,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "results"
-        ],
-        "type": "object"
-      },
-      "PaginatedApiAtlasServerlessBackupRestoreJobView": {
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "results": {
-            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
-            "items": {
-              "$ref": "#/components/schemas/ServerlessBackupRestoreJob"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
-            "format": "int32",
-            "minimum": 0,
-            "readOnly": true,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "results"
-        ],
-        "type": "object"
-      },
-      "PaginatedApiAtlasServerlessBackupSnapshotView": {
-        "properties": {
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "results": {
-            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
-            "items": {
-              "$ref": "#/components/schemas/ServerlessBackupSnapshot"
             },
             "readOnly": true,
             "type": "array"
@@ -36272,7 +36274,6 @@
       },
       "PemFileInfo": {
         "description": "PEM file information for the identity provider's current certificates.",
-        "nullable": true,
         "properties": {
           "certificates": {
             "description": "List of certificates in the file.",
@@ -36739,6 +36740,11 @@
             "description": "Flag that indicates whether the endpoint service for this endpoint group uses PSC port-mapping.",
             "type": "boolean"
           },
+          "regionName": {
+            "description": "Region name of the private endpoint.",
+            "readOnly": true,
+            "type": "string"
+          },
           "status": {
             "description": "State of the Google Cloud network endpoint group when MongoDB Cloud received this request.",
             "enum": [
@@ -36798,6 +36804,11 @@
           },
           "errorMessage": {
             "description": "Error message returned when requesting private connection resource. The resource returns `null` if the request succeeded.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "regionName": {
+            "description": "Region name of the private endpoint.",
             "readOnly": true,
             "type": "string"
           }
@@ -36943,14 +36954,14 @@
         "description": "Defines the a window where maintenance will not begin within.",
         "properties": {
           "endHourOfDay": {
-            "description": "Zero-based integer that represents the end hour of the of the day that the maintenance will not begin in.",
+            "description": "Zero-based integer, in the project's configured time zone (see `timeZoneId`), that represents the end hour of the day that maintenance will not begin in.",
             "format": "int32",
             "maximum": 23,
             "minimum": 0,
             "type": "integer"
           },
           "startHourOfDay": {
-            "description": "Zero-based integer that represents the beginning hour of the of the day that the maintenance will not begin in.",
+            "description": "Zero-based integer, in the project's configured time zone (see `timeZoneId`), that represents the beginning hour of the day that maintenance will not begin in.",
             "format": "int32",
             "maximum": 23,
             "minimum": 0,
@@ -39633,210 +39644,6 @@
         "title": "AZURE",
         "type": "object"
       },
-      "ServerlessBackupRestoreJob": {
-        "properties": {
-          "cancelled": {
-            "description": "Flag that indicates whether someone canceled this restore job.",
-            "readOnly": true,
-            "type": "boolean"
-          },
-          "deliveryType": {
-            "description": "Human-readable label that categorizes the restore job to create.",
-            "enum": [
-              "automated",
-              "download",
-              "pointInTime"
-            ],
-            "type": "string"
-          },
-          "deliveryUrl": {
-            "description": "One or more Uniform Resource Locators (URLs) that point to the compressed snapshot files for manual download. MongoDB Cloud returns this parameter when `\"deliveryType\" : \"download\"`.",
-            "items": {
-              "description": "One Uniform Resource Locator that points to the compressed snapshot files for manual download.",
-              "type": "string"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "desiredTimestamp": {
-            "$ref": "#/components/schemas/ApiBSONTimestampView"
-          },
-          "expired": {
-            "description": "Flag that indicates whether the restore job expired.",
-            "readOnly": true,
-            "type": "boolean"
-          },
-          "expiresAt": {
-            "description": "Date and time when the restore job expires. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "failed": {
-            "description": "Flag that indicates whether the restore job failed.",
-            "readOnly": true,
-            "type": "boolean"
-          },
-          "finishedAt": {
-            "description": "Date and time when the restore job completed. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "id": {
-            "description": "Unique 24-hexadecimal character string that identifies the restore job.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "oplogInc": {
-            "description": "Oplog operation number from which you want to restore this snapshot. This number represents the second part of an Oplog timestamp. The resource returns this parameter when `\"deliveryType\" : \"pointInTime\"` and `oplogTs` exceeds `0`.",
-            "example": 1,
-            "format": "int32",
-            "minimum": 1,
-            "type": "integer"
-          },
-          "oplogTs": {
-            "description": "Date and time from which you want to restore this snapshot. This parameter expresses this timestamp in the number of seconds that have elapsed since the UNIX epoch. This number represents the first part of an Oplog timestamp. The resource returns this parameter when `\"deliveryType\" : \"pointInTime\"` and `oplogTs` exceeds `0`.",
-            "format": "int32",
-            "minimum": 1199145600,
-            "type": "integer"
-          },
-          "pointInTimeUTCSeconds": {
-            "description": "Date and time from which MongoDB Cloud restored this snapshot. This parameter expresses this timestamp in the number of seconds that have elapsed since the UNIX epoch. The resource returns this parameter when `\"deliveryType\" : \"pointInTime\"` and `pointInTimeUTCSeconds` exceeds `0`.",
-            "format": "int32",
-            "minimum": 1199145600,
-            "type": "integer"
-          },
-          "snapshotId": {
-            "description": "Unique 24-hexadecimal character string that identifies the snapshot.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string"
-          },
-          "targetClusterName": {
-            "description": "Human-readable label that identifies the target cluster to which the restore job restores the snapshot. The resource returns this parameter when `\"deliveryType\":` `\"automated\"`.",
-            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-            "type": "string"
-          },
-          "targetGroupId": {
-            "description": "Unique 24-hexadecimal digit string that identifies the target project for the specified `targetClusterName`.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "type": "string"
-          },
-          "timestamp": {
-            "description": "Date and time when MongoDB Cloud took the snapshot associated with `snapshotId`. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "required": [
-          "deliveryType",
-          "targetClusterName",
-          "targetGroupId"
-        ],
-        "type": "object"
-      },
-      "ServerlessBackupSnapshot": {
-        "properties": {
-          "createdAt": {
-            "description": "Date and time when MongoDB Cloud took the snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "expiresAt": {
-            "description": "Date and time when MongoDB Cloud deletes the snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "frequencyType": {
-            "description": "Human-readable label that identifies how often this snapshot triggers.",
-            "enum": [
-              "hourly",
-              "daily",
-              "weekly",
-              "monthly"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "id": {
-            "description": "Unique 24-hexadecimal digit string that identifies the snapshot.",
-            "example": "32b6e34b3d91647abb20e7b8",
-            "pattern": "^([a-f0-9]{24})$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "links": {
-            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
-            "externalDocs": {
-              "description": "Web Linking Specification (RFC 5988)",
-              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
-            },
-            "items": {
-              "$ref": "#/components/schemas/Link"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
-          "mongodVersion": {
-            "description": "Version of the MongoDB host that this snapshot backs up.",
-            "pattern": "([\\d]+\\.[\\d]+\\.[\\d]+)",
-            "readOnly": true,
-            "type": "string"
-          },
-          "serverlessInstanceName": {
-            "description": "Human-readable label given to the serverless instance from which MongoDB Cloud took this snapshot.",
-            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-            "readOnly": true,
-            "type": "string"
-          },
-          "snapshotType": {
-            "description": "Human-readable label that identifies when this snapshot triggers.",
-            "enum": [
-              "onDemand",
-              "scheduled"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "status": {
-            "description": "Human-readable label that indicates the stage of the backup process for this snapshot.",
-            "enum": [
-              "queued",
-              "inProgress",
-              "completed",
-              "failed"
-            ],
-            "readOnly": true,
-            "type": "string"
-          },
-          "storageSizeBytes": {
-            "description": "Number of bytes taken to store the backup snapshot.",
-            "format": "int64",
-            "readOnly": true,
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "ServerlessConnectionPercentageRawMetricThresholdView": {
         "properties": {
           "metricName": {
@@ -41153,7 +40960,6 @@
       },
       "ShardingRequest": {
         "description": "Document that configures sharding on the destination cluster when migrating from a replica set source to a sharded cluster destination on MongoDB 6.0 or higher. If you don't wish to shard any collections on the destination cluster, leave this empty.",
-        "nullable": true,
         "properties": {
           "createSupportingIndexes": {
             "description": "Flag that lets the migration create supporting indexes for the shard keys, if none exists, as the destination cluster also needs compatible indexes for the specified shard keys.",
@@ -41347,7 +41153,7 @@
             "type": "array"
           },
           "maxTierSize": {
-            "description": "Max tier size for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Max tier size for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -41359,7 +41165,7 @@
             "type": "string"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory / VCPU allowances.",
+            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
             "enum": [
               "SP50",
               "SP30",
@@ -41709,12 +41515,6 @@
             },
             "readOnly": true,
             "type": "array"
-          },
-          "modifiedBy": {
-            "description": "Username of the user who modified the stream processor.",
-            "example": "user@example.com",
-            "readOnly": true,
-            "type": "string"
           },
           "orgId": {
             "description": "Unique 24-hexadecimal digit string that identifies the organization to which these events apply.",
@@ -42143,11 +41943,11 @@
             "type": "string"
           },
           "region": {
-            "description": "The connection region.",
+            "description": "Connection region.",
             "type": "string"
           },
           "state": {
-            "description": "The connection state.",
+            "description": "Connection state.",
             "enum": [
               "PENDING",
               "READY",
@@ -42158,7 +41958,7 @@
             "type": "string"
           },
           "type": {
-            "description": "The connection type.",
+            "description": "Connection type.",
             "enum": [
               "Kafka",
               "Cluster",
@@ -42448,11 +42248,11 @@
               },
               "config": {
                 "additionalProperties": {
-                  "description": "A map of Kafka key-value pairs for optional configuration. This is a flat object, and keys can have '.' characters.",
+                  "description": "Map of Kafka key-value pairs for optional configuration. This object is flat, and keys can have '.' characters.",
                   "example": "{\"group.protocol.type\":\"consumer\",\"debug\":\"queue, msg, protocol\"}",
                   "type": "string"
                 },
-                "description": "A map of Kafka key-value pairs for optional configuration. This is a flat object, and keys can have '.' characters.",
+                "description": "Map of Kafka key-value pairs for optional configuration. This object is flat, and keys can have '.' characters.",
                 "example": {
                   "debug": "queue, msg, protocol",
                   "group.protocol.type": "consumer"
@@ -42496,7 +42296,7 @@
         "description": "Information about networking access.",
         "properties": {
           "connectionId": {
-            "description": "Reserved. Will be used by `PRIVATE_LINK` connection type.",
+            "description": "Reserved. Will be used by `PRIVATE_LINK` connection type. Setting this field with any other networking access type returns a validation error.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "type": "string"
@@ -46507,7 +46307,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "176bbd658331234403d461c2518a4feda2a2f1bc"
+    "x-xgen-sha": "9f86681c1a92d9b59c919e067dab7d6aef6c84c7"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -52416,6 +52216,45 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
+                "examples": {
+                  "AWS": {
+                    "description": "AWS",
+                    "value": {
+                      "atlasAWSAccountArn": "arn:aws:iam::772401394250:role/my-test-aws-role",
+                      "atlasAssumedRoleExternalId": "feb2dfc7-f760-4288-a403-01c7c2345005",
+                      "authorizedDate": "2024-05-30T14:12:00Z",
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "iamAssumedRoleArn": "arn:aws:iam::123456789012:root",
+                      "providerName": "AWS",
+                      "roleId": "32b6e34b3d91647abb20e7b8"
+                    }
+                  },
+                  "Azure": {
+                    "description": "Azure",
+                    "value": {
+                      "_id": "32b6e34b3d91647abb20e7b8",
+                      "atlasAzureAppId": "da5dd062-f3ca-4cb5-b86a-05f82203ab67",
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "lastUpdatedDate": "2024-05-30T14:12:00Z",
+                      "providerName": "AZURE",
+                      "servicePrincipalId": "ec8e7844-912d-4869-86e9-6d0dfca4b8af",
+                      "tenantId": "4297fc77-1592-4de8-a6d5-a8c32401df87"
+                    }
+                  },
+                  "GCP": {
+                    "description": "GCP",
+                    "value": {
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "gcpServiceAccountForAtlas": "mongodb-atlas-1234567890123456@p-111111111111111111111111.iam.gserviceaccount.com",
+                      "providerName": "GCP",
+                      "roleId": "32b6e34b3d91647abb20e7b8",
+                      "status": "COMPLETE"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/CloudProviderAccessRole"
                 },
@@ -52510,7 +52349,7 @@
             }
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies the role.",
+            "description": "Unique 24-hexadecimal digit string that identifies the role. Amazon Web Services (AWS) IAM roles and Google Service Accounts return this value as `roleId`. Azure Service Principals return it as `_id`.",
             "in": "path",
             "name": "roleId",
             "required": true,
@@ -52608,7 +52447,7 @@
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies the role.",
+            "description": "Unique 24-hexadecimal digit string that identifies the role. Amazon Web Services (AWS) IAM roles and Google Service Accounts return this value as `roleId`. Azure Service Principals return it as `_id`.",
             "in": "path",
             "name": "roleId",
             "required": true,
@@ -52622,6 +52461,45 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
+                "examples": {
+                  "AWS": {
+                    "description": "AWS",
+                    "value": {
+                      "atlasAWSAccountArn": "arn:aws:iam::772401394250:role/my-test-aws-role",
+                      "atlasAssumedRoleExternalId": "feb2dfc7-f760-4288-a403-01c7c2345005",
+                      "authorizedDate": "2024-05-30T14:12:00Z",
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "iamAssumedRoleArn": "arn:aws:iam::123456789012:root",
+                      "providerName": "AWS",
+                      "roleId": "32b6e34b3d91647abb20e7b8"
+                    }
+                  },
+                  "Azure": {
+                    "description": "Azure",
+                    "value": {
+                      "_id": "32b6e34b3d91647abb20e7b8",
+                      "atlasAzureAppId": "da5dd062-f3ca-4cb5-b86a-05f82203ab67",
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "lastUpdatedDate": "2024-05-30T14:12:00Z",
+                      "providerName": "AZURE",
+                      "servicePrincipalId": "ec8e7844-912d-4869-86e9-6d0dfca4b8af",
+                      "tenantId": "4297fc77-1592-4de8-a6d5-a8c32401df87"
+                    }
+                  },
+                  "GCP": {
+                    "description": "GCP",
+                    "value": {
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "gcpServiceAccountForAtlas": "mongodb-atlas-1234567890123456@p-111111111111111111111111.iam.gserviceaccount.com",
+                      "providerName": "GCP",
+                      "roleId": "32b6e34b3d91647abb20e7b8",
+                      "status": "COMPLETE"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/CloudProviderAccessRole"
                 },
@@ -52704,7 +52582,7 @@
             "$ref": "#/components/parameters/pretty"
           },
           {
-            "description": "Unique 24-hexadecimal digit string that identifies the role.",
+            "description": "Unique 24-hexadecimal digit string that identifies the role. Amazon Web Services (AWS) IAM roles and Google Service Accounts return this value as `roleId`. Azure Service Principals return it as `_id`.",
             "in": "path",
             "name": "roleId",
             "required": true,
@@ -52729,6 +52607,45 @@
           "200": {
             "content": {
               "application/vnd.atlas.2023-01-01+json": {
+                "examples": {
+                  "AWS": {
+                    "description": "AWS",
+                    "value": {
+                      "atlasAWSAccountArn": "arn:aws:iam::772401394250:role/my-test-aws-role",
+                      "atlasAssumedRoleExternalId": "feb2dfc7-f760-4288-a403-01c7c2345005",
+                      "authorizedDate": "2024-05-30T14:12:00Z",
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "iamAssumedRoleArn": "arn:aws:iam::123456789012:root",
+                      "providerName": "AWS",
+                      "roleId": "32b6e34b3d91647abb20e7b8"
+                    }
+                  },
+                  "Azure": {
+                    "description": "Azure",
+                    "value": {
+                      "_id": "32b6e34b3d91647abb20e7b8",
+                      "atlasAzureAppId": "da5dd062-f3ca-4cb5-b86a-05f82203ab67",
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "lastUpdatedDate": "2024-05-30T14:12:00Z",
+                      "providerName": "AZURE",
+                      "servicePrincipalId": "ec8e7844-912d-4869-86e9-6d0dfca4b8af",
+                      "tenantId": "4297fc77-1592-4de8-a6d5-a8c32401df87"
+                    }
+                  },
+                  "GCP": {
+                    "description": "GCP",
+                    "value": {
+                      "createdDate": "2024-05-30T14:11:00Z",
+                      "featureUsages": [],
+                      "gcpServiceAccountForAtlas": "mongodb-atlas-1234567890123456@p-111111111111111111111111.iam.gserviceaccount.com",
+                      "providerName": "GCP",
+                      "roleId": "32b6e34b3d91647abb20e7b8",
+                      "status": "COMPLETE"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/CloudProviderAccessRole"
                 },
@@ -72591,7 +72508,29 @@
                   "TICKETS_AVAILABLE_READS",
                   "TICKETS_AVAILABLE_WRITE",
                   "OPERATION_THROTTLING_REJECTED_OPERATIONS",
-                  "QUERY_SPILL_TO_DISK_DURING_SORT"
+                  "QUERY_SPILL_TO_DISK_DURING_SORT",
+                  "STORAGE_READ_IOPS",
+                  "STORAGE_WRITE_IOPS",
+                  "STORAGE_READ_LATENCY",
+                  "STORAGE_WRITE_LATENCY",
+                  "STORAGE_BYTES_READ",
+                  "STORAGE_BYTES_WRITTEN",
+                  "STORAGE_THROUGHPUT_UTILIZATION",
+                  "STORAGE_SPACE_USED",
+                  "STORAGE_SPACE_FREE",
+                  "STORAGE_SPACE_PERCENT_FREE",
+                  "STORAGE_SPACE_PERCENT_USED",
+                  "CATALOG_ACTIVE_COLLECTIONS_AND_INDEXES",
+                  "QUERY_SPILL_FILE_SPILLED_SIZE",
+                  "AVG_MAJORITY_WRITE_CONCERN_WRITE_TIME",
+                  "TRANSACTIONS_CURRENT_ACTIVE",
+                  "TRANSACTIONS_CURRENT_INACTIVE",
+                  "TRANSACTIONS_CURRENT_OPEN",
+                  "TRANSACTIONS_TOTAL_ABORTED",
+                  "TRANSACTIONS_TOTAL_COMMITTED",
+                  "TRANSACTIONS_TOTAL_STARTED",
+                  "CACHE_PRESSURE_PERCENTAGE",
+                  "INGRESS_QUEUE_WAIT_TIME"
                 ],
                 "type": "string"
               },
@@ -73932,569 +73871,6 @@
           "verb": "listInstances"
         },
         "x-xgen-operation-id-override": "listServerlessInstances"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns all restore jobs for one serverless instance from the specified project.\n\nThis API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Please use the List Flex Backup Restore Jobs endpoint instead.",
-        "externalDocs": {
-          "description": "List Flex Backup Restore Jobs",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/listFlexBackupRestoreJobs"
-        },
-        "operationId": "listGroupServerlessBackupRestoreJobs",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/includeCount"
-          },
-          {
-            "$ref": "#/components/parameters/itemsPerPage"
-          },
-          {
-            "$ref": "#/components/parameters/pageNum"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Human-readable label that identifies the serverless instance.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedApiAtlasServerlessBackupRestoreJobView"
-                },
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return All Restore Jobs for One Serverless Instance",
-        "tags": [
-          "Cloud Backups"
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api cloudBackups listServerlessRestoreJobs --help"
-          },
-          {
-            "lang": "go",
-            "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20231115001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupServerlessBackupRestoreJobsApiParams{}\n\tsdkResp, httpResp, err := client.CloudBackupsApi.\n\t\tListGroupServerlessBackupRestoreJobsWithParams(ctx, params).\n\t\tExecute()\n}\n"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs?pretty=true\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Project Owner"
-        ],
-        "x-sunset": "2026-01-22",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupServerlessBackupRestoreJobs",
-        "x-xgen-operation-id-override": "listServerlessRestoreJobs"
-      },
-      "post": {
-        "deprecated": true,
-        "description": "Restores one snapshot of one serverless instance from the specified project.\n\nThis API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Please use the Create Flex Backup Restore Job endpoint instead.",
-        "externalDocs": {
-          "description": "Create Flex Backup Restore Job",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/createFlexBackupRestoreJob"
-        },
-        "operationId": "createGroupServerlessBackupRestoreJob",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Human-readable label that identifies the serverless instance whose snapshot you want to restore.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.2023-01-01+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ServerlessBackupRestoreJob"
-              }
-            }
-          },
-          "description": "Restores one snapshot of one serverless instance from the specified project.",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerlessBackupRestoreJob"
-                },
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Create One Restore Job for One Serverless Instance",
-        "tags": [
-          "Cloud Backups"
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api cloudBackups createServerlessRestoreJob --help"
-          },
-          {
-            "lang": "go",
-            "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20231115001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupServerlessBackupRestoreJobApiParams{}\n\tsdkResp, httpResp, err := client.CloudBackupsApi.\n\t\tCreateGroupServerlessBackupRestoreJobWithParams(ctx, params).\n\t\tExecute()\n}\n"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs\" \\\n  -d '{ <Payload> }'"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs\" \\\n  -d '{ <Payload> }'"
-          }
-        ],
-        "x-rolesRequirements": [
-          "Project Owner"
-        ],
-        "x-sunset": "2026-01-22",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/createGroupServerlessBackupRestoreJob",
-        "x-xgen-operation-id-override": "createServerlessRestoreJob"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs/{restoreJobId}": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns one restore job for one serverless instance from the specified project.\n\nThis API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Please use the Get Flex Backup Restore Job endpoint instead.",
-        "externalDocs": {
-          "description": "Get Flex Backup Restore Job",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Restore-Jobs/operation/getFlexBackupRestoreJob"
-        },
-        "operationId": "getGroupServerlessBackupRestoreJob",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "description": "Human-readable label that identifies the serverless instance.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Unique 24-hexadecimal digit string that identifies the restore job to return.",
-            "in": "path",
-            "name": "restoreJobId",
-            "required": true,
-            "schema": {
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerlessBackupRestoreJob"
-                },
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return One Restore Job for One Serverless Instance",
-        "tags": [
-          "Cloud Backups"
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api cloudBackups getServerlessRestoreJob --help"
-          },
-          {
-            "lang": "go",
-            "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20231115001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupServerlessBackupRestoreJobApiParams{}\n\tsdkResp, httpResp, err := client.CloudBackupsApi.\n\t\tGetGroupServerlessBackupRestoreJobWithParams(ctx, params).\n\t\tExecute()\n}\n"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs/{restoreJobId}?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/restoreJobs/{restoreJobId}?pretty=true\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Project Owner"
-        ],
-        "x-sunset": "2026-01-22",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupServerlessBackupRestoreJob",
-        "x-xgen-operation-id-override": "getServerlessRestoreJob"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns all snapshots of one serverless instance from the specified project.\n\nThis API can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) endpoint or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Please use the List Flex Backups endpoint instead.",
-        "externalDocs": {
-          "description": "List Flex Backups",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/listFlexBackups"
-        },
-        "operationId": "listGroupServerlessBackupSnapshots",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "$ref": "#/components/parameters/pretty"
-          },
-          {
-            "$ref": "#/components/parameters/includeCount"
-          },
-          {
-            "$ref": "#/components/parameters/itemsPerPage"
-          },
-          {
-            "$ref": "#/components/parameters/pageNum"
-          },
-          {
-            "description": "Human-readable label that identifies the serverless instance.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedApiAtlasServerlessBackupSnapshotView"
-                },
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return All Snapshots of One Serverless Instance",
-        "tags": [
-          "Cloud Backups"
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api cloudBackups listServerlessBackupSnapshots --help"
-          },
-          {
-            "lang": "go",
-            "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20231115001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupServerlessBackupSnapshotsApiParams{}\n\tsdkResp, httpResp, err := client.CloudBackupsApi.\n\t\tListGroupServerlessBackupSnapshotsWithParams(ctx, params).\n\t\tExecute()\n}\n"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots?pretty=true\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Project Read Only"
-        ],
-        "x-sunset": "2026-01-22",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupServerlessBackupSnapshots",
-        "x-xgen-operation-id-override": "listServerlessBackupSnapshots"
-      }
-    },
-    "/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots/{snapshotId}": {
-      "get": {
-        "deprecated": true,
-        "description": "Returns one snapshot of one serverless instance from the specified project.\n\nThis endpoint can also be used on Flex clusters that were created with the [Create Serverless Instance](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Serverless-Instances/operation/createServerlessInstance) API or Flex clusters that were migrated from Serverless instances. This endpoint will be sunset on January 22, 2026. Please use the Get Flex Backup endpoint instead.",
-        "externalDocs": {
-          "description": "Get Flex Backup",
-          "url": "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Flex-Snapshots/operation/getFlexBackup"
-        },
-        "operationId": "getGroupServerlessBackupSnapshot",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/envelope"
-          },
-          {
-            "$ref": "#/components/parameters/groupId"
-          },
-          {
-            "description": "Human-readable label that identifies the serverless instance.",
-            "in": "path",
-            "name": "clusterName",
-            "required": true,
-            "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Unique 24-hexadecimal digit string that identifies the desired snapshot.",
-            "in": "path",
-            "name": "snapshotId",
-            "required": true,
-            "schema": {
-              "example": "32b6e34b3d91647abb20e7b8",
-              "pattern": "^([a-f0-9]{24})$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/vnd.atlas.2023-01-01+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServerlessBackupSnapshot"
-                },
-                "x-xgen-version": "2023-01-01"
-              }
-            },
-            "description": "OK",
-            "headers": {
-              "RateLimit-Limit": {
-                "$ref": "#/components/headers/HeaderRateLimitLimit"
-              },
-              "RateLimit-Remaining": {
-                "$ref": "#/components/headers/HeaderRateLimitRemaining"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "429": {
-            "$ref": "#/components/responses/tooManyRequests"
-          },
-          "500": {
-            "$ref": "#/components/responses/internalServerError"
-          }
-        },
-        "summary": "Return One Snapshot of One Serverless Instance",
-        "tags": [
-          "Cloud Backups"
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "cURL",
-            "label": "Atlas CLI",
-            "source": "atlas api cloudBackups getServerlessBackupSnapshot --help"
-          },
-          {
-            "lang": "go",
-            "label": "Go",
-            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20231115001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupServerlessBackupSnapshotApiParams{}\n\tsdkResp, httpResp, err := client.CloudBackupsApi.\n\t\tGetGroupServerlessBackupSnapshotWithParams(ctx, params).\n\t\tExecute()\n}\n"
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots/{snapshotId}?pretty=true\""
-          },
-          {
-            "lang": "cURL",
-            "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2023-11-15+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/backup/snapshots/{snapshotId}?pretty=true\""
-          }
-        ],
-        "x-rolesRequirements": [
-          "Project Read Only"
-        ],
-        "x-sunset": "2026-01-22",
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupServerlessBackupSnapshot",
-        "x-xgen-operation-id-override": "getServerlessBackupSnapshot"
       }
     },
     "/api/atlas/v2/groups/{groupId}/serverless/{clusterName}/performanceAdvisor/autoIndexing": {
