@@ -12,7 +12,7 @@ import { usesComposition } from './utils/longRunningOperations.js';
  * @param {object} context - The context object containing the path, documentInventory and rule
  */
 export default (input, opts, { path, rule }) => {
-  // Composed schemas are rejected by the required-fields rule
+  // Composed schemas are rejected by the must-not-use-composition rule
   if (usesComposition(input)) {
     return;
   }

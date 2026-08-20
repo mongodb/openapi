@@ -75,7 +75,7 @@ testRule('xgen-IPA-132-operation-response-must-define-nested-object-structure', 
     document: {
       components: {
         schemas: {
-          // Composition is rejected by the required-fields rule, so this rule stays silent
+          // Composition is rejected by the must-not-use-composition rule, so this rule stays silent
           OperationResponse: {
             allOf: [{ type: 'object', properties: { statusMessage: { type: 'string' } } }],
           },

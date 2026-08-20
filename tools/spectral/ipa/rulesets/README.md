@@ -1481,6 +1481,21 @@ Rule checks for the following conditions:
   - Responses with `x-xgen-IPA-exception` for this rule at the response level are excluded
     from validation
 
+#### xgen-IPA-132-operation-response-must-not-use-composition
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+The OperationResponse schema must define its properties directly. There is one and only one
+OperationResponse, so allOf, oneOf and anyOf composition is a violation.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to the OperationResponse component schema
+  - The schema must not use allOf, oneOf or anyOf composition
+  - The other OperationResponse schema rules skip composed schemas, relying on this rule to
+    reject them
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 #### xgen-IPA-132-operation-response-must-define-required-fields
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
@@ -1492,8 +1507,8 @@ Rule checks for the following conditions:
 
   - Applies to the OperationResponse component schema
   - Each field listed in the rule's functionOptions must be defined and listed as required
-  - There is one and only one OperationResponse: the schema must define its properties
-    directly, so allOf, oneOf and anyOf composition is a violation
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
   - For expiresAt, only the field declaration is validated; the retention behavior and the
     404 after expiry are backend-defined
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -1512,7 +1527,8 @@ Rule checks for the following conditions:
   - Each field listed in the rule's functionOptions must be defined and must not be listed
     as required: the condition under which it is present is a runtime state that cannot be
     validated statically
-  - Composed schemas are skipped: composition is rejected by the required-fields rule
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operation-response-must-use-standard-enum-values
@@ -1530,7 +1546,8 @@ Rule checks for the following conditions:
     in any order
   - Fields that are not defined are skipped: top-level field presence is validated by the
     required-fields and optional-fields rules
-  - Composed schemas are skipped: composition is rejected by the required-fields rule
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operation-response-must-define-nested-object-structure
@@ -1547,7 +1564,8 @@ Rule checks for the following conditions:
     properties
   - Fields that are not defined are skipped: their presence is validated by the
     optional-fields rule
-  - Composed schemas are skipped: composition is rejected by the required-fields rule
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operations-should-expose-status-fields
@@ -1564,7 +1582,8 @@ Rule checks for the following conditions:
     `statusMessage`, `progress` and `estimatedCompletionTime`
   - The progress object should define `completed`, `total` and `unit` properties
   - Kept separate from the must-level rules because it enforces should-level guidance
-  - Composed schemas are skipped: composition is rejected by the required-fields rule
+  - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+    rule
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 

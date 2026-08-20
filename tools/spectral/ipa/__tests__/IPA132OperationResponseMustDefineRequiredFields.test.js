@@ -94,51 +94,18 @@ testRule('xgen-IPA-132-operation-response-must-define-required-fields', [
     ],
   },
   {
-    name: 'invalid OperationResponse composed with allOf',
+    name: 'composed schemas are skipped',
     document: {
       components: {
         schemas: {
-          // There is one and only one OperationResponse: composition is not allowed
+          // Composition is rejected by the must-not-use-composition rule, so this rule stays silent
           OperationResponse: {
-            allOf: [{ $ref: '#/components/schemas/OperationMetadata' }, validOperationResponse],
-          },
-          OperationMetadata: {
-            type: 'object',
-            properties: {
-              statusMessage: { type: 'string' },
-            },
+            allOf: [{ type: 'object', properties: { statusMessage: { type: 'string' } } }],
           },
         },
       },
     },
-    errors: [
-      {
-        code: 'xgen-IPA-132-operation-response-must-define-required-fields',
-        message: 'OperationResponse must define its properties directly, without allOf, oneOf or anyOf composition.',
-        path: ['components', 'schemas', 'OperationResponse'],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
-  },
-  {
-    name: 'invalid OperationResponse composed with oneOf',
-    document: {
-      components: {
-        schemas: {
-          OperationResponse: {
-            oneOf: [validOperationResponse],
-          },
-        },
-      },
-    },
-    errors: [
-      {
-        code: 'xgen-IPA-132-operation-response-must-define-required-fields',
-        message: 'OperationResponse must define its properties directly, without allOf, oneOf or anyOf composition.',
-        path: ['components', 'schemas', 'OperationResponse'],
-        severity: DiagnosticSeverity.Warning,
-      },
-    ],
+    errors: [],
   },
   {
     name: 'invalid OperationResponse with an exception',

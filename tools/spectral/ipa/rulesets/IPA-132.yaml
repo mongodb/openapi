@@ -6,6 +6,7 @@ functions:
   - IPA132OperationMustBeAReadOnlyResource
   - IPA132OperationsEndpointMustBeALeafResource
   - IPA132OperationEndpointsMustReturnOperationResponse
+  - IPA132OperationResponseMustNotUseComposition
   - IPA132OperationResponseMustDefineRequiredFields
   - IPA132OperationResponseMustDefineOptionalFields
   - IPA132OperationResponseMustUseStandardEnumValues
@@ -112,6 +113,26 @@ rules:
       field: '@key'
       function: IPA132OperationEndpointsMustReturnOperationResponse
 
+  xgen-IPA-132-operation-response-must-not-use-composition:
+    description: |
+      The OperationResponse schema must define its properties directly. There is one and only one
+      OperationResponse, so allOf, oneOf and anyOf composition is a violation.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+
+        - Applies to the OperationResponse component schema
+        - The schema must not use allOf, oneOf or anyOf composition
+        - The other OperationResponse schema rules skip composed schemas, relying on this rule to
+          reject them
+        - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-not-use-composition'
+    severity: warn
+    given: '#OperationResponseSchema'
+    then:
+      function: IPA132OperationResponseMustNotUseComposition
+
   xgen-IPA-132-operation-response-must-define-required-fields:
     description: |
       The OperationResponse schema must define every field the IPA-132 standard marks as always
@@ -122,8 +143,8 @@ rules:
 
         - Applies to the OperationResponse component schema
         - Each field listed in the rule's functionOptions must be defined and listed as required
-        - There is one and only one OperationResponse: the schema must define its properties
-          directly, so allOf, oneOf and anyOf composition is a violation
+        - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+          rule
         - For expiresAt, only the field declaration is validated; the retention behavior and the
           404 after expiry are backend-defined
         - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -155,7 +176,8 @@ rules:
         - Each field listed in the rule's functionOptions must be defined and must not be listed
           as required: the condition under which it is present is a runtime state that cannot be
           validated statically
-        - Composed schemas are skipped: composition is rejected by the required-fields rule
+        - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+          rule
         - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-define-optional-fields'
@@ -188,7 +210,8 @@ rules:
           in any order
         - Fields that are not defined are skipped: top-level field presence is validated by the
           required-fields and optional-fields rules
-        - Composed schemas are skipped: composition is rejected by the required-fields rule
+        - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+          rule
         - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-use-standard-enum-values'
@@ -219,7 +242,8 @@ rules:
           properties
         - Fields that are not defined are skipped: their presence is validated by the
           optional-fields rule
-        - Composed schemas are skipped: composition is rejected by the required-fields rule
+        - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+          rule
         - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operation-response-must-define-nested-object-structure'
@@ -245,7 +269,8 @@ rules:
           `statusMessage`, `progress` and `estimatedCompletionTime`
         - The progress object should define `completed`, `total` and `unit` properties
         - Kept separate from the must-level rules because it enforces should-level guidance
-        - Composed schemas are skipped: composition is rejected by the required-fields rule
+        - Composed schemas are skipped: composition is rejected by the must-not-use-composition
+          rule
         - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-132-operations-should-expose-status-fields'
