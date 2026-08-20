@@ -1586,6 +1586,34 @@ Rule checks for the following conditions:
     rule
   - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-132-get-method-must-not-be-lro
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+A Get method must not be a long-running operation. A Get returns the current state of a
+single resource that already resides on the server.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to GET methods on single resources and singleton resources
+  - The Get method must not declare a 202 response; a Get reads state that already exists on
+    the server, so there is no background work to track
+  - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-132-list-method-must-not-be-lro
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+A List method must not be a long-running operation. A List returns data from a collection
+that already exists on the server.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to GET methods on resource collections
+  - The List method must not declare a 202 response; a List returns existing collection
+    data, so the response is returned within the request cycle
+  - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 
