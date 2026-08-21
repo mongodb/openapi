@@ -96,14 +96,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - env:
-          GH_REPO: ${{ inputs.branch }}
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.api_bot_pat }}
         run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
 
   failure-handler:
     name: Failure Handler
     needs: [retry-handler, release-v1-oas-apis ]
-    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result == 'skipped' }}
+    if: ${{ always() && contains(needs.*.result, 'failure') && needs.retry-handler.result != 'success' }}
     uses: ./.github/workflows/failure-handler.yml
     with:
       env: ${{ inputs.env }}
