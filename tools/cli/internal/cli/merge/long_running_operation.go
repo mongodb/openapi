@@ -30,27 +30,9 @@ type longRunningOperation struct {
 	Legacy bool `json:"legacy"`
 }
 
-// legacyLongRunningOperationIDs is a hardcoded list of the operations returning HTTP 202 that
-// predate IPA-132 and do not follow the long-running operation contract.
-var legacyLongRunningOperationIDs = map[string]struct{}{
-	"acceptGroupStreamVpcPeeringConnection":      {},
-	"createGroupClusterIndexRollingIndex":        {},
-	"createGroupCustomDbRoleRole":                {},
-	"createGroupEncryptionAtRestPrivateEndpoint": {},
-	"createOrgBillingCostExplorerUsageProcess":   {},
-	"cutoverGroupLiveMigration":                  {},
-	"deleteGroupCluster":                         {},
-	"deleteGroupClusterOverloadSimulation":       {},
-	"deleteGroupPeer":                            {},
-	"deleteGroupStreamConnection":                {},
-	"deleteGroupStreamPrivateLinkConnection":     {},
-	"deleteGroupStreamVpcPeeringConnection":      {},
-	"deleteGroupStreamWorkspace":                 {},
-	"deleteGroupUserSecurityLdapUserToDnMapping": {},
-	"disableGroupUserSecurityCustomerX509":       {},
-	"rejectGroupStreamVpcPeeringConnection":      {},
-	"updateGroupUserSecurity":                    {},
-}
+// legacyLongRunningOperationIDs lives in legacy_long_running_operations.go, generated from the
+// legacy operation list shared with the IPA-132 validation rules.
+//go:generate go run ./gen
 
 func isLegacyLongRunningOperation(operationID string) bool {
 	_, legacy := legacyLongRunningOperationIDs[operationID]
