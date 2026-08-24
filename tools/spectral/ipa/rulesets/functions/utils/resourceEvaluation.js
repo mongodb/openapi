@@ -207,32 +207,27 @@ export function getResourcePathItems(resourceCollectionPath, allPathItems) {
 /**
  * Checks whether a resource belongs to one parent resource.
  * For example, '/resource' returns false, '/resource/{id}/child' returns true.
+ * Instance paths are normalized to their collection path first, so
+ * '/parent/{parentId}/child/{childId}' returns true.
  *
  * @param {string} resourcePath a path for a resource
  * @returns {boolean}
  */
-function resourceBelongsToSingleParent(resourcePath) {
+export function resourceBelongsToSingleParent(resourcePath) {
   // Ignore /api/atlas/v2 and /api/atlas/v2/unauth
   const path = removePrefix(resourcePath);
   if (path === '') {
     return true;
   }
 
-  let resourcePathSections = path.split('/');
-  if (resourcePathSections[0] === '') {
-    resourcePathSections.shift();
+  const sections = path.split('/').filter((section) => section.length > 0);
+  // Normalize an instance path down to its collection path, so that
+  // '/parent/{parentId}/child/{childId}' is evaluated as '/parent/{parentId}/child'
+  if (sections.length > 0 && isPathParam(sections[sections.length - 1])) {
+    sections.pop();
   }
-  if (resourcePathSections.length < 2) {
-    return false;
-  }
-  if (isPathParam(resourcePathSections[resourcePathSections.length - 1])) {
-    resourcePathSections = resourcePathSections.slice(0, resourcePathSections.length - 2);
-  }
-  if (resourcePathSections.length === 1) {
-    return false;
-  }
-  const parentResourceSection = resourcePathSections[resourcePathSections.length - 2];
-  return isPathParam(parentResourceSection);
+  // The resource name is last, so the section before it holds the parent's id if there is a parent
+  return sections.length > 1 && isPathParam(sections[sections.length - 2]);
 }
 
 // TODO move prefixes to be rule arguments
