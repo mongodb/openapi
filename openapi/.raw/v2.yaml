@@ -832,7 +832,7 @@ components:
                     format: int32
                     type: integer
                     x-xgen-IPA-exception:
-                        xgen-IPA-112-field-names-are-camel-case: Schema predates IPA validation.
+                        xgen-IPA-112-field-names-are-camel-case: The field follows the same convention used by other fields in the schema.
                 diskSizeGB:
                     description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set `replicationSpecs`.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
                     externalDocs:
@@ -6604,6 +6604,17 @@ components:
                 - externalGroupName
                 - roleAssignments
             title: Federated Authentication Role Mapping
+            type: object
+        AuthenticatedUser:
+            description: Details about the MongoDB Cloud user that this request is authenticated as.
+            nullable: true
+            properties:
+                username:
+                    description: Email address that represents the username of the MongoDB Cloud user.
+                    format: email
+                    readOnly: true
+                    type: string
+            readOnly: true
             type: object
         AutoExportPolicyView:
             description: Policy for automatically exporting Cloud Backup Snapshots.
@@ -16017,6 +16028,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -16145,6 +16157,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -16445,6 +16458,7 @@ components:
                             - CLUSTER_UNBLOCK_WRITE
                             - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
                             - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
+                            - LOG_STREAMING_REPLAY_FAILED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -16712,6 +16726,7 @@ components:
                             - CLUSTER_UNBLOCK_WRITE
                             - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
                             - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
+                            - LOG_STREAMING_REPLAY_FAILED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -20856,6 +20871,7 @@ components:
                     - LOG_STREAMING_EXPORT_RECOVERED
                     - LOG_STREAMING_REPLAY_STARTED
                     - LOG_STREAMING_REPLAY_COMPLETE
+                    - LOG_STREAMING_REPLAY_FAILED
                     - OTEL_METRIC_INTEGRATION_ENABLED
                     - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                     - OTEL_METRIC_INTEGRATION_DISABLED
@@ -24374,6 +24390,27 @@ components:
             type: object
         GCPHardwareSpec:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware. Only configurable for Gen 2 instance sizes.
+
+                         Change this parameter if you:
+
+                        - set `replicationSpecs[n].regionConfigs[m].providerName` to `GCP`.
+                        - set `replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize` to a Gen 2 instance size (`M30_GEN_2` or greater).
+
+                        The maximum input/output operations per second (IOPS) depend on the selected `.instanceSize` and `.diskSizeGB`.
+                        This parameter defaults to the standard IOPS value for the selected `.diskSizeGB`.
+                        Changing this value impacts cluster cost.
+                    format: int32
+                    type: integer
+                    x-xgen-IPA-exception:
+                        xgen-IPA-112-field-names-are-camel-case: The field follows the same convention used by other fields in the schema.
+                diskThroughput:
+                    description: Throughput (in MiB/s) provisioned for storage attached to this hardware. Only returned for Gen 2 instance sizes.
+                    format: int32
+                    readOnly: true
+                    type: integer
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region. Each instance size has a default storage and memory capacity. The instance size you select applies to all the data-bearing hosts of the node type.
                     enum:
@@ -24422,6 +24459,22 @@ components:
             type: object
         GCPHardwareSpec20240805:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware. Only configurable for Gen 2 instance sizes.
+
+                         Change this parameter if you:
+
+                        - set `"replicationSpecs[n].regionConfigs[m].providerName" : "GCP"`.
+                        - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize"` to a Gen 2 instance size (`"M30_GEN_2"` or greater).
+
+                        The maximum input/output operations per second (IOPS) depend on the selected `.instanceSize` and `.diskSizeGB`.
+                        This parameter defaults to the standard IOPS value for the selected `.diskSizeGB`.
+                        Changing this value impacts cluster cost.
+                    format: int32
+                    type: integer
+                    x-xgen-IPA-exception:
+                        xgen-IPA-112-field-names-are-camel-case: Schema predates IPA validation.
                 diskSizeGB:
                     description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set `replicationSpecs`.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
                     externalDocs:
@@ -24431,6 +24484,11 @@ components:
                     type: number
                     x-xgen-IPA-exception:
                         xgen-IPA-112-field-names-are-camel-case: Schema predates IPA validation.
+                diskThroughput:
+                    description: Throughput (in MiB/s) provisioned for storage attached to this hardware. Only returned for Gen 2 instance sizes.
+                    format: int32
+                    readOnly: true
+                    type: integer
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as "base nodes") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.
                     enum:
@@ -25852,6 +25910,13 @@ components:
                     type: boolean
                     x-xgen-IPA-exception:
                         xgen-IPA-112-boolean-field-names-avoid-is-prefix: Schema predates IPA validation.
+                isQueryInsightsGenAiFeaturesEnabled:
+                    description: Flag that indicates whether to enable AI features in Query Insights for the specified project.
+                    type: boolean
+                    x-xgen-IPA-exception:
+                        xgen-IPA-112-boolean-field-names-avoid-is-prefix: Used 'is' prefix for alignment with other grouped boolean fields in this endpoint.
+                    x-xgen-hidden-env:
+                        envs: prod
                 isRealtimePerformancePanelEnabled:
                     description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
                     type: boolean
@@ -31721,6 +31786,7 @@ components:
                 - LOG_STREAMING_EXPORT_RECOVERED
                 - LOG_STREAMING_REPLAY_STARTED
                 - LOG_STREAMING_REPLAY_COMPLETE
+                - LOG_STREAMING_REPLAY_FAILED
                 - OTEL_METRIC_INTEGRATION_ENABLED
                 - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                 - OTEL_METRIC_INTEGRATION_DISABLED
@@ -38653,11 +38719,15 @@ components:
             description: Response containing the details and status of a query shape. The query shape field may be null if the user lacks PII view access.
             properties:
                 command:
-                    description: The MongoDB command type issued for a query shape.
+                    description: The MongoDB command type issued for a query shape. The INSERT, UPDATE, and DELETE commands appear only for clusters running MongoDB 9.0 or later.
                     enum:
                         - FIND
                         - DISTINCT
                         - AGGREGATE
+                        - COUNT
+                        - INSERT
+                        - UPDATE
+                        - DELETE
                     readOnly: true
                     type: string
                 namespace:
@@ -38758,16 +38828,25 @@ components:
                     format: double
                     type: number
                 command:
-                    description: The MongoDB command issued for this query shape.
+                    description: The MongoDB command issued for this query shape. The insert, update, and delete commands appear only for clusters running MongoDB 9.0 or later.
                     enum:
                         - find
                         - distinct
                         - aggregate
+                        - count
+                        - insert
+                        - update
+                        - delete
                     type: string
                     x-xgen-IPA-exception:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: The values returned from the database are in lower case.
                 cpuTime:
                     description: Total CPU time in nanoseconds consumed by queries with the given query shape. Available for MDB 8.2 and higher.
+                    format: double
+                    nullable: true
+                    type: number
+                docsDeleted:
+                    description: Total number of documents deleted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
                     format: double
                     nullable: true
                     type: number
@@ -38779,13 +38858,38 @@ components:
                     description: Ratio of documents examined to documents returned by queries with the given query shape.
                     format: double
                     type: number
+                docsInserted:
+                    description: Total number of documents inserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                docsMatched:
+                    description: Total number of documents matched by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                docsModified:
+                    description: Total number of documents modified by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
                 docsReturned:
                     description: Total number of documents returned by queries with the given query shape.
                     format: double
                     type: number
+                docsUpserted:
+                    description: Total number of documents upserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
                 execCount:
                     description: Total number of times that queries with the given query shape have been executed.
                     format: double
+                    type: number
+                keysDeleted:
+                    description: Total number of index keys deleted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
                     type: number
                 keysExamined:
                     description: Total number of in-bounds and out-of-bounds index keys examined by queries with the given query shape.
@@ -38794,6 +38898,11 @@ components:
                 keysExaminedRatio:
                     description: Ratio of in-bounds and out-of-bounds index keys examined to indexes containing documents returned by queries with the given query shape.
                     format: double
+                    type: number
+                keysInserted:
+                    description: Total number of index keys inserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
                     type: number
                 lastExecMicros:
                     description: Execution runtime in microseconds for the most recent query with the given query shape.
@@ -45078,6 +45187,12 @@ components:
                     example: 83be55e140f493c88e7f578aae96548dd881587b
                     readOnly: true
                     type: string
+                ipAddress:
+                    description: IPv4 or IPv6 address from which you requested this response. Use this value to confirm which address IP access lists evaluate for your requests.
+                    example: 216.172.40.186
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    readOnly: true
+                    type: string
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
                     externalDocs:
@@ -45091,10 +45206,12 @@ components:
                     description: Flag that indicates whether someone enabled throttling on this service.
                     readOnly: true
                     type: boolean
+                user:
+                    $ref: '#/components/schemas/AuthenticatedUser'
             required:
-                - apiKey
                 - appName
                 - build
+                - ipAddress
                 - throttling
             type: object
         TargetOrg:
@@ -48444,7 +48561,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: b3bec75aa15172c4a9db328ec112b146d50fd628
+    x-xgen-sha: 34312d1edef7627898f1e1ab114688c0c30fd9e6
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -53149,19 +53266,25 @@ paths:
                 - $ref: '#/components/parameters/groupId'
             requestBody:
                 content:
-                    application/vnd.atlas.2025-03-12+json:
+                    application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/ClusterConfigurationValidation'
-                        x-xgen-version: "2025-03-12"
+                        x-xgen-preview:
+                            name: cluster-configuration-validation
+                            public: "false"
+                        x-xgen-version: preview
                 description: Cluster configuration to validate.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2025-03-12+json:
+                        application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/ClusterConfigurationValidationResult'
-                            x-xgen-version: "2025-03-12"
+                            x-xgen-preview:
+                                name: cluster-configuration-validation
+                                public: "false"
+                            x-xgen-version: preview
                     description: Ok
                     headers:
                         RateLimit-Limit:
@@ -53186,6 +53309,8 @@ paths:
             x-rolesRequirements:
                 - Project Cluster Manager
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/validateGroupClusterConfigurations
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
             x-xgen-owner-team: Atlas Clusters Platform II
     /api/atlas/v2/groups/{groupId}/clusters:
         get:
@@ -58656,7 +58781,7 @@ paths:
                     maxItems: 10
                     type: array
                   style: form
-                - description: Retrieve query shape statistics matching specified MongoDB commands. To include multiple commands, pass the parameter multiple times delimited with an ampersand (`&`) between each command. The currently supported parameters are find, distinct, and aggregate. Omit this parameter to return results for all supported commands.
+                - description: 'Retrieve query shape statistics matching specified MongoDB commands. To include multiple commands, pass the parameter multiple times delimited with an ampersand (`&`) between each command. The currently supported parameters are: find, distinct, aggregate, count, insert, update, and delete. The insert, update, and delete commands return results only for clusters running MongoDB 9.0 or later with write query shape statistics enabled for the project. Omit this parameter to return results for all supported commands.'
                   in: query
                   name: commands
                   schema:
@@ -58666,8 +58791,12 @@ paths:
                             - find
                             - distinct
                             - aggregate
+                            - count
+                            - insert
+                            - update
+                            - delete
                         type: string
-                    maxItems: 3
+                    maxItems: 7
                     type: array
                     uniqueItems: true
                     x-xgen-IPA-exception:
@@ -58686,7 +58815,7 @@ paths:
                   in: query
                   name: series
                   schema:
-                    description: Query shape statistics data series to retrieve. A series represents a specific metric about query execution. To include multiple series, pass the parameter multiple times delimited with an ampersand (`&`) between each series. Omit this parameter to return results for all available series. The `P50_EXECUTION_TIME`, `P90_EXECUTION_TIME`, and `P99_EXECUTION_TIME` series are deprecated as the values they report may be inaccurate. They will be removed in a future release.
+                    description: Query shape statistics data series to retrieve. A series represents a specific metric about query execution. To include multiple series, pass the parameter multiple times delimited with an ampersand (`&`) between each series. Omit this parameter to return results for all available series. The `P50_EXECUTION_TIME`, `P90_EXECUTION_TIME`, and `P99_EXECUTION_TIME` series are deprecated as the values they report may be inaccurate. They will be removed in a future release. The write command series (`DOCS_MATCHED`, `DOCS_MODIFIED`, `DOCS_UPSERTED`, `DOCS_DELETED`, `DOCS_INSERTED`, `KEYS_INSERTED`, `KEYS_DELETED`) return data only for clusters running MongoDB 9.0 or later with write query shape statistics enabled for the project.
                     items:
                         enum:
                             - TOTAL_EXECUTION_TIME
@@ -58704,10 +58833,19 @@ paths:
                             - P50_EXECUTION_TIME
                             - P90_EXECUTION_TIME
                             - P99_EXECUTION_TIME
+                            - DOCS_MATCHED
+                            - DOCS_MODIFIED
+                            - DOCS_UPSERTED
+                            - DOCS_DELETED
+                            - DOCS_INSERTED
+                            - KEYS_INSERTED
+                            - KEYS_DELETED
                         type: string
-                    maxItems: 15
+                    maxItems: 22
                     type: array
                     uniqueItems: true
+                    x-xgen-IPA-exception:
+                        xgen-IPA-123-allowable-enum-values-should-not-exceed-20: The series enum mirrors the full set of query shape statistics, which exceeds 20 with the write command statistics.
                   style: form
                 - description: A list of SHA256 hashes of desired query shapes, output by MongoDB commands like `$queryStats` and $explain or slow query logs. To include multiple series, pass the parameter multiple times delimited with an ampersand (`&`) between each series. Omit this parameter to return results for all available series.
                   in: query
@@ -81798,8 +81936,6 @@ paths:
                 - Ephemeral Clusters
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one.
-            x-xgen-atlascli:
-                skip: true
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/getEphemeralCluster
             x-xgen-hidden-env:
                 envs: prod
@@ -81852,8 +81988,6 @@ paths:
                 - Ephemeral Clusters
             x-xgen-IPA-exception:
                 xgen-IPA-117-description-should-not-use-inline-links: Description has multiple links, and externalDocs only supports one.
-            x-xgen-atlascli:
-                skip: true
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/createEphemeralCluster
             x-xgen-hidden-env:
                 envs: prod

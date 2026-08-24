@@ -3504,6 +3504,17 @@ components:
                 - roleAssignments
             title: Federated Authentication Role Mapping
             type: object
+        AuthenticatedUser:
+            description: Details about the MongoDB Cloud user that this request is authenticated as.
+            nullable: true
+            properties:
+                username:
+                    description: Email address that represents the username of the MongoDB Cloud user.
+                    format: email
+                    readOnly: true
+                    type: string
+            readOnly: true
+            type: object
         AutoExportPolicyView:
             description: Policy for automatically exporting Cloud Backup Snapshots.
             properties:
@@ -11046,6 +11057,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -11103,6 +11115,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -11362,6 +11375,7 @@ components:
                             - CLUSTER_UNBLOCK_WRITE
                             - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
                             - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
+                            - LOG_STREAMING_REPLAY_FAILED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -11621,6 +11635,7 @@ components:
                             - CLUSTER_UNBLOCK_WRITE
                             - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
                             - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
+                            - LOG_STREAMING_REPLAY_FAILED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -15085,6 +15100,7 @@ components:
                     - LOG_STREAMING_EXPORT_RECOVERED
                     - LOG_STREAMING_REPLAY_STARTED
                     - LOG_STREAMING_REPLAY_COMPLETE
+                    - LOG_STREAMING_REPLAY_FAILED
                     - OTEL_METRIC_INTEGRATION_ENABLED
                     - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                     - OTEL_METRIC_INTEGRATION_DISABLED
@@ -18412,6 +18428,9 @@ components:
                     type: boolean
                 isPerformanceAdvisorEnabled:
                     description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
+                    type: boolean
+                isQueryInsightsGenAiFeaturesEnabled:
+                    description: Flag that indicates whether to enable AI features in Query Insights for the specified project.
                     type: boolean
                 isRealtimePerformancePanelEnabled:
                     description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
@@ -23351,6 +23370,7 @@ components:
                 - LOG_STREAMING_EXPORT_RECOVERED
                 - LOG_STREAMING_REPLAY_STARTED
                 - LOG_STREAMING_REPLAY_COMPLETE
+                - LOG_STREAMING_REPLAY_FAILED
                 - OTEL_METRIC_INTEGRATION_ENABLED
                 - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                 - OTEL_METRIC_INTEGRATION_DISABLED
@@ -31640,6 +31660,12 @@ components:
                     example: 83be55e140f493c88e7f578aae96548dd881587b
                     readOnly: true
                     type: string
+                ipAddress:
+                    description: IPv4 or IPv6 address from which you requested this response. Use this value to confirm which address IP access lists evaluate for your requests.
+                    example: 216.172.40.186
+                    pattern: ^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}|([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$
+                    readOnly: true
+                    type: string
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
                     externalDocs:
@@ -31653,10 +31679,12 @@ components:
                     description: Flag that indicates whether someone enabled throttling on this service.
                     readOnly: true
                     type: boolean
+                user:
+                    $ref: '#/components/schemas/AuthenticatedUser'
             required:
-                - apiKey
                 - appName
                 - build
+                - ipAddress
                 - throttling
             type: object
         TargetOrg:
@@ -34067,7 +34095,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: b3bec75aa15172c4a9db328ec112b146d50fd628
+    x-xgen-sha: 34312d1edef7627898f1e1ab114688c0c30fd9e6
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
