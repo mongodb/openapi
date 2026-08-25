@@ -7,6 +7,7 @@ import {
   isRootLevelResource,
   isSingleResourceIdentifier,
   isSingletonResource,
+  resourceBelongsToSingleParent,
 } from '../../rulesets/functions/utils/resourceEvaluation';
 
 const resource = {
@@ -606,6 +607,40 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       expect(isRootLevelResource('/api/atlas/v2/resourceName/childResource/{id}')).toBe(false);
       expect(isRootLevelResource('/api/atlas/v2/resourceName/operations')).toBe(false);
       expect(isRootLevelResource('/api/atlas/v2/resourceName/{pathParam}/operations/{operationId}')).toBe(false);
+    });
+  });
+
+  describe('resourceBelongsToSingleParent', () => {
+    it('recognizes nested collection paths', () => {
+      expect(resourceBelongsToSingleParent('/groups/{groupId}/clusters')).toBe(true);
+      expect(resourceBelongsToSingleParent('/api/atlas/v2/groups/{groupId}/clusters')).toBe(true);
+      expect(resourceBelongsToSingleParent('/api/atlas/v2/unauth/groups/{groupId}/clusters')).toBe(true);
+      expect(resourceBelongsToSingleParent('/groups/{groupId}/clusters/{clusterName}/processArgs')).toBe(true);
+    });
+
+    it('recognizes nested instance paths', () => {
+      expect(resourceBelongsToSingleParent('/groups/{groupId}/clusters/{clusterId}')).toBe(true);
+      expect(resourceBelongsToSingleParent('/groups/{g}/clusters/{c}/processes/{p}')).toBe(true);
+    });
+
+    it('rejects root-level resources', () => {
+      expect(resourceBelongsToSingleParent('/groups')).toBe(false);
+      expect(resourceBelongsToSingleParent('/groups/{groupId}')).toBe(false);
+      expect(resourceBelongsToSingleParent('/api/atlas/v2/groups/{groupId}')).toBe(false);
+    });
+
+    it('rejects resources nested under a non-parameterized segment', () => {
+      expect(resourceBelongsToSingleParent('/groups/settings')).toBe(false);
+      expect(resourceBelongsToSingleParent('/groups/settings/{settingId}')).toBe(false);
+    });
+
+    it('handles paths that are only the API prefix', () => {
+      expect(resourceBelongsToSingleParent('/api/atlas/v2')).toBe(true);
+      expect(resourceBelongsToSingleParent('/api/atlas/v2/unauth')).toBe(true);
+    });
+
+    it('rejects consecutive path params', () => {
+      expect(resourceBelongsToSingleParent('/a/{b}/{c}')).toBe(false);
     });
   });
 });
