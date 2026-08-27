@@ -1,5 +1,17 @@
 export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
 export const OPERATION_ID_OVERRIDE_EXTENSION = 'x-xgen-operation-id-override';
+export const SERVER_COMPUTED_WHEN_CLIENT_OMITTED_EXTENSION = 'x-xgen-server-computed-when-client-omitted';
+
+/**
+ * Checks if the object has the extension "x-xgen-server-computed-when-client-omitted", marking a field
+ * whose value is computed by the server when the client omits it.
+ *
+ * @param object the object to evaluate
+ * @returns {boolean} true if the object has the extension, otherwise false
+ */
+export function hasServerComputedWhenClientOmittedExtension(object) {
+  return Object.keys(object).includes(SERVER_COMPUTED_WHEN_CLIENT_OMITTED_EXTENSION);
+}
 
 /**
  * Checks if the object has an extension "x-xgen-method-verb-override" with the customMethod boolean set to true

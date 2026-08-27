@@ -1,3 +1,21 @@
+import { resolveObject } from './componentUtils.js';
+
+/**
+ * Checks if a schema property is listed as required by its parent schema.
+ *
+ * Given the JSON path to a property (ending in `['properties', '<name>']`), this resolves the
+ * enclosing schema object and inspects its `required` array.
+ *
+ * @param {Object} oas the OpenAPI Specification object to resolve against
+ * @param {string[]} propertyPath the JSON path to the property
+ * @returns {boolean} true if the property is listed in the parent schema's `required` array, false otherwise
+ */
+export function isRequiredProperty(oas, propertyPath) {
+  const propertyName = propertyPath[propertyPath.length - 1];
+  const parentSchema = resolveObject(oas, propertyPath.slice(0, propertyPath.length - 2));
+  return Array.isArray(parentSchema?.required) && parentSchema.required.includes(propertyName);
+}
+
 /**
  * Checks if the object has results property
  * @param {Object} schema
