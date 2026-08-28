@@ -66,8 +66,8 @@ When working in the `tools/cli` directory:
 - `make e2e-test` - Run end-to-end tests
 - `make build` - Build the CLI binary
 - `make gen-docs` - Generate CLI documentation
-- `go generate ./...` - Regenerate generated Go sources. Run this after editing
-  `tools/spectral/ipa/rulesets/functions/utils/legacyLongRunningOperations.json`; a unit test
-  fails if the generated copy is out of date, so a forgotten run cannot pass CI
+- `go generate ./...` - Regenerate the Go copy of the legacy long-running operation list. Run
+  this after editing `tools/spectral/ipa/rulesets/functions/utils/legacyLroOperationIds.js`; a
+  unit test fails if the generated copy is out of date, so a forgotten run cannot pass CI
 
 **Note: Please ensure the usage of [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in PR titles**
