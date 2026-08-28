@@ -1685,6 +1685,32 @@ Rule checks for the following conditions:
     schema, are allowed
   - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
 
+#### xgen-IPA-132-lros-must-expose-an-operations-endpoint
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+A long-running operation must expose an Operations endpoint through which clients poll the
+operation status.
+
+##### Implementation details
+Rule checks for the following conditions:
+
+  - Applies to mutating methods that declare a 202 response; the
+    `x-xgen-long-running-operation` extension is derived from the 202 during the merge
+    step, so the rule behaves identically on merged and per-service specs
+  - Legacy operations that predate IPA-132 are excluded from validation, whether marked
+    `legacy: true` during the merge step or matched by the shared legacy operationId list
+  - Both the Operations collection (`.../operations`) and the single Operation endpoint
+    (`.../operations/{operationId}`) must be defined, nested under the resource path of the
+    long-running operation
+  - Each endpoint must define the `get` method, i.e. List on the Operations collection and
+    Get on the single Operation; the Operations resource is read-only, so `get` is the only
+    method through which clients can poll status
+  - A mutation of a collection must expose the endpoints under the collection path
+    (`/resource/operations`), and a mutation of a single resource under the resource
+    instance path (`/resource/{resourceId}/operations`)
+  - Custom method suffixes are ignored when deriving the resource path
+  - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 
