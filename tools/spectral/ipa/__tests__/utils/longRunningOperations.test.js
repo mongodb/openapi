@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   containsOperationsSegment,
-  isCompliantLongRunningOperation,
+  isNonLegacyLongRunningOperation,
   isExactEnumMatch,
   isOperationsCollectionPath,
   isOperationsPath,
@@ -120,11 +120,11 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
     });
   });
 
-  describe('isCompliantLongRunningOperation', () => {
+  describe('isNonLegacyLongRunningOperation', () => {
     it('selects operations declaring a 202 response, with or without the extension', () => {
-      expect(isCompliantLongRunningOperation({ operationId: 'createGroupThing', responses: { 202: {} } })).toBe(true);
+      expect(isNonLegacyLongRunningOperation({ operationId: 'createGroupThing', responses: { 202: {} } })).toBe(true);
       expect(
-        isCompliantLongRunningOperation({
+        isNonLegacyLongRunningOperation({
           operationId: 'createGroupThing',
           responses: { 202: {} },
           'x-xgen-long-running-operation': { legacy: false },
@@ -133,20 +133,20 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
     });
 
     it('ignores operations without a 202 response, even when the extension is present', () => {
-      expect(isCompliantLongRunningOperation({ operationId: 'createGroupThing', responses: { 201: {} } })).toBe(false);
+      expect(isNonLegacyLongRunningOperation({ operationId: 'createGroupThing', responses: { 201: {} } })).toBe(false);
       expect(
-        isCompliantLongRunningOperation({
+        isNonLegacyLongRunningOperation({
           operationId: 'createGroupThing',
           responses: { 201: {} },
           'x-xgen-long-running-operation': { legacy: false },
         })
       ).toBe(false);
-      expect(isCompliantLongRunningOperation({ operationId: 'createGroupThing' })).toBe(false);
+      expect(isNonLegacyLongRunningOperation({ operationId: 'createGroupThing' })).toBe(false);
     });
 
     it('excludes operations marked legacy by the merge step', () => {
       expect(
-        isCompliantLongRunningOperation({
+        isNonLegacyLongRunningOperation({
           operationId: 'createGroupThing',
           responses: { 202: {} },
           'x-xgen-long-running-operation': { legacy: true },
@@ -155,7 +155,7 @@ describe('tools/spectral/ipa/utils/longRunningOperations.js', () => {
     });
 
     it('excludes operations matched by the shared legacy operationId list', () => {
-      expect(isCompliantLongRunningOperation({ operationId: 'deleteGroupCluster', responses: { 202: {} } })).toBe(
+      expect(isNonLegacyLongRunningOperation({ operationId: 'deleteGroupCluster', responses: { 202: {} } })).toBe(
         false
       );
     });

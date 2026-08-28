@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { isCompliantLongRunningOperation } from './utils/longRunningOperations.js';
+import { isNonLegacyLongRunningOperation } from './utils/longRunningOperations.js';
 
 /**
  * Checks that a method starting a long-running operation defined by IPA-132 does not advertise
@@ -12,7 +12,7 @@ import { isCompliantLongRunningOperation } from './utils/longRunningOperations.j
 export default (input, _, { path, rule }) => {
   const ruleName = rule.name;
 
-  if (!isCompliantLongRunningOperation(input)) {
+  if (!isNonLegacyLongRunningOperation(input)) {
     return;
   }
 

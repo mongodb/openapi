@@ -114,17 +114,19 @@ export const OPERATION_RESPONSE_SCHEMA_NAME = 'OperationResponse';
 export const LRO_EXTENSION = 'x-xgen-long-running-operation';
 
 /**
- * Checks if an operation is a long-running operation that must follow the IPA-132 contract. A
- * long-running operation declares a 202 response: the x-xgen-long-running-operation extension is
- * derived from the 202 during the merge step, so selecting on the declared 202 gives the same
- * result on the federated spec while also working on specs the merge step has not processed,
- * such as the per-service source specs. Legacy operations predate IPA-132 and are excluded,
- * whether marked `legacy: true` by the merge step or matched by the legacy operationId list.
+ * Checks if an operation is a long-running operation that is in scope for the IPA-132 contract.
+ * This says nothing about whether the operation already follows the contract, only that the rules
+ * are expected to hold for it. A long-running operation declares a 202 response: the
+ * x-xgen-long-running-operation extension is derived from the 202 during the merge step, so
+ * selecting on the declared 202 gives the same result on the federated spec while also working on
+ * specs the merge step has not processed, such as the per-service source specs. Legacy operations
+ * predate IPA-132 and are excluded, whether marked `legacy: true` by the merge step or matched by
+ * the legacy operationId list.
  *
  * @param {object} operation the operation object to evaluate
  * @returns {boolean} true if the operation is a long-running operation that is not legacy
  */
-export function isCompliantLongRunningOperation(operation) {
+export function isNonLegacyLongRunningOperation(operation) {
   if (!operation.responses?.['202']) {
     return false;
   }

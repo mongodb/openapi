@@ -3,6 +3,7 @@ import { DiagnosticSeverity } from '@stoplight/types';
 
 const MISSING_LOCATION_ERROR_MESSAGE =
   'The 202 Accepted response must include a Location header pointing at the Operation resource URI.';
+const WRONG_CASING_ERROR_MESSAGE = "The 202 Accepted response header must be named 'Location', found 'location'.";
 
 const lroExtension = { 'x-xgen-long-running-operation': { legacy: false } };
 const legacyLroExtension = { 'x-xgen-long-running-operation': { legacy: true } };
@@ -54,7 +55,7 @@ testRule('xgen-IPA-132-lro-initiation-must-return-202-accepted-with-location', [
     errors: [],
   },
   {
-    name: 'header names are compared case-insensitively',
+    name: 'invalid Location header declared with non-canonical casing',
     document: {
       paths: {
         '/api/atlas/v2/resourceName': {
@@ -73,7 +74,14 @@ testRule('xgen-IPA-132-lro-initiation-must-return-202-accepted-with-location', [
         },
       },
     },
-    errors: [],
+    errors: [
+      {
+        code: 'xgen-IPA-132-lro-initiation-must-return-202-accepted-with-location',
+        message: WRONG_CASING_ERROR_MESSAGE,
+        path: ['paths', '/api/atlas/v2/resourceName', 'post', 'responses', '202'],
+        severity: DiagnosticSeverity.Warning,
+      },
+    ],
   },
   {
     name: 'synchronous operations without a 202 response are ignored',

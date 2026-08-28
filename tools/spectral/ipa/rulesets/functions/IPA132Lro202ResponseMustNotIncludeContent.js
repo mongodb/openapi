@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { isCompliantLongRunningOperation } from './utils/longRunningOperations.js';
+import { isNonLegacyLongRunningOperation } from './utils/longRunningOperations.js';
 
 const ERROR_MESSAGE =
   'The 202 Accepted response must not include a response body schema. The operation handle is conveyed through the Location header.';
@@ -16,7 +16,7 @@ const ERROR_MESSAGE =
 export default (input, _, { path, rule }) => {
   const ruleName = rule.name;
 
-  if (!isCompliantLongRunningOperation(input)) {
+  if (!isNonLegacyLongRunningOperation(input)) {
     return;
   }
 
