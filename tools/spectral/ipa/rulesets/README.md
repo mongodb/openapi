@@ -1644,8 +1644,8 @@ Rule checks for the following conditions:
     step, so the rule behaves identically on merged and per-service specs
   - Legacy operations that predate IPA-132 are excluded from validation, whether marked
     `legacy: true` during the merge step or matched by the shared legacy operationId list
-  - The 202 response must declare a `Location` header; header names are compared
-    case-insensitively
+  - The 202 response must declare a `Location` header, named with that exact casing for
+    consistency across the spec
   - Operations with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-lro-must-not-return-success-status-code-other-than-202
