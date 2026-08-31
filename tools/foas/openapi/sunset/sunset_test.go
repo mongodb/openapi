@@ -115,6 +115,47 @@ func TestNewSunsetListFromSpec(t *testing.T) {
 			},
 		},
 		{
+			name: "Preview versions with sunset extensions are excluded",
+			specInfo: &load.SpecInfo{
+				Spec: &openapi3.T{
+					Paths: openapi3.NewPaths(openapi3.WithPath("/example", &openapi3.PathItem{
+						Get: &openapi3.Operation{
+							Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
+								Content: openapi3.Content{
+									"application/vnd.atlas.2023-01-01+json": &openapi3.MediaType{
+										Extensions: map[string]any{
+											sunsetExtensionName:     "2025-12-31",
+											apiVersionExtensionName: "2023-01-01",
+										},
+									},
+									"application/vnd.atlas.preview+json": &openapi3.MediaType{
+										Extensions: map[string]any{
+											sunsetExtensionName:     "2025-06-01",
+											apiVersionExtensionName: "preview",
+										},
+									},
+									"application/vnd.atlas.private-preview+json": &openapi3.MediaType{
+										Extensions: map[string]any{
+											sunsetExtensionName:     "2025-06-01",
+											apiVersionExtensionName: "private-preview",
+										},
+									},
+								},
+							})),
+						},
+					})),
+				},
+			},
+			expected: []*Sunset{
+				{
+					Operation:  "GET",
+					Path:       "/example",
+					Version:    "2023-01-01",
+					SunsetDate: "2025-12-31",
+				},
+			},
+		},
+		{
 			name: "201 operations with extensions",
 			specInfo: &load.SpecInfo{
 				Spec: &openapi3.T{

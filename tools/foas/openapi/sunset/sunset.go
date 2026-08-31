@@ -18,6 +18,7 @@ import (
 	"sort"
 
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/oasdiff/oasdiff/load"
 )
 
@@ -45,8 +46,14 @@ func NewListFromSpec(spec *load.SpecInfo) []*Sunset {
 			extensionsList := successResponseExtensions(operationBody.Responses.Map())
 
 			for _, extensions := range extensionsList {
-				apiVersion, ok := extensions[apiVersionExtensionName]
+				version, ok := extensions[apiVersionExtensionName]
 				if !ok {
+					continue
+				}
+
+				// Preview APIs are excluded from the sunset list as their sunset dates
+				// are not relevant for the sunset reminder.
+				if apiversion.IsPreviewStabilityLevel(version.(string)) {
 					continue
 				}
 
@@ -59,7 +66,7 @@ func NewListFromSpec(spec *load.SpecInfo) []*Sunset {
 					Operation:  operationName,
 					Path:       path,
 					SunsetDate: sunsetExt.(string),
-					Version:    apiVersion.(string),
+					Version:    version.(string),
 					Team:       teamName,
 				}
 
