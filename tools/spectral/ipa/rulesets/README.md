@@ -787,7 +787,7 @@ Optional fields must not define a default value.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to optional (non-required) schema properties in components, request bodies and responses
+  - Applies to optional (non-required) schema properties in request bodies only
   - Boolean fields are exempt (covered by xgen-IPA-111-optional-boolean-fields-default-false)
   - Fields marked with the x-xgen-server-computed-when-client-omitted extension are exempt
   - Fails if the field defines a default value
@@ -810,7 +810,7 @@ Optional boolean fields must default to false.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies to optional (non-required) boolean schema properties in components, request bodies and responses
+  - Applies to optional (non-required) boolean schema properties in request bodies only
   - Fails if the field does not define a default value of false
 
 
