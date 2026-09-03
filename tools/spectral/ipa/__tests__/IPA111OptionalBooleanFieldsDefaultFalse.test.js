@@ -52,7 +52,7 @@ testRule('xgen-IPA-111-optional-boolean-fields-default-false', [
     errors: [],
   },
   {
-    name: 'invalid optional boolean field without default',
+    name: 'valid optional boolean field without default in component (request-scoped, skipped)',
     document: {
       components: {
         schemas: {
@@ -65,17 +65,10 @@ testRule('xgen-IPA-111-optional-boolean-fields-default-false', [
         },
       },
     },
-    errors: [
-      {
-        code: 'xgen-IPA-111-optional-boolean-fields-default-false',
-        message: 'Optional boolean fields must default to false.',
-        path: ['components', 'schemas', 'Schema', 'properties', 'enabled'],
-        severity: DiagnosticSeverity.Error,
-      },
-    ],
+    errors: [],
   },
   {
-    name: 'invalid optional boolean field with default true',
+    name: 'valid optional boolean field with default true in component (request-scoped, skipped)',
     document: {
       components: {
         schemas: {
@@ -88,17 +81,10 @@ testRule('xgen-IPA-111-optional-boolean-fields-default-false', [
         },
       },
     },
-    errors: [
-      {
-        code: 'xgen-IPA-111-optional-boolean-fields-default-false',
-        message: 'Optional boolean fields must default to false.',
-        path: ['components', 'schemas', 'Schema', 'properties', 'enabled'],
-        severity: DiagnosticSeverity.Error,
-      },
-    ],
+    errors: [],
   },
   {
-    name: 'invalid optional boolean field in request and response',
+    name: 'invalid optional boolean field in request (paused) but response is skipped',
     document: {
       paths: {
         '/resources': {
@@ -147,23 +133,6 @@ testRule('xgen-IPA-111-optional-boolean-fields-default-false', [
           'schema',
           'properties',
           'paused',
-        ],
-        severity: DiagnosticSeverity.Error,
-      },
-      {
-        code: 'xgen-IPA-111-optional-boolean-fields-default-false',
-        message: 'Optional boolean fields must default to false.',
-        path: [
-          'paths',
-          '/resources',
-          'post',
-          'responses',
-          '201',
-          'content',
-          'application/vnd.atlas.2024-01-01+json',
-          'schema',
-          'properties',
-          'hidden',
         ],
         severity: DiagnosticSeverity.Error,
       },

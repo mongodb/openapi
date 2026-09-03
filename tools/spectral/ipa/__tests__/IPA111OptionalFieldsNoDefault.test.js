@@ -72,7 +72,7 @@ testRule('xgen-IPA-111-optional-fields-no-default', [
     errors: [],
   },
   {
-    name: 'invalid optional field with default',
+    name: 'valid optional field with default in component (request-scoped, skipped)',
     document: {
       components: {
         schemas: {
@@ -85,18 +85,10 @@ testRule('xgen-IPA-111-optional-fields-no-default', [
         },
       },
     },
-    errors: [
-      {
-        code: 'xgen-IPA-111-optional-fields-no-default',
-        message:
-          'Optional fields must not define a default value. Remove the default or mark the field with x-xgen-server-computed-when-client-omitted if the server computes it when omitted.',
-        path: ['components', 'schemas', 'Schema', 'properties', 'name'],
-        severity: DiagnosticSeverity.Error,
-      },
-    ],
+    errors: [],
   },
   {
-    name: 'invalid optional field with default in request and response',
+    name: 'invalid optional field with default in request body (response is skipped)',
     document: {
       paths: {
         '/resources': {
@@ -146,24 +138,6 @@ testRule('xgen-IPA-111-optional-fields-no-default', [
           'schema',
           'properties',
           'size',
-        ],
-        severity: DiagnosticSeverity.Error,
-      },
-      {
-        code: 'xgen-IPA-111-optional-fields-no-default',
-        message:
-          'Optional fields must not define a default value. Remove the default or mark the field with x-xgen-server-computed-when-client-omitted if the server computes it when omitted.',
-        path: [
-          'paths',
-          '/resources',
-          'post',
-          'responses',
-          '201',
-          'content',
-          'application/vnd.atlas.2024-01-01+json',
-          'schema',
-          'properties',
-          'region',
         ],
         severity: DiagnosticSeverity.Error,
       },

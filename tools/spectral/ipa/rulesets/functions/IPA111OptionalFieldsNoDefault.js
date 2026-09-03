@@ -1,5 +1,5 @@
 import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { resolveObject } from './utils/componentUtils.js';
+import { pathIsForRequestVersion, resolveObject } from './utils/componentUtils.js';
 import { isRequiredProperty } from './utils/schemaUtils.js';
 import { hasServerComputedWhenClientOmittedExtension } from './utils/extensions.js';
 
@@ -29,6 +29,11 @@ export default (input, _, { path, documentInventory, rule }) => {
 
   // Fields computed by the server when the client omits them are allowed to define a default
   if (hasServerComputedWhenClientOmittedExtension(property)) {
+    return;
+  }
+
+  // Scoped to request schemas only
+  if (!pathIsForRequestVersion(path)) {
     return;
   }
 
