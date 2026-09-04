@@ -2525,6 +2525,62 @@ components:
                         - DESCENDING
                     type: string
             type: object
+        ApiSearchAutoScalingView:
+            description: Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.
+            properties:
+                compute:
+                    $ref: '#/components/schemas/ApiSearchComputeAutoScalingView'
+            type: object
+        ApiSearchComputeAutoScalingView:
+            description: Settings that control Search Node tier scaling based on load.
+            properties:
+                enabled:
+                    default: false
+                    description: Flag that indicates whether Atlas raises the Search Node tier when the nodes are under sustained load. If set to `true`, you must also set `maxInstanceTier`.
+                    type: boolean
+                maxInstanceTier:
+                    description: Highest Search Node tier that Atlas can scale up to. Required when `enabled` is `true`.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                minInstanceTier:
+                    description: Lowest Search Node tier that Atlas can scale down to. Required when `scaleDownEnabled` is `true`. Scaling down is not supported yet, so setting this returns an error.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                scaleDownEnabled:
+                    default: false
+                    description: Flag that indicates whether Atlas lowers the Search Node tier when load drops. Takes effect only when `enabled` is `true`. If set to `true`, you must also set `minInstanceTier`. Scaling down is not supported yet, so setting this to `true` returns an error.
+                    type: boolean
+            type: object
         ApiSearchDeploymentEffectiveSpecView:
             properties:
                 cloudProvider:
@@ -2638,6 +2694,8 @@ components:
             type: object
         ApiSearchDeploymentRequestView:
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/ApiSearchAutoScalingView'
                 defaultNodeCount:
                     description: Default number of Search Nodes per region. Applied to a region without an explicit override.
                     example: 2
@@ -3982,7 +4040,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -6229,6 +6286,7 @@ components:
                     - M80_GEN_2
                     - M140_GEN_2
                     - M200_GEN_2
+                    - M300_GEN_2
                     - R40_GEN_2
                     - R50_GEN_2
                     - R60_GEN_2
@@ -7526,6 +7584,7 @@ components:
                             - M80_GEN_2
                             - M140_GEN_2
                             - M200_GEN_2
+                            - M300_GEN_2
                             - R40_GEN_2
                             - R50_GEN_2
                             - R60_GEN_2
@@ -8874,7 +8933,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -12542,6 +12600,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -12599,6 +12658,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -12924,14 +12984,17 @@ components:
                             - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                             - DISK_AUTO_SCALE_INITIATED
                             - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                             - DISK_AUTO_SCALE_OPLOG_FAIL
+                            - CLUSTER_AUTO_SHARDING_INITIATED
+                            - CLUSTER_RESHARDING_COMPLETED
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                            - CLUSTER_AUTO_SHARDING_INITIATED
-                            - CLUSTER_RESHARDING_COMPLETED
+                            - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
                           title: Auto Scaling Audit Types
                           type: string
                         - enum:
@@ -13193,16 +13256,19 @@ components:
                             - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                             - DISK_AUTO_SCALE_INITIATED
                             - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                             - DISK_AUTO_SCALE_OPLOG_FAIL
+                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_BASE
+                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_ANALYTICS
+                            - CLUSTER_AUTO_SHARDING_INITIATED
+                            - CLUSTER_RESHARDING_COMPLETED
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                            - CLUSTER_AUTO_SHARDING_INITIATED
-                            - CLUSTER_RESHARDING_COMPLETED
-                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_BASE
-                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_ANALYTICS
+                            - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
                           title: Auto Scaling Audit Types
                           type: string
                         - enum:
@@ -13806,6 +13872,11 @@ components:
                             - ROLE_MAPPING_CREATED
                             - ROLE_MAPPING_UPDATED
                             - ROLE_MAPPING_DELETED
+                            - SCIM_CLIENT_CREATED
+                            - SCIM_CLIENT_UPDATED
+                            - SCIM_CLIENT_DELETED
+                            - SCIM_CLIENT_SECRET_CREATED
+                            - SCIM_CLIENT_SECRET_DELETED
                           title: Federation Settings Event Types
                           type: string
                         - enum:
@@ -16680,6 +16751,8 @@ components:
                     - PLAN_ABANDONED
                     - PLAN_DECLINED
                     - PLAN_FAILURE_COUNT_RESET
+                    - CAPACITY_RETRY_OVERRIDE_SET
+                    - CAPACITY_RETRY_OVERRIDE_REMOVED
                     - PLAN_ASAP_REQUESTED
                     - INDEPENDENT_SHARD_AUTO_SCALING_AVAILABLE
                     - INDEPENDENT_SHARD_SCALING_CLUSTER_MIGRATED
@@ -16799,6 +16872,7 @@ components:
                     - CLUSTER_FORCE_RECONFIG_REQUESTED
                     - AGENT_FORCE_RESTART_REQUESTED
                     - CLUSTER_RESET_FORCE_RECONFIG_REQUESTED
+                    - CLUSTER_FORCE_PAUSE_REQUESTED
                     - PROJECT_BYPASSED_MAINTENANCE
                     - FEATURE_FLAG_MAINTENANCE
                     - DATA_FEDERATION_QUERY_LIMIT_CONFIGURED
@@ -16911,6 +16985,11 @@ components:
                     - VOLUME_IMPAIRED_RESOLVED
                     - SQL_INTERFACE_ENABLED
                     - SQL_INTERFACE_DISABLED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_END_REQUESTED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_ENDED
                   title: Atlas Audit Types
                   type: string
                 - enum:
@@ -16943,13 +17022,16 @@ components:
                     - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                     - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                     - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                    - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                    - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                     - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                     - DISK_AUTO_SCALE_OPLOG_FAIL
+                    - CLUSTER_AUTO_SHARDING_INITIATED
+                    - CLUSTER_RESHARDING_COMPLETED
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                    - CLUSTER_AUTO_SHARDING_INITIATED
-                    - CLUSTER_RESHARDING_COMPLETED
+                    - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
                   title: Auto Scaling Audit Types
                   type: string
                 - enum:
@@ -17336,6 +17418,11 @@ components:
                     - ROLE_MAPPING_CREATED
                     - ROLE_MAPPING_UPDATED
                     - ROLE_MAPPING_DELETED
+                    - SCIM_CLIENT_CREATED
+                    - SCIM_CLIENT_UPDATED
+                    - SCIM_CLIENT_DELETED
+                    - SCIM_CLIENT_SECRET_CREATED
+                    - SCIM_CLIENT_SECRET_DELETED
                   title: Federation Settings Event Types
                   type: string
                 - enum:
@@ -20042,6 +20129,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -20081,6 +20169,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -20204,6 +20293,20 @@ components:
             type: object
         GCPHardwareSpec20240805:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware. Only configurable for Gen 2 instance sizes.
+
+                         Change this parameter if you:
+
+                        - set `"replicationSpecs[n].regionConfigs[m].providerName" : "GCP"`.
+                        - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize"` to a Gen 2 instance size (`"M30_GEN_2"` or greater).
+
+                        The maximum input/output operations per second (IOPS) depend on the selected `.instanceSize` and `.diskSizeGB`.
+                        This parameter defaults to the standard IOPS value for the selected `.diskSizeGB`.
+                        Changing this value impacts cluster cost.
+                    format: int32
+                    type: integer
                 diskSizeGB:
                     description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set `replicationSpecs`.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
                     externalDocs:
@@ -20211,6 +20314,11 @@ components:
                         url: https://dochub.mongodb.org/core/customize-storage
                     format: double
                     type: number
+                diskThroughput:
+                    description: Throughput (in MiB/s) provisioned for storage attached to this hardware. Only returned for Gen 2 instance sizes.
+                    format: int32
+                    readOnly: true
+                    type: integer
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as "base nodes") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.
                     enum:
@@ -20241,6 +20349,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -20892,6 +21001,13 @@ components:
                     maximum: 7
                     minimum: 1
                     type: integer
+                effectiveWaveAssignment:
+                    description: 'Maintenance wave that Atlas uses when scheduling maintenance for this project. This read-only value can differ from `waveAssignment` in two scenarios: (1) when the organization''s `effectiveWaveAssignmentMode` is `ENV_TAG_MAPPING`, the effective wave is derived from environment tags regardless of any explicit assignment; (2) when cross-organization maintenance sequencing is active and this project''s organization is a linked non-paying organization, the effective wave reflects the paying organization''s mode.'
+                    format: int32
+                    maximum: 3
+                    minimum: 1
+                    readOnly: true
+                    type: integer
                 hourOfDay:
                     description: Zero-based integer that represents the hour of the day, in the project's configured time zone (see `timeZoneId`), that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon. If you haven't changed your project's time zone, this defaults to UTC.
                     format: int32
@@ -20912,8 +21028,13 @@ components:
                     description: Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.
                     readOnly: true
                     type: string
-            required:
-                - dayOfWeek
+                waveAssignment:
+                    description: Maintenance wave explicitly assigned to this project. Always returned in GET responses when a value has been set, regardless of the organization's `effectiveWaveAssignmentMode`. When the mode is `ENV_TAG_MAPPING`, this stored assignment is preserved but not used for scheduling — the effective wave is derived from environment tags instead. Not editable when the mode is `ENV_TAG_MAPPING`. Switching back to `MANUAL` restores this value as the effective wave. Must be between 1 and 3, inclusive. Pass `null` to clear an explicit assignment.
+                    format: int32
+                    maximum: 3
+                    minimum: 1
+                    nullable: true
+                    type: integer
             type: object
         GroupMigrationRequest:
             properties:
@@ -21102,17 +21223,22 @@ components:
                     minItems: 1
                     type: array
                 secretExpiresAfterHours:
-                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.
+                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings. Required unless `withoutInitialSecret` is true.
                     example: 8
                     exclusiveMinimum: true
                     format: int32
                     minimum: 0
+                    nullable: true
                     type: integer
+                withoutInitialSecret:
+                    default: false
+                    description: 'If true, creates the Service Account without generating an initial secret. `secretExpiresAfterHours` must not be set when this is true. Defaults to false, which preserves existing behavior: a secret is generated and returned in the response. Use the `CreateGroupServiceAccountSecret` endpoint to add a secret later.'
+                    nullable: true
+                    type: boolean
             required:
                 - description
                 - name
                 - roles
-                - secretExpiresAfterHours
             type: object
         GroupServiceAccountRoleAssignment:
             properties:
@@ -21187,6 +21313,9 @@ components:
                     type: boolean
                 isPerformanceAdvisorEnabled:
                     description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
+                    type: boolean
+                isQueryInsightsGenAiFeaturesEnabled:
+                    description: Flag that indicates whether to enable AI features in Query Insights for the specified project.
                     type: boolean
                 isRealtimePerformancePanelEnabled:
                     description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
@@ -23549,7 +23678,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -23870,7 +23998,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -26155,6 +26282,8 @@ components:
                 - PLAN_ABANDONED
                 - PLAN_DECLINED
                 - PLAN_FAILURE_COUNT_RESET
+                - CAPACITY_RETRY_OVERRIDE_SET
+                - CAPACITY_RETRY_OVERRIDE_REMOVED
                 - PLAN_ASAP_REQUESTED
                 - INDEPENDENT_SHARD_AUTO_SCALING_AVAILABLE
                 - INDEPENDENT_SHARD_SCALING_CLUSTER_MIGRATED
@@ -26274,6 +26403,7 @@ components:
                 - CLUSTER_FORCE_RECONFIG_REQUESTED
                 - AGENT_FORCE_RESTART_REQUESTED
                 - CLUSTER_RESET_FORCE_RECONFIG_REQUESTED
+                - CLUSTER_FORCE_PAUSE_REQUESTED
                 - PROJECT_BYPASSED_MAINTENANCE
                 - FEATURE_FLAG_MAINTENANCE
                 - DATA_FEDERATION_QUERY_LIMIT_CONFIGURED
@@ -26386,6 +26516,11 @@ components:
                 - VOLUME_IMPAIRED_RESOLVED
                 - SQL_INTERFACE_ENABLED
                 - SQL_INTERFACE_DISABLED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_END_REQUESTED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_ENDED
             example: CLUSTER_CREATED
             title: Atlas Audit Types
             type: string
@@ -26604,14 +26739,17 @@ components:
                 - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                 - DISK_AUTO_SCALE_INITIATED
                 - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                 - DISK_AUTO_SCALE_OPLOG_FAIL
+                - CLUSTER_AUTO_SHARDING_INITIATED
+                - CLUSTER_RESHARDING_COMPLETED
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                - CLUSTER_AUTO_SHARDING_INITIATED
-                - CLUSTER_RESHARDING_COMPLETED
+                - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
             example: COMPUTE_AUTO_SCALE_INITIATED_BASE
             externalDocs:
                 description: Atlas Alert Event Types
@@ -26633,13 +26771,16 @@ components:
                 - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                 - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                 - DISK_AUTO_SCALE_OPLOG_FAIL
+                - CLUSTER_AUTO_SHARDING_INITIATED
+                - CLUSTER_RESHARDING_COMPLETED
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                - CLUSTER_AUTO_SHARDING_INITIATED
-                - CLUSTER_RESHARDING_COMPLETED
+                - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
             example: COMPUTE_AUTO_SCALE_INITIATED
             title: Auto Scaling Audit Types
             type: string
@@ -28933,17 +29074,22 @@ components:
                     minItems: 1
                     type: array
                 secretExpiresAfterHours:
-                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.
+                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings. Required unless `withoutInitialSecret` is true.
                     example: 8
                     exclusiveMinimum: true
                     format: int32
                     minimum: 0
+                    nullable: true
                     type: integer
+                withoutInitialSecret:
+                    default: false
+                    description: 'If true, creates the Service Account without generating an initial secret. `secretExpiresAfterHours` must not be set when this is true. Defaults to false, which preserves existing behavior: a secret is generated and returned in the response. Use the `CreateOrgServiceAccountSecret` endpoint to add a secret later.'
+                    nullable: true
+                    type: boolean
             required:
                 - description
                 - name
                 - roles
-                - secretExpiresAfterHours
             type: object
         OrgServiceAccountUpdateRequest:
             properties:
@@ -39896,7 +40042,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3e319360caa8886a6ca0951f395ee5faa121e923
+    x-xgen-sha: acb636345789300b20ffc391e2f173317af3a86f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -68257,9 +68403,9 @@ paths:
                             - TRANSACTIONS_CURRENT_ACTIVE
                             - TRANSACTIONS_CURRENT_INACTIVE
                             - TRANSACTIONS_CURRENT_OPEN
-                            - TRANSACTIONS_TOTAL_ABORTED
-                            - TRANSACTIONS_TOTAL_COMMITTED
-                            - TRANSACTIONS_TOTAL_STARTED
+                            - TRANSACTIONS_ABORTED
+                            - TRANSACTIONS_COMMITTED
+                            - TRANSACTIONS_STARTED
                             - CACHE_PRESSURE_PERCENTAGE
                             - INGRESS_QUEUE_WAIT_TIME
                         type: string
@@ -70362,7 +70508,7 @@ paths:
             x-xgen-operation-id-override: createAccessList
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
-            description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list.
+            description: Removes the specified access list entry from the specified Service Account for the project. A Service Account cannot remove its own IP address from its access list.
             operationId: deleteGroupServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -79917,7 +80063,7 @@ paths:
             x-xgen-operation-id-override: createOrgAccessList
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
-            description: Removes the specified access list entry from the specified Service Account for the organization. You can't remove the requesting IP address from the access list.
+            description: Removes the specified access list entry from the specified Service Account for the organization. A Service Account cannot remove its own IP address from its access list.
             operationId: deleteOrgServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'

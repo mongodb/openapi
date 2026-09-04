@@ -1223,11 +1223,11 @@ components:
                 - $ref: '#/components/schemas/CloudRegionConfig'
                 - properties:
                     analyticsAutoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     analyticsSpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                     autoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     readOnlySpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                   type: object
@@ -1499,7 +1499,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -2492,7 +2491,7 @@ components:
                 collections:
                     description: List of collections to restore (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreCollectionNamespaceView'
                     maxItems: 100
                     type: array
                 databaseSuffix:
@@ -2502,7 +2501,7 @@ components:
                 databases:
                     description: List of databases to restore (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreDatabaseNamespaceView'
                     maxItems: 100
                     type: array
                 indexStrategy:
@@ -2561,7 +2560,7 @@ components:
                 collections:
                     description: List of collections in the restore scope (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreCollectionNamespaceView'
                     maxItems: 100
                     type: array
                 createdAt:
@@ -2575,7 +2574,7 @@ components:
                 databases:
                     description: List of databases in the restore scope (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreDatabaseNamespaceView'
                     maxItems: 100
                     type: array
                 errorMessage:
@@ -2626,7 +2625,7 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 state:
-                    description: Current state of the collection restore job.
+                    description: Current state of the collection restore job. A `SUCCESSFUL` job can include individual `UNSUPPORTED` collection restores. Use the restore job collections endpoint to get per-collection detailed states.
                     enum:
                         - INITIALIZING
                         - IN_PROGRESS
@@ -3021,14 +3020,26 @@ components:
                     readOnly: true
                     type: string
             type: object
-        ApiAtlasRestoreNamespaceView:
-            description: Source and optional target namespace for a restore.
+        ApiAtlasRestoreCollectionNamespaceView:
+            description: Source and optional target collection for a restore.
             properties:
                 sourceNamespace:
-                    description: Namespace requested to restore (e.g. database name or `database.collection`).
+                    description: Collection requested to restore, as `database.collection`.
                     type: string
                 targetNamespace:
-                    description: Requested target namespace for the restored data; if empty, source namespace is used.
+                    description: Requested target collection as `database.collection`; if empty, source namespace is used.
+                    type: string
+            required:
+                - sourceNamespace
+            type: object
+        ApiAtlasRestoreDatabaseNamespaceView:
+            description: Source and optional target database for a restore.
+            properties:
+                sourceNamespace:
+                    description: Database name requested to restore.
+                    type: string
+                targetNamespace:
+                    description: Requested target database name; if empty, source database name is used.
                     type: string
             required:
                 - sourceNamespace
@@ -3493,6 +3504,62 @@ components:
                         - DESCENDING
                     type: string
             type: object
+        ApiSearchAutoScalingView:
+            description: Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.
+            properties:
+                compute:
+                    $ref: '#/components/schemas/ApiSearchComputeAutoScalingView'
+            type: object
+        ApiSearchComputeAutoScalingView:
+            description: Settings that control Search Node tier scaling based on load.
+            properties:
+                enabled:
+                    default: false
+                    description: Flag that indicates whether Atlas raises the Search Node tier when the nodes are under sustained load. If set to `true`, you must also set `maxInstanceTier`.
+                    type: boolean
+                maxInstanceTier:
+                    description: Highest Search Node tier that Atlas can scale up to. Required when `enabled` is `true`.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                minInstanceTier:
+                    description: Lowest Search Node tier that Atlas can scale down to. Required when `scaleDownEnabled` is `true`. Scaling down is not supported yet, so setting this returns an error.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                scaleDownEnabled:
+                    default: false
+                    description: Flag that indicates whether Atlas lowers the Search Node tier when load drops. Takes effect only when `enabled` is `true`. If set to `true`, you must also set `minInstanceTier`. Scaling down is not supported yet, so setting this to `true` returns an error.
+                    type: boolean
+            type: object
         ApiSearchDeploymentEffectiveSpecView:
             properties:
                 cloudProvider:
@@ -3606,6 +3673,8 @@ components:
             type: object
         ApiSearchDeploymentRequestView:
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/ApiSearchAutoScalingView'
                 defaultNodeCount:
                     description: Default number of Search Nodes per region. Applied to a region without an explicit override.
                     example: 2
@@ -5118,7 +5187,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -5398,6 +5466,15 @@ components:
                         - yearly
                     type: string
             title: export
+            type: object
+        AutoScalingSettings:
+            description: Options that determine how this cluster handles resource scaling.
+            properties:
+                compute:
+                    $ref: '#/components/schemas/AdvancedComputeAutoScaling'
+                diskGB:
+                    $ref: '#/components/schemas/DiskGBAutoScaling'
+            title: Automatic Scaling Settings
             type: object
         AutomationConfigEventTypeView:
             description: Unique identifier of event type.
@@ -6623,11 +6700,11 @@ components:
                 - $ref: '#/components/schemas/CloudRegionConfig'
                 - properties:
                     analyticsAutoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     analyticsSpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                     autoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     readOnlySpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                   type: object
@@ -7505,6 +7582,7 @@ components:
                     - M80_GEN_2
                     - M140_GEN_2
                     - M200_GEN_2
+                    - M300_GEN_2
                     - R40_GEN_2
                     - R50_GEN_2
                     - R60_GEN_2
@@ -8802,6 +8880,7 @@ components:
                             - M80_GEN_2
                             - M140_GEN_2
                             - M200_GEN_2
+                            - M300_GEN_2
                             - R40_GEN_2
                             - R50_GEN_2
                             - R60_GEN_2
@@ -10347,7 +10426,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -12177,6 +12255,7 @@ components:
                         $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
                     maxItems: 200
                     type: array
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Human-readable name that identifies this MCP configuration.
                     maxLength: 64
@@ -12204,6 +12283,7 @@ components:
                         $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
                     maxItems: 200
                     type: array
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Human-readable name that identifies this MCP configuration.
                     maxLength: 64
@@ -14314,6 +14394,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -14442,6 +14523,7 @@ components:
                         - US3
                         - US5
                         - AP1
+                        - AP2
                         - US1_FED
                     externalDocs:
                         description: Datadog regions
@@ -14779,14 +14861,17 @@ components:
                             - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                             - DISK_AUTO_SCALE_INITIATED
                             - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                             - DISK_AUTO_SCALE_OPLOG_FAIL
+                            - CLUSTER_AUTO_SHARDING_INITIATED
+                            - CLUSTER_RESHARDING_COMPLETED
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                            - CLUSTER_AUTO_SHARDING_INITIATED
-                            - CLUSTER_RESHARDING_COMPLETED
+                            - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
                           title: Auto Scaling Audit Types
                           type: string
                         - enum:
@@ -15048,16 +15133,19 @@ components:
                             - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                             - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                            - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                             - DISK_AUTO_SCALE_INITIATED
                             - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                             - DISK_AUTO_SCALE_OPLOG_FAIL
+                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_BASE
+                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_ANALYTICS
+                            - CLUSTER_AUTO_SHARDING_INITIATED
+                            - CLUSTER_RESHARDING_COMPLETED
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                             - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                            - CLUSTER_AUTO_SHARDING_INITIATED
-                            - CLUSTER_RESHARDING_COMPLETED
-                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_BASE
-                            - COMPUTE_AUTO_SCALE_DOWNSCALE_SKIPPED_FALLBACK_ANALYTICS
+                            - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
                           title: Auto Scaling Audit Types
                           type: string
                         - enum:
@@ -15661,6 +15749,11 @@ components:
                             - ROLE_MAPPING_CREATED
                             - ROLE_MAPPING_UPDATED
                             - ROLE_MAPPING_DELETED
+                            - SCIM_CLIENT_CREATED
+                            - SCIM_CLIENT_UPDATED
+                            - SCIM_CLIENT_DELETED
+                            - SCIM_CLIENT_SECRET_CREATED
+                            - SCIM_CLIENT_SECRET_DELETED
                           title: Federation Settings Event Types
                           type: string
                         - enum:
@@ -18835,6 +18928,8 @@ components:
                     - PLAN_ABANDONED
                     - PLAN_DECLINED
                     - PLAN_FAILURE_COUNT_RESET
+                    - CAPACITY_RETRY_OVERRIDE_SET
+                    - CAPACITY_RETRY_OVERRIDE_REMOVED
                     - PLAN_ASAP_REQUESTED
                     - INDEPENDENT_SHARD_AUTO_SCALING_AVAILABLE
                     - INDEPENDENT_SHARD_SCALING_CLUSTER_MIGRATED
@@ -18954,6 +19049,7 @@ components:
                     - CLUSTER_FORCE_RECONFIG_REQUESTED
                     - AGENT_FORCE_RESTART_REQUESTED
                     - CLUSTER_RESET_FORCE_RECONFIG_REQUESTED
+                    - CLUSTER_FORCE_PAUSE_REQUESTED
                     - PROJECT_BYPASSED_MAINTENANCE
                     - FEATURE_FLAG_MAINTENANCE
                     - DATA_FEDERATION_QUERY_LIMIT_CONFIGURED
@@ -19066,6 +19162,11 @@ components:
                     - VOLUME_IMPAIRED_RESOLVED
                     - SQL_INTERFACE_ENABLED
                     - SQL_INTERFACE_DISABLED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_END_REQUESTED
+                    - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_ENDED
                   title: Atlas Audit Types
                   type: string
                 - enum:
@@ -19098,13 +19199,16 @@ components:
                     - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                     - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                     - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                    - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                    - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                     - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                     - DISK_AUTO_SCALE_OPLOG_FAIL
+                    - CLUSTER_AUTO_SHARDING_INITIATED
+                    - CLUSTER_RESHARDING_COMPLETED
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                     - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                    - CLUSTER_AUTO_SHARDING_INITIATED
-                    - CLUSTER_RESHARDING_COMPLETED
+                    - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
                   title: Auto Scaling Audit Types
                   type: string
                 - enum:
@@ -19491,6 +19595,11 @@ components:
                     - ROLE_MAPPING_CREATED
                     - ROLE_MAPPING_UPDATED
                     - ROLE_MAPPING_DELETED
+                    - SCIM_CLIENT_CREATED
+                    - SCIM_CLIENT_UPDATED
+                    - SCIM_CLIENT_DELETED
+                    - SCIM_CLIENT_SECRET_CREATED
+                    - SCIM_CLIENT_SECRET_DELETED
                   title: Federation Settings Event Types
                   type: string
                 - enum:
@@ -22197,6 +22306,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -22236,6 +22346,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -22359,6 +22470,25 @@ components:
             type: object
         GCPHardwareSpec:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware. Only configurable for Gen 2 instance sizes.
+
+                         Change this parameter if you:
+
+                        - set `replicationSpecs[n].regionConfigs[m].providerName` to `GCP`.
+                        - set `replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize` to a Gen 2 instance size (`M30_GEN_2` or greater).
+
+                        The maximum input/output operations per second (IOPS) depend on the selected `.instanceSize` and `.diskSizeGB`.
+                        This parameter defaults to the standard IOPS value for the selected `.diskSizeGB`.
+                        Changing this value impacts cluster cost.
+                    format: int32
+                    type: integer
+                diskThroughput:
+                    description: Throughput (in MiB/s) provisioned for storage attached to this hardware. Only returned for Gen 2 instance sizes.
+                    format: int32
+                    readOnly: true
+                    type: integer
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region. Each instance size has a default storage and memory capacity. The instance size you select applies to all the data-bearing hosts of the node type.
                     enum:
@@ -22389,6 +22519,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -22405,6 +22536,20 @@ components:
             type: object
         GCPHardwareSpec20240805:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware. Only configurable for Gen 2 instance sizes.
+
+                         Change this parameter if you:
+
+                        - set `"replicationSpecs[n].regionConfigs[m].providerName" : "GCP"`.
+                        - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize"` to a Gen 2 instance size (`"M30_GEN_2"` or greater).
+
+                        The maximum input/output operations per second (IOPS) depend on the selected `.instanceSize` and `.diskSizeGB`.
+                        This parameter defaults to the standard IOPS value for the selected `.diskSizeGB`.
+                        Changing this value impacts cluster cost.
+                    format: int32
+                    type: integer
                 diskSizeGB:
                     description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set `replicationSpecs`.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
                     externalDocs:
@@ -22412,6 +22557,11 @@ components:
                         url: https://dochub.mongodb.org/core/customize-storage
                     format: double
                     type: number
+                diskThroughput:
+                    description: Throughput (in MiB/s) provisioned for storage attached to this hardware. Only returned for Gen 2 instance sizes.
+                    format: int32
+                    readOnly: true
+                    type: integer
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as "base nodes") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.
                     enum:
@@ -22442,6 +22592,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -22511,11 +22662,11 @@ components:
                 - $ref: '#/components/schemas/CloudRegionConfig'
                 - properties:
                     analyticsAutoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     analyticsSpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                     autoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     readOnlySpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                   type: object
@@ -23256,6 +23407,13 @@ components:
                     maximum: 7
                     minimum: 1
                     type: integer
+                effectiveWaveAssignment:
+                    description: 'Maintenance wave that Atlas uses when scheduling maintenance for this project. This read-only value can differ from `waveAssignment` in two scenarios: (1) when the organization''s `effectiveWaveAssignmentMode` is `ENV_TAG_MAPPING`, the effective wave is derived from environment tags regardless of any explicit assignment; (2) when cross-organization maintenance sequencing is active and this project''s organization is a linked non-paying organization, the effective wave reflects the paying organization''s mode.'
+                    format: int32
+                    maximum: 3
+                    minimum: 1
+                    readOnly: true
+                    type: integer
                 hourOfDay:
                     description: Zero-based integer that represents the hour of the day, in the project's configured time zone (see `timeZoneId`), that the maintenance window starts according to a 24-hour clock. Use `0` for midnight and `12` for noon. If you haven't changed your project's time zone, this defaults to UTC.
                     format: int32
@@ -23276,8 +23434,13 @@ components:
                     description: Identifier for the current time zone of the maintenance window. This can only be updated via the Project Settings UI.
                     readOnly: true
                     type: string
-            required:
-                - dayOfWeek
+                waveAssignment:
+                    description: Maintenance wave explicitly assigned to this project. Always returned in GET responses when a value has been set, regardless of the organization's `effectiveWaveAssignmentMode`. When the mode is `ENV_TAG_MAPPING`, this stored assignment is preserved but not used for scheduling — the effective wave is derived from environment tags instead. Not editable when the mode is `ENV_TAG_MAPPING`. Switching back to `MANUAL` restores this value as the effective wave. Must be between 1 and 3, inclusive. Pass `null` to clear an explicit assignment.
+                    format: int32
+                    maximum: 3
+                    minimum: 1
+                    nullable: true
+                    type: integer
             type: object
         GroupMaintenanceWindowPreviewResponse:
             properties:
@@ -23333,8 +23496,6 @@ components:
                     minimum: 1
                     nullable: true
                     type: integer
-            required:
-                - dayOfWeek
             type: object
         GroupMaintenanceWindowPreviewUpdateRequest:
             properties:
@@ -23395,6 +23556,7 @@ components:
                         $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
                     maxItems: 200
                     type: array
+                    x-xgen-array-semantic: set
                 mcpConfigId:
                     description: Unique identifier that identifies this MCP configuration.
                     example: b9254bc4-d6cc-4325-abf4-fb9d2a9de00a
@@ -23423,6 +23585,7 @@ components:
                         $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
                     maxItems: 200
                     type: array
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Updated human-readable name for this MCP configuration.
                     maxLength: 64
@@ -23674,17 +23837,22 @@ components:
                     minItems: 1
                     type: array
                 secretExpiresAfterHours:
-                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.
+                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings. Required unless `withoutInitialSecret` is true.
                     example: 8
                     exclusiveMinimum: true
                     format: int32
                     minimum: 0
+                    nullable: true
                     type: integer
+                withoutInitialSecret:
+                    default: false
+                    description: 'If true, creates the Service Account without generating an initial secret. `secretExpiresAfterHours` must not be set when this is true. Defaults to false, which preserves existing behavior: a secret is generated and returned in the response. Use the `CreateGroupServiceAccountSecret` endpoint to add a secret later.'
+                    nullable: true
+                    type: boolean
             required:
                 - description
                 - name
                 - roles
-                - secretExpiresAfterHours
             type: object
         GroupServiceAccountRoleAssignment:
             properties:
@@ -23759,6 +23927,9 @@ components:
                     type: boolean
                 isPerformanceAdvisorEnabled:
                     description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
+                    type: boolean
+                isQueryInsightsGenAiFeaturesEnabled:
+                    description: Flag that indicates whether to enable AI features in Query Insights for the specified project.
                     type: boolean
                 isRealtimePerformancePanelEnabled:
                     description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
@@ -26290,7 +26461,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -26611,7 +26781,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -29220,6 +29389,8 @@ components:
                 - PLAN_ABANDONED
                 - PLAN_DECLINED
                 - PLAN_FAILURE_COUNT_RESET
+                - CAPACITY_RETRY_OVERRIDE_SET
+                - CAPACITY_RETRY_OVERRIDE_REMOVED
                 - PLAN_ASAP_REQUESTED
                 - INDEPENDENT_SHARD_AUTO_SCALING_AVAILABLE
                 - INDEPENDENT_SHARD_SCALING_CLUSTER_MIGRATED
@@ -29339,6 +29510,7 @@ components:
                 - CLUSTER_FORCE_RECONFIG_REQUESTED
                 - AGENT_FORCE_RESTART_REQUESTED
                 - CLUSTER_RESET_FORCE_RECONFIG_REQUESTED
+                - CLUSTER_FORCE_PAUSE_REQUESTED
                 - PROJECT_BYPASSED_MAINTENANCE
                 - FEATURE_FLAG_MAINTENANCE
                 - DATA_FEDERATION_QUERY_LIMIT_CONFIGURED
@@ -29451,6 +29623,11 @@ components:
                 - VOLUME_IMPAIRED_RESOLVED
                 - SQL_INTERFACE_ENABLED
                 - SQL_INTERFACE_DISABLED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_END_REQUESTED
+                - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_ENDED
             example: CLUSTER_CREATED
             title: Atlas Audit Types
             type: string
@@ -29669,14 +29846,17 @@ components:
                 - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                 - DISK_AUTO_SCALE_INITIATED
                 - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                 - DISK_AUTO_SCALE_OPLOG_FAIL
+                - CLUSTER_AUTO_SHARDING_INITIATED
+                - CLUSTER_RESHARDING_COMPLETED
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                - CLUSTER_AUTO_SHARDING_INITIATED
-                - CLUSTER_RESHARDING_COMPLETED
+                - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
             example: COMPUTE_AUTO_SCALE_INITIATED_BASE
             externalDocs:
                 description: Atlas Alert Event Types
@@ -29698,13 +29878,16 @@ components:
                 - COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_ANALYTICS
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
                 - COMPUTE_AUTO_SCALE_OPLOG_FAIL_ANALYTICS
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
+                - COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_ANALYTICS
                 - DISK_AUTO_SCALE_MAX_DISK_SIZE_FAIL
                 - DISK_AUTO_SCALE_OPLOG_FAIL
+                - CLUSTER_AUTO_SHARDING_INITIATED
+                - CLUSTER_RESHARDING_COMPLETED
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_INITIATED_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_MAX_INSTANCE_SIZE_FAIL_BASE
                 - PREDICTIVE_COMPUTE_AUTO_SCALE_OPLOG_FAIL_BASE
-                - CLUSTER_AUTO_SHARDING_INITIATED
-                - CLUSTER_RESHARDING_COMPLETED
+                - PREDICTIVE_COMPUTE_AUTO_SCALE_CAPACITY_CONSTRAINT_FAIL_BASE
             example: COMPUTE_AUTO_SCALE_INITIATED
             title: Auto Scaling Audit Types
             type: string
@@ -32100,6 +32283,7 @@ components:
                         $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
                     maxItems: 200
                     type: array
+                    x-xgen-array-semantic: set
                 mcpConfigId:
                     description: Unique identifier that identifies this MCP configuration.
                     example: b9254bc4-d6cc-4325-abf4-fb9d2a9de00a
@@ -32134,6 +32318,7 @@ components:
                         $ref: '#/components/schemas/ServiceAccountIPAccessListEntry'
                     maxItems: 200
                     type: array
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Updated human-readable name for this MCP configuration.
                     maxLength: 64
@@ -32435,17 +32620,22 @@ components:
                     minItems: 1
                     type: array
                 secretExpiresAfterHours:
-                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings.
+                    description: The expiration time of the new Service Account secret, provided in hours. The minimum and maximum allowed expiration times are subject to change and are controlled by the organization's settings. Required unless `withoutInitialSecret` is true.
                     example: 8
                     exclusiveMinimum: true
                     format: int32
                     minimum: 0
+                    nullable: true
                     type: integer
+                withoutInitialSecret:
+                    default: false
+                    description: 'If true, creates the Service Account without generating an initial secret. `secretExpiresAfterHours` must not be set when this is true. Defaults to false, which preserves existing behavior: a secret is generated and returned in the response. Use the `CreateOrgServiceAccountSecret` endpoint to add a secret later.'
+                    nullable: true
+                    type: boolean
             required:
                 - description
                 - name
                 - roles
-                - secretExpiresAfterHours
             type: object
         OrgServiceAccountUpdateRequest:
             properties:
@@ -35963,11 +36153,15 @@ components:
             description: Response containing the details and status of a query shape. The query shape field may be null if the user lacks PII view access.
             properties:
                 command:
-                    description: The MongoDB command type issued for a query shape.
+                    description: The MongoDB command type issued for a query shape. The INSERT, UPDATE, and DELETE commands appear only for clusters running MongoDB 9.0 or later.
                     enum:
                         - FIND
                         - DISTINCT
                         - AGGREGATE
+                        - COUNT
+                        - INSERT
+                        - UPDATE
+                        - DELETE
                     readOnly: true
                     type: string
                 namespace:
@@ -36046,6 +36240,60 @@ components:
             required:
                 - metricName
             type: object
+        QueryStatsCollectionRateLimitedResponse:
+            allOf:
+                - $ref: '#/components/schemas/QueryStatsCollectionResponse'
+                - properties:
+                    rateLimitPerSecond:
+                        description: Maximum read queries recorded per second.
+                        example: 100
+                        format: int32
+                        readOnly: true
+                        type: integer
+                  type: object
+            description: Entries were collected by rate-limiting read queries.
+            required:
+                - mode
+                - rateLimitPerSecond
+            type: object
+        QueryStatsCollectionResponse:
+            description: How `queryStats` entries were collected on this cluster's processes. Reflects the collection mode of the cluster's processes regardless of any host or process type filters in the request. Omitted when the collection mode cannot be determined. Sample-based collection requires MongoDB 9.0 or later but may not be enabled on every such cluster; this reflects the mode in effect on the cluster.
+            discriminator:
+                mapping:
+                    RATE_LIMITED: '#/components/schemas/QueryStatsCollectionRateLimitedResponse'
+                    SAMPLED: '#/components/schemas/QueryStatsCollectionSampledResponse'
+                propertyName: mode
+            oneOf:
+                - $ref: '#/components/schemas/QueryStatsCollectionSampledResponse'
+                - $ref: '#/components/schemas/QueryStatsCollectionRateLimitedResponse'
+            properties:
+                mode:
+                    description: Method used to collect `queryStats` entries on the cluster's processes.
+                    enum:
+                        - RATE_LIMITED
+                        - SAMPLED
+                    readOnly: true
+                    type: string
+            readOnly: true
+            required:
+                - mode
+            type: object
+        QueryStatsCollectionSampledResponse:
+            allOf:
+                - $ref: '#/components/schemas/QueryStatsCollectionResponse'
+                - properties:
+                    sampleRate:
+                        description: Fraction of operations recorded. Dividing reported counts by this rate yields an unbiased estimate of the true totals.
+                        example: 0.01
+                        format: double
+                        readOnly: true
+                        type: number
+                  type: object
+            description: Entries were collected by sampling each operation.
+            required:
+                - mode
+                - sampleRate
+            type: object
         QueryStatsDetailsResponse:
             description: Metadata and summary statistics for a given query shape.
             properties:
@@ -36055,6 +36303,8 @@ components:
                     $ref: '#/components/schemas/QueryShapeSeenMetadata'
                 queryStats:
                     $ref: '#/components/schemas/QueryStatsSummary'
+                queryStatsCollection:
+                    $ref: '#/components/schemas/QueryStatsCollectionResponse'
             type: object
         QueryStatsSummary:
             description: A summary of execution statistics for a given query shape.
@@ -36068,11 +36318,15 @@ components:
                     format: double
                     type: number
                 command:
-                    description: The MongoDB command issued for this query shape.
+                    description: The MongoDB command issued for this query shape. The insert, update, and delete commands appear only for clusters running MongoDB 9.0 or later.
                     enum:
                         - find
                         - distinct
                         - aggregate
+                        - count
+                        - insert
+                        - update
+                        - delete
                     type: string
                 cpuTime:
                     description: Total CPU time in nanoseconds consumed by queries with the given query shape. Available for MDB 8.2 and higher.
@@ -36095,6 +36349,11 @@ components:
                     description: Total number of times that queries with the given query shape have been executed.
                     format: double
                     type: number
+                keysDeleted:
+                    description: Total number of index keys deleted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
                 keysExamined:
                     description: Total number of in-bounds and out-of-bounds index keys examined by queries with the given query shape.
                     format: double
@@ -36103,9 +36362,39 @@ components:
                     description: Ratio of in-bounds and out-of-bounds index keys examined to indexes containing documents returned by queries with the given query shape.
                     format: double
                     type: number
+                keysInserted:
+                    description: Total number of index keys inserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
                 lastExecMicros:
                     description: Execution runtime in microseconds for the most recent query with the given query shape.
                     format: double
+                    type: number
+                nDeleted:
+                    description: Total number of documents deleted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nInserted:
+                    description: Total number of documents inserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nMatched:
+                    description: Total number of documents matched by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nModified:
+                    description: Total number of documents modified by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nUpserted:
+                    description: Total number of documents upserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
                     type: number
                 namespace:
                     description: Human-readable label that identifies the namespace on the specified host. The resource expresses this parameter value as `<database>.<collection>`.
@@ -36145,6 +36434,8 @@ components:
             type: object
         QueryStatsSummaryListResponse:
             properties:
+                queryStatsCollection:
+                    $ref: '#/components/schemas/QueryStatsCollectionResponse'
                 summaries:
                     description: List of query shape statistic summaries from Query Shape Insights.
                     items:
@@ -45144,7 +45435,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3e319360caa8886a6ca0951f395ee5faa121e923
+    x-xgen-sha: acb636345789300b20ffc391e2f173317af3a86f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -50130,13 +50421,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.preview+json:
+                        application/vnd.atlas.2025-03-12+json:
                             schema:
                                 $ref: '#/components/schemas/AdaptiveSettingsResponse'
-                            x-xgen-preview:
-                                name: adaptive-settings
-                                public: "false"
-                            x-xgen-version: preview
+                            x-xgen-version: "2025-03-12"
                     description: OK.
                     headers:
                         RateLimit-Limit:
@@ -50175,25 +50463,18 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.preview+json:
+                    application/vnd.atlas.2025-03-12+json:
                         schema:
                             $ref: '#/components/schemas/AdaptiveSettingsUpdateRequest'
-                        x-xgen-preview:
-                            name: adaptive-settings
-                            public: "false"
-                        x-xgen-version: preview
                 description: Adaptive Settings overrides to apply to the specified cluster. Omitting `adaptiveSettingsOverrides` is a no-op.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.preview+json:
+                        application/vnd.atlas.2025-03-12+json:
                             schema:
                                 $ref: '#/components/schemas/AdaptiveSettingsResponse'
-                            x-xgen-preview:
-                                name: adaptive-settings
-                                public: "false"
-                            x-xgen-version: preview
+                            x-xgen-version: "2025-03-12"
                     description: OK.
                     headers:
                         RateLimit-Limit:
@@ -54269,7 +54550,7 @@ paths:
                     maxItems: 10
                     type: array
                   style: form
-                - description: Retrieve query shape statistics matching specified MongoDB commands. To include multiple commands, pass the parameter multiple times delimited with an ampersand (`&`) between each command. The currently supported parameters are find, distinct, and aggregate. Omit this parameter to return results for all supported commands.
+                - description: 'Retrieve query shape statistics matching specified MongoDB commands. To include multiple commands, pass the parameter multiple times delimited with an ampersand (`&`) between each command. The currently supported parameters are: find, distinct, aggregate, count, insert, update, and delete. The insert, update, and delete commands return results only for clusters running MongoDB 9.0 or later with write query shape statistics enabled for the project. Omit this parameter to return results for all supported commands.'
                   in: query
                   name: commands
                   schema:
@@ -54279,8 +54560,12 @@ paths:
                             - find
                             - distinct
                             - aggregate
+                            - count
+                            - insert
+                            - update
+                            - delete
                         type: string
-                    maxItems: 3
+                    maxItems: 7
                     type: array
                     uniqueItems: true
                   style: form
@@ -54297,7 +54582,7 @@ paths:
                   in: query
                   name: series
                   schema:
-                    description: Query shape statistics data series to retrieve. A series represents a specific metric about query execution. To include multiple series, pass the parameter multiple times delimited with an ampersand (`&`) between each series. Omit this parameter to return results for all available series. The `P50_EXECUTION_TIME`, `P90_EXECUTION_TIME`, and `P99_EXECUTION_TIME` series are deprecated as the values they report may be inaccurate. They will be removed in a future release.
+                    description: Query shape statistics data series to retrieve. A series represents a specific metric about query execution. To include multiple series, pass the parameter multiple times delimited with an ampersand (`&`) between each series. Omit this parameter to return results for all available series. The `P50_EXECUTION_TIME`, `P90_EXECUTION_TIME`, and `P99_EXECUTION_TIME` series are deprecated as the values they report may be inaccurate. They will be removed in a future release. The write command series (`DOCS_MATCHED`, `DOCS_MODIFIED`, `DOCS_UPSERTED`, `DOCS_DELETED`, `DOCS_INSERTED`, `KEYS_INSERTED`, `KEYS_DELETED`) return data only for clusters running MongoDB 9.0 or later with write query shape statistics enabled for the project.
                     items:
                         enum:
                             - TOTAL_EXECUTION_TIME
@@ -54315,8 +54600,15 @@ paths:
                             - P50_EXECUTION_TIME
                             - P90_EXECUTION_TIME
                             - P99_EXECUTION_TIME
+                            - DOCS_MATCHED
+                            - DOCS_MODIFIED
+                            - DOCS_UPSERTED
+                            - DOCS_DELETED
+                            - DOCS_INSERTED
+                            - KEYS_INSERTED
+                            - KEYS_DELETED
                         type: string
-                    maxItems: 15
+                    maxItems: 22
                     type: array
                     uniqueItems: true
                   style: form
@@ -64343,9 +64635,9 @@ paths:
                             - TRANSACTIONS_CURRENT_ACTIVE
                             - TRANSACTIONS_CURRENT_INACTIVE
                             - TRANSACTIONS_CURRENT_OPEN
-                            - TRANSACTIONS_TOTAL_ABORTED
-                            - TRANSACTIONS_TOTAL_COMMITTED
-                            - TRANSACTIONS_TOTAL_STARTED
+                            - TRANSACTIONS_ABORTED
+                            - TRANSACTIONS_COMMITTED
+                            - TRANSACTIONS_STARTED
                             - CACHE_PRESSURE_PERCENTAGE
                             - INGRESS_QUEUE_WAIT_TIME
                         type: string
@@ -65530,7 +65822,7 @@ paths:
             x-xgen-operation-id-override: createAccessList
     /api/atlas/v2/groups/{groupId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
-            description: Removes the specified access list entry from the specified Service Account for the project. You can't remove the requesting IP address from the access list.
+            description: Removes the specified access list entry from the specified Service Account for the project. A Service Account cannot remove its own IP address from its access list.
             operationId: deleteGroupServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -65864,7 +66156,7 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/listGroupStandbyLinks
         post:
-            description: Creates a disaster recovery standby link between an active cluster and a standby cluster. Both clusters must not already be part of a standby link system, must be single-region clusters, and must be in different regions.
+            description: Creates a disaster recovery standby link between an active cluster and a standby cluster. Both clusters must not already be part of a standby link system and must be single-region clusters.
             operationId: createGroupStandbyLink
             parameters:
                 - description: Unique 24-hexadecimal digit string that identifies the project containing the clusters.
@@ -71861,9 +72153,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
+                            x-sunset: "2026-10-12"
                             x-xgen-preview:
                                 name: organization-maintenance
                             x-xgen-version: preview
@@ -71900,9 +72197,14 @@ paths:
                 - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
+                    application/vnd.atlas.2025-03-12+json:
+                        schema:
+                            $ref: '#/components/schemas/OrganizationMaintenanceSettingsUpdateRequest'
+                        x-xgen-version: "2025-03-12"
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/OrganizationMaintenanceSettingsUpdateRequest'
+                        x-sunset: "2026-10-12"
                         x-xgen-preview:
                             name: organization-maintenance
                         x-xgen-version: preview
@@ -71911,9 +72213,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
+                            x-sunset: "2026-10-12"
                             x-xgen-preview:
                                 name: organization-maintenance
                             x-xgen-version: preview
@@ -71952,9 +72259,14 @@ paths:
             responses:
                 "200":
                     content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
+                            x-xgen-version: "2025-03-12"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/OrganizationMaintenanceSettingsResponse'
+                            x-sunset: "2026-10-12"
                             x-xgen-preview:
                                 name: organization-maintenance
                             x-xgen-version: preview
@@ -73321,7 +73633,7 @@ paths:
             x-xgen-operation-id-override: createOrgAccessList
     /api/atlas/v2/orgs/{orgId}/serviceAccounts/{clientId}/accessList/{ipAddress}:
         delete:
-            description: Removes the specified access list entry from the specified Service Account for the organization. You can't remove the requesting IP address from the access list.
+            description: Removes the specified access list entry from the specified Service Account for the organization. A Service Account cannot remove its own IP address from its access list.
             operationId: deleteOrgServiceAccountAccessListEntry
             parameters:
                 - $ref: '#/components/parameters/envelope'
@@ -74762,14 +75074,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/PaginatedRateLimitEndpointSets'
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedRateLimitEndpointSets'
-                            x-sunset: "2026-04-21"
-                            x-xgen-preview:
-                                name: rate-limit
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -74838,14 +75142,6 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/RateLimitEndpointSetResponse'
                             x-xgen-version: "2025-03-12"
-                        application/vnd.atlas.preview+json:
-                            schema:
-                                $ref: '#/components/schemas/RateLimitEndpointSetResponse'
-                            x-sunset: "2026-04-21"
-                            x-xgen-preview:
-                                name: rate-limit
-                                public: "false"
-                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -74996,10 +75292,12 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2025-03-12+json:
+                        application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/EphemeralClusterStatusResponse'
-                            x-xgen-version: "2025-03-12"
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -75018,8 +75316,6 @@ paths:
             summary: Return One Ephemeral Atlas Cluster
             tags:
                 - Ephemeral Clusters
-            x-xgen-atlascli:
-                skip: true
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/getEphemeralCluster
     /api/atlas/v2/unauth/ephemeralClusters:create:
         post:
@@ -75034,18 +75330,23 @@ paths:
             operationId: createEphemeralCluster
             requestBody:
                 content:
-                    application/vnd.atlas.2025-03-12+json:
+                    application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/CreateEphemeralClusterRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
                 description: Ephemeral cluster to create.
                 required: true
             responses:
                 "201":
                     content:
-                        application/vnd.atlas.2025-03-12+json:
+                        application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/EphemeralClusterCreated'
-                            x-xgen-version: "2025-03-12"
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
                     description: Created
                     headers:
                         RateLimit-Limit:
@@ -75062,8 +75363,6 @@ paths:
             summary: Create One Ephemeral Atlas Cluster
             tags:
                 - Ephemeral Clusters
-            x-xgen-atlascli:
-                skip: true
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Ephemeral-Clusters/operation/createEphemeralCluster
     /api/atlas/v2/users:
         post:

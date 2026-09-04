@@ -734,6 +734,7 @@ components:
                     - M80_GEN_2
                     - M140_GEN_2
                     - M200_GEN_2
+                    - M300_GEN_2
                     - R40_GEN_2
                     - R50_GEN_2
                     - R60_GEN_2
@@ -1103,7 +1104,6 @@ components:
                     enum:
                         - FULLY_WARMED
                         - VISIBLE_EARLIER
-                        - ENHANCED_FULLY_WARMED
                     externalDocs:
                         description: Reduce Secondary Disk Warming Impact
                         url: https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact
@@ -1440,6 +1440,20 @@ components:
             type: object
         GCPHardwareSpec20240805:
             properties:
+                diskIOPS:
+                    description: |-
+                        Target IOPS (Input/Output Operations Per Second) desired for storage attached to this hardware. Only configurable for Gen 2 instance sizes.
+
+                         Change this parameter if you:
+
+                        - set `"replicationSpecs[n].regionConfigs[m].providerName" : "GCP"`.
+                        - set `"replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize"` to a Gen 2 instance size (`"M30_GEN_2"` or greater).
+
+                        The maximum input/output operations per second (IOPS) depend on the selected `.instanceSize` and `.diskSizeGB`.
+                        This parameter defaults to the standard IOPS value for the selected `.diskSizeGB`.
+                        Changing this value impacts cluster cost.
+                    format: int32
+                    type: integer
                 diskSizeGB:
                     description: "Storage capacity of instance data volumes expressed in gigabytes. Increase this number to add capacity.\n\n This value must be equal for all shards and node types.\n\n This value is not configurable on M0/M2/M5 clusters.\n\n MongoDB Cloud requires this parameter if you set `replicationSpecs`.\n\n If you specify a disk size below the minimum (10 GB), this parameter defaults to the minimum disk size value. \n\n Storage charge calculations depend on whether you choose the default value or a custom value.\n\n The maximum value for disk storage cannot exceed 50 times the maximum RAM for the selected cluster. If you require more storage space, consider upgrading your cluster to a higher tier."
                     externalDocs:
@@ -1447,6 +1461,11 @@ components:
                         url: https://dochub.mongodb.org/core/customize-storage
                     format: double
                     type: number
+                diskThroughput:
+                    description: Throughput (in MiB/s) provisioned for storage attached to this hardware. Only returned for Gen 2 instance sizes.
+                    format: int32
+                    readOnly: true
+                    type: integer
                 instanceSize:
                     description: Hardware specification for the instance sizes in this region in this shard. Each instance size has a default storage and memory capacity. Electable nodes and read-only nodes (known as "base nodes") within a single shard must use the same instance size. Analytics nodes can scale independently from base nodes within a shard. Both base nodes and analytics nodes can scale independently from their equivalents in other shards.
                     enum:
@@ -1477,6 +1496,7 @@ components:
                         - M80_GEN_2
                         - M140_GEN_2
                         - M200_GEN_2
+                        - M300_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -1756,7 +1776,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3e319360caa8886a6ca0951f395ee5faa121e923
+    x-xgen-sha: acb636345789300b20ffc391e2f173317af3a86f
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/sandbox/{sandboxConfigId}:generateClusterDescription:
