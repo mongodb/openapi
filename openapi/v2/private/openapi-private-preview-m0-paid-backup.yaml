@@ -349,6 +349,24 @@ components:
                     type: array
             readOnly: true
             type: object
+        ClusterBackupSubscriptionResponse:
+            description: Paid-backup subscription state for a free (M0) cluster.
+            properties:
+                enabled:
+                    description: Flag that indicates whether paid backups are enabled for the free (M0) cluster.
+                    type: boolean
+            required:
+                - enabled
+            title: Cluster Backup Subscription Response
+            type: object
+        ClusterBackupSubscriptionUpdateRequest:
+            description: Paid-backup subscription state to apply to a free (M0) cluster. Omit enabled to leave the subscription unchanged.
+            properties:
+                enabled:
+                    description: Flag that indicates whether paid backups are enabled for the free (M0) cluster. Omit this field to leave the subscription unchanged.
+                    type: boolean
+            title: Cluster Backup Subscription Update Request
+            type: object
         FieldViolation:
             properties:
                 description:
@@ -360,45 +378,6 @@ components:
             required:
                 - description
                 - field
-            type: object
-        Info:
-            description: Information about the MongoDB Atlas Administration API OpenAPI Specification.
-            properties:
-                description:
-                    description: Description of the MongoDB Atlas Administration API.
-                    example: The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.
-                    type: string
-                license:
-                    $ref: '#/components/schemas/License'
-                termsOfService:
-                    description: Terms of Service URL.
-                    example: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
-                    type: string
-                title:
-                    description: Title of the MongoDB Atlas Administration API.
-                    example: MongoDB Atlas Administration API.
-                    type: string
-                version:
-                    description: Version of the MongoDB Atlas Administration API.
-                    example: "2.0"
-                    type: string
-            type: object
-        License:
-            description: License information of the MongoDB Atlas Administration API.
-            properties:
-                name:
-                    description: Name of the license.
-                    example: CC BY-NC-SA 3.0 US
-                    type: string
-                url:
-                    description: URL of the license.
-                    example: https://creativecommons.org/licenses/by-nc-sa/3.0/us/
-                    type: string
-            type: object
-        OpenApiInfo:
-            properties:
-                info:
-                    $ref: '#/components/schemas/Info'
             type: object
     securitySchemes:
         DigestAuth:
@@ -429,7 +408,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
+          --header "Accept: application/vnd.atlas.private-preview-m0-paid-backup+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -447,58 +426,176 @@ info:
     x-xgen-sha: 7a7467ef8b9d772978d5198115757453001c28a5
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/openapi/info:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription:
         get:
-            description: 'This resource returns general information about the MongoDB Atlas Administration API OpenAPI Specification. Deprecated versions: v2-{2024-08-05}, v2-{2024-05-30}'
-            operationId: getOpenapiInfo
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns whether the free (M0) cluster has an active paid-backups subscription.
+            operationId: getGroupClusterBackupSubscription
             parameters:
+                - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.2025-09-22.upcoming+json:
+                        application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/OpenApiInfo'
-                            x-xgen-version: 2025-09-22.upcoming
+                                $ref: '#/components/schemas/ClusterBackupSubscriptionResponse'
+                            x-xgen-preview:
+                                name: m0-paid-backup
+                            x-xgen-version: private-preview-m0-paid-backup
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return General Information on MongoDB Atlas Administration API OpenAPI Specification
+            summary: Return One Cluster Backup Subscription
             tags:
-                - OpenAPI
+                - Cloud Backups
+            x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api openApi getOpenapiInfo --help
+                  source: atlas api cloudBackups getClusterBackupSubscription --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/openapi/info?pretty=true"
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
-                      --header "Accept: application/vnd.atlas.2025-09-22.upcoming+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/openapi/info?pretty=true"
-            x-state: UPCOMING
-            x-xgen-method-verb-override:
-                customMethod: "False"
-                verb: get
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSubscription
+            x-xgen-operation-id-override: getClusterBackupSubscription
+        patch:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Enables or disables the paid-backup subscription for a free (M0) cluster. Set enabled to update the backup state on the cluster. Omit enabled to leave the subscription unchanged.
+            operationId: updateGroupClusterBackupSubscription
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterBackupSubscriptionUpdateRequest'
+                        x-xgen-preview:
+                            name: m0-paid-backup
+                        x-xgen-version: private-preview-m0-paid-backup
+                description: Paid-backup subscription state to apply to the free (M0) cluster. An empty body is a no-op.
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterBackupSubscriptionResponse'
+                            x-xgen-preview:
+                                name: m0-paid-backup
+                            x-xgen-version: private-preview-m0-paid-backup
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Cluster Backup Subscription
+            tags:
+                - Cloud Backups
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api cloudBackups updateClusterBackupSubscription --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Cluster Manager
+                - Project Cluster Resilience Tester
+                - Project Replica Set Manager
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateGroupClusterBackupSubscription
+            x-xgen-operation-id-override: updateClusterBackupSubscription
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns information about the MongoDB Atlas Specification.
-      name: OpenAPI
+    - description: Manages Cloud Backup snapshots, snapshot export buckets, restore jobs, and schedules. This resource applies only to clusters that use Cloud Backups.
+      name: Cloud Backups
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/

@@ -1296,13 +1296,13 @@
           {
             "properties": {
               "analyticsAutoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
+                "$ref": "#/components/schemas/AutoScalingSettings"
               },
               "analyticsSpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
               },
               "autoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
+                "$ref": "#/components/schemas/AutoScalingSettings"
               },
               "readOnlySpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
@@ -1349,28 +1349,6 @@
         "required": [
           "id"
         ],
-        "type": "object"
-      },
-      "AdvancedAutoScalingSettings": {
-        "description": "Options that determine how this cluster handles resource scaling.",
-        "properties": {
-          "compute": {
-            "$ref": "#/components/schemas/AdvancedComputeAutoScaling"
-          },
-          "diskGB": {
-            "$ref": "#/components/schemas/DiskGBAutoScaling"
-          },
-          "storageConfig": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StorageConfig"
-              }
-            ],
-            "description": "Available in Public Preview: Settings that determine the per-shard data-size limit for this cluster. Applies only to Atlas INFINITE clusters. MongoDB Cloud accepts these settings only on `autoScaling` and rejects them on `analyticsAutoScaling`, including when you send them as `null`. In a request that includes `replicationSpecs`, omitting `storageConfig` or sending it as `null` or `{}` clears the limit. Omitting `replicationSpecs` preserves it.",
-            "nullable": true
-          }
-        },
-        "title": "Automatic Scaling Settings",
         "type": "object"
       },
       "AdvancedClusterDescription": {
@@ -3123,6 +3101,73 @@
         },
         "type": "object"
       },
+      "ApiSearchAutoScalingView": {
+        "description": "Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.",
+        "properties": {
+          "compute": {
+            "$ref": "#/components/schemas/ApiSearchComputeAutoScalingView"
+          }
+        },
+        "type": "object"
+      },
+      "ApiSearchComputeAutoScalingView": {
+        "description": "Settings that control Search Node tier scaling based on load.",
+        "properties": {
+          "enabled": {
+            "default": false,
+            "description": "Flag that indicates whether Atlas raises the Search Node tier when the nodes are under sustained load. If set to `true`, you must also set `maxInstanceTier`.",
+            "type": "boolean"
+          },
+          "maxInstanceTier": {
+            "description": "Highest Search Node tier that Atlas can scale up to. Required when `enabled` is `true`.",
+            "enum": [
+              "S10",
+              "S20",
+              "S30",
+              "S40",
+              "S50",
+              "S60",
+              "S70",
+              "S80",
+              "S90",
+              "S100",
+              "S110",
+              "S120",
+              "S130",
+              "S135",
+              "S140"
+            ],
+            "type": "string"
+          },
+          "minInstanceTier": {
+            "description": "Lowest Search Node tier that Atlas can scale down to. Required when `scaleDownEnabled` is `true`. Scaling down is not supported yet, so setting this returns an error.",
+            "enum": [
+              "S10",
+              "S20",
+              "S30",
+              "S40",
+              "S50",
+              "S60",
+              "S70",
+              "S80",
+              "S90",
+              "S100",
+              "S110",
+              "S120",
+              "S130",
+              "S135",
+              "S140"
+            ],
+            "type": "string"
+          },
+          "scaleDownEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether Atlas lowers the Search Node tier when load drops. Takes effect only when `enabled` is `true`. If set to `true`, you must also set `minInstanceTier`. Scaling down is not supported yet, so setting this to `true` returns an error.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApiSearchDeploymentEffectiveSpecView": {
         "properties": {
           "cloudProvider": {
@@ -3253,6 +3298,14 @@
       },
       "ApiSearchDeploymentRequestView": {
         "properties": {
+          "autoScaling": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApiSearchAutoScalingView"
+              }
+            ],
+            "description": "Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off."
+          },
           "defaultNodeCount": {
             "description": "Default number of Search Nodes per region. Applied to a region without an explicit override.",
             "example": 2,
@@ -3416,7 +3469,10 @@
           "eastus2",
           "westeurope",
           "brazilsouth",
-          "australiaeast"
+          "australiaeast",
+          "northeurope",
+          "eastasia",
+          "southeastasia"
         ],
         "type": "string"
       },
@@ -3425,7 +3481,8 @@
         "enum": [
           "US_CENTRAL1",
           "EUROPE_WEST1",
-          "US_EAST4"
+          "US_EAST4",
+          "US_WEST1"
         ],
         "type": "string"
       },
@@ -4900,6 +4957,19 @@
         "title": "export",
         "type": "object"
       },
+      "AutoScalingSettings": {
+        "description": "Options that determine how this cluster handles resource scaling.",
+        "properties": {
+          "compute": {
+            "$ref": "#/components/schemas/AdvancedComputeAutoScaling"
+          },
+          "diskGB": {
+            "$ref": "#/components/schemas/DiskGBAutoScaling"
+          }
+        },
+        "title": "Automatic Scaling Settings",
+        "type": "object"
+      },
       "AutomationConfigEventTypeView": {
         "description": "Unique identifier of event type.",
         "enum": [
@@ -6179,13 +6249,13 @@
           {
             "properties": {
               "analyticsAutoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
+                "$ref": "#/components/schemas/AutoScalingSettings"
               },
               "analyticsSpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
               },
               "autoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
+                "$ref": "#/components/schemas/AutoScalingSettings"
               },
               "readOnlySpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
@@ -7139,6 +7209,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -8704,6 +8775,7 @@
                   "M140_GEN_2",
                   "M200_GEN_2",
                   "M300_GEN_2",
+                  "M700_GEN_2",
                   "R40_GEN_2",
                   "R50_GEN_2",
                   "R60_GEN_2",
@@ -19767,6 +19839,7 @@
               "CLUSTER_FORCE_RECONFIG_REQUESTED",
               "AGENT_FORCE_RESTART_REQUESTED",
               "CLUSTER_RESET_FORCE_RECONFIG_REQUESTED",
+              "CLUSTER_FORCE_PAUSE_REQUESTED",
               "PROJECT_BYPASSED_MAINTENANCE",
               "FEATURE_FLAG_MAINTENANCE",
               "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED",
@@ -22969,6 +23042,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -23011,6 +23085,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -23222,6 +23297,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -23310,13 +23386,13 @@
           {
             "properties": {
               "analyticsAutoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
+                "$ref": "#/components/schemas/AutoScalingSettings"
               },
               "analyticsSpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
               },
               "autoScaling": {
-                "$ref": "#/components/schemas/AdvancedAutoScalingSettings"
+                "$ref": "#/components/schemas/AutoScalingSettings"
               },
               "readOnlySpecs": {
                 "$ref": "#/components/schemas/DedicatedHardwareSpec"
@@ -24086,9 +24162,6 @@
             "type": "integer"
           }
         },
-        "required": [
-          "dayOfWeek"
-        ],
         "type": "object"
       },
       "GroupNotification": {
@@ -30514,6 +30587,7 @@
           "CLUSTER_FORCE_RECONFIG_REQUESTED",
           "AGENT_FORCE_RESTART_REQUESTED",
           "CLUSTER_RESET_FORCE_RECONFIG_REQUESTED",
+          "CLUSTER_FORCE_PAUSE_REQUESTED",
           "PROJECT_BYPASSED_MAINTENANCE",
           "FEATURE_FLAG_MAINTENANCE",
           "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED",
@@ -33562,9 +33636,17 @@
             },
             "type": "array",
             "uniqueItems": true
+          },
+          "systemManaged": {
+            "description": "Indicates whether the Service Account is system managed.",
+            "readOnly": true,
+            "type": "boolean"
           }
         },
         "readOnly": true,
+        "required": [
+          "systemManaged"
+        ],
         "type": "object"
       },
       "OrgServiceAccountRequest": {
@@ -40414,19 +40496,6 @@
         "readOnly": true,
         "type": "object"
       },
-      "StorageConfig": {
-        "nullable": true,
-        "properties": {
-          "shardSizeLimitGB": {
-            "description": "Available in Public Preview: Maximum data size that MongoDB Cloud allows each shard of this cluster to reach, expressed in gigabytes. MongoDB Cloud rejects writes to a shard that reaches the limit that it enforces. In `replicationSpecs`, this field reports the limit that you configured, and MongoDB Cloud omits it when you never configured one. In `effectiveReplicationSpecs`, this field reports the limit that MongoDB Cloud enforces: usually the limit that you configured, otherwise the default limit that MongoDB Cloud assigns when it creates or updates the cluster. This value may differ from the limit that you configured due to system-managed changes. This limit applies to every shard of the cluster; set the same value on each region configuration's `autoScaling`, as MongoDB Cloud rejects requests that specify differing values. You can set this only on Atlas INFINITE clusters: MongoDB Cloud rejects any request that names this field, including as `null`, for a cluster or node type that doesn't support it. In a request that includes `replicationSpecs`, omitting `shardSizeLimitGB` or sending it as `null` clears the limit. Omitting `replicationSpecs` preserves it.",
-            "format": "int32",
-            "minimum": 1,
-            "nullable": true,
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "StreamConfig": {
         "description": "Configuration options for an Atlas Stream Processing Workspace.",
         "nullable": true,
@@ -45608,7 +45677,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "3592731ea7b1af707f6db551e5344b9d92435c55"
+    "x-xgen-sha": "7a7467ef8b9d772978d5198115757453001c28a5"
   },
   "openapi": "3.0.1",
   "paths": {

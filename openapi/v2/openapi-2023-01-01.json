@@ -2704,6 +2704,73 @@
         },
         "type": "object"
       },
+      "ApiSearchAutoScalingView": {
+        "description": "Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.",
+        "properties": {
+          "compute": {
+            "$ref": "#/components/schemas/ApiSearchComputeAutoScalingView"
+          }
+        },
+        "type": "object"
+      },
+      "ApiSearchComputeAutoScalingView": {
+        "description": "Settings that control Search Node tier scaling based on load.",
+        "properties": {
+          "enabled": {
+            "default": false,
+            "description": "Flag that indicates whether Atlas raises the Search Node tier when the nodes are under sustained load. If set to `true`, you must also set `maxInstanceTier`.",
+            "type": "boolean"
+          },
+          "maxInstanceTier": {
+            "description": "Highest Search Node tier that Atlas can scale up to. Required when `enabled` is `true`.",
+            "enum": [
+              "S10",
+              "S20",
+              "S30",
+              "S40",
+              "S50",
+              "S60",
+              "S70",
+              "S80",
+              "S90",
+              "S100",
+              "S110",
+              "S120",
+              "S130",
+              "S135",
+              "S140"
+            ],
+            "type": "string"
+          },
+          "minInstanceTier": {
+            "description": "Lowest Search Node tier that Atlas can scale down to. Required when `scaleDownEnabled` is `true`. Scaling down is not supported yet, so setting this returns an error.",
+            "enum": [
+              "S10",
+              "S20",
+              "S30",
+              "S40",
+              "S50",
+              "S60",
+              "S70",
+              "S80",
+              "S90",
+              "S100",
+              "S110",
+              "S120",
+              "S130",
+              "S135",
+              "S140"
+            ],
+            "type": "string"
+          },
+          "scaleDownEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether Atlas lowers the Search Node tier when load drops. Takes effect only when `enabled` is `true`. If set to `true`, you must also set `minInstanceTier`. Scaling down is not supported yet, so setting this to `true` returns an error.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ApiSearchDeploymentEffectiveSpecView": {
         "properties": {
           "cloudProvider": {
@@ -2834,6 +2901,14 @@
       },
       "ApiSearchDeploymentRequestView": {
         "properties": {
+          "autoScaling": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApiSearchAutoScalingView"
+              }
+            ],
+            "description": "Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off."
+          },
           "defaultNodeCount": {
             "description": "Default number of Search Nodes per region. Applied to a region without an explicit override.",
             "example": 2,
@@ -6573,6 +6648,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -8123,6 +8199,7 @@
                   "M140_GEN_2",
                   "M200_GEN_2",
                   "M300_GEN_2",
+                  "M700_GEN_2",
                   "R40_GEN_2",
                   "R50_GEN_2",
                   "R60_GEN_2",
@@ -18855,6 +18932,7 @@
               "CLUSTER_FORCE_RECONFIG_REQUESTED",
               "AGENT_FORCE_RESTART_REQUESTED",
               "CLUSTER_RESET_FORCE_RECONFIG_REQUESTED",
+              "CLUSTER_FORCE_PAUSE_REQUESTED",
               "PROJECT_BYPASSED_MAINTENANCE",
               "FEATURE_FLAG_MAINTENANCE",
               "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED",
@@ -22057,6 +22135,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -22099,6 +22178,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -23084,9 +23164,6 @@
             "type": "integer"
           }
         },
-        "required": [
-          "dayOfWeek"
-        ],
         "type": "object"
       },
       "GroupNotification": {
@@ -29494,6 +29571,7 @@
           "CLUSTER_FORCE_RECONFIG_REQUESTED",
           "AGENT_FORCE_RESTART_REQUESTED",
           "CLUSTER_RESET_FORCE_RECONFIG_REQUESTED",
+          "CLUSTER_FORCE_PAUSE_REQUESTED",
           "PROJECT_BYPASSED_MAINTENANCE",
           "FEATURE_FLAG_MAINTENANCE",
           "DATA_FEDERATION_QUERY_LIMIT_CONFIGURED",
@@ -32542,9 +32620,17 @@
             },
             "type": "array",
             "uniqueItems": true
+          },
+          "systemManaged": {
+            "description": "Indicates whether the Service Account is system managed.",
+            "readOnly": true,
+            "type": "boolean"
           }
         },
         "readOnly": true,
+        "required": [
+          "systemManaged"
+        ],
         "type": "object"
       },
       "OrgServiceAccountRequest": {
@@ -43204,7 +43290,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "3592731ea7b1af707f6db551e5344b9d92435c55"
+    "x-xgen-sha": "7a7467ef8b9d772978d5198115757453001c28a5"
   },
   "openapi": "3.0.1",
   "paths": {

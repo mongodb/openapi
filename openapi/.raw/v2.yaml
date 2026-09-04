@@ -1263,11 +1263,11 @@ components:
                 - $ref: '#/components/schemas/CloudRegionConfig'
                 - properties:
                     analyticsAutoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     analyticsSpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                     autoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     readOnlySpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                   type: object
@@ -2605,11 +2605,11 @@ components:
                 - $ref: '#/components/schemas/CloudRegionConfig'
                 - properties:
                     analyticsAutoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     analyticsSpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                     autoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     readOnlySpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                   type: object
@@ -3150,7 +3150,7 @@ components:
                 collections:
                     description: List of collections to restore (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreCollectionNamespaceView'
                     maxItems: 100
                     type: array
                 databaseSuffix:
@@ -3160,7 +3160,7 @@ components:
                 databases:
                     description: List of databases to restore (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreDatabaseNamespaceView'
                     maxItems: 100
                     type: array
                 indexStrategy:
@@ -3219,7 +3219,7 @@ components:
                 collections:
                     description: List of collections in the restore scope (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreCollectionNamespaceView'
                     maxItems: 100
                     type: array
                 createdAt:
@@ -3233,7 +3233,7 @@ components:
                 databases:
                     description: List of databases in the restore scope (up to 100 items).
                     items:
-                        $ref: '#/components/schemas/ApiAtlasRestoreNamespaceView'
+                        $ref: '#/components/schemas/ApiAtlasRestoreDatabaseNamespaceView'
                     maxItems: 100
                     type: array
                 errorMessage:
@@ -3284,7 +3284,7 @@ components:
                     pattern: ^([a-f0-9]{24})$
                     type: string
                 state:
-                    description: Current state of the collection restore job.
+                    description: Current state of the collection restore job. A `SUCCESSFUL` job can include individual `UNSUPPORTED` collection restores. Use the restore job collections endpoint to get per-collection detailed states.
                     enum:
                         - INITIALIZING
                         - IN_PROGRESS
@@ -3701,14 +3701,26 @@ components:
                     readOnly: true
                     type: string
             type: object
-        ApiAtlasRestoreNamespaceView:
-            description: Source and optional target namespace for a restore.
+        ApiAtlasRestoreCollectionNamespaceView:
+            description: Source and optional target collection for a restore.
             properties:
                 sourceNamespace:
-                    description: Namespace requested to restore (e.g. database name or `database.collection`).
+                    description: Collection requested to restore, as `database.collection`.
                     type: string
                 targetNamespace:
-                    description: Requested target namespace for the restored data; if empty, source namespace is used.
+                    description: Requested target collection as `database.collection`; if empty, source namespace is used.
+                    type: string
+            required:
+                - sourceNamespace
+            type: object
+        ApiAtlasRestoreDatabaseNamespaceView:
+            description: Source and optional target database for a restore.
+            properties:
+                sourceNamespace:
+                    description: Database name requested to restore.
+                    type: string
+                targetNamespace:
+                    description: Requested target database name; if empty, source database name is used.
                     type: string
             required:
                 - sourceNamespace
@@ -4504,6 +4516,66 @@ components:
                         - DESCENDING
                     type: string
             type: object
+        ApiSearchAutoScalingView:
+            description: Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.
+            properties:
+                compute:
+                    $ref: '#/components/schemas/ApiSearchComputeAutoScalingView'
+            type: object
+            x-xgen-hidden-env:
+                envs: stage,prod
+        ApiSearchComputeAutoScalingView:
+            description: Settings that control Search Node tier scaling based on load.
+            properties:
+                enabled:
+                    default: false
+                    description: Flag that indicates whether Atlas raises the Search Node tier when the nodes are under sustained load. If set to `true`, you must also set `maxInstanceTier`.
+                    type: boolean
+                maxInstanceTier:
+                    description: Highest Search Node tier that Atlas can scale up to. Required when `enabled` is `true`.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                minInstanceTier:
+                    description: Lowest Search Node tier that Atlas can scale down to. Required when `scaleDownEnabled` is `true`. Scaling down is not supported yet, so setting this returns an error.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                scaleDownEnabled:
+                    default: false
+                    description: Flag that indicates whether Atlas lowers the Search Node tier when load drops. Takes effect only when `enabled` is `true`. If set to `true`, you must also set `minInstanceTier`. Scaling down is not supported yet, so setting this to `true` returns an error.
+                    type: boolean
+            type: object
+            x-xgen-hidden-env:
+                envs: stage,prod
         ApiSearchDeploymentEffectiveSpecView:
             properties:
                 cloudProvider:
@@ -4621,6 +4693,12 @@ components:
             type: object
         ApiSearchDeploymentRequestView:
             properties:
+                autoScaling:
+                    allOf:
+                        - $ref: '#/components/schemas/ApiSearchAutoScalingView'
+                    description: Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.
+                    x-xgen-hidden-env:
+                        envs: stage,prod
                 defaultNodeCount:
                     description: Default number of Search Nodes per region. Applied to a region without an explicit override.
                     example: 2
@@ -4922,6 +5000,9 @@ components:
                 - westeurope
                 - brazilsouth
                 - australiaeast
+                - northeurope
+                - eastasia
+                - southeastasia
             type: string
             x-xgen-IPA-exception:
                 xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation.
@@ -4931,6 +5012,7 @@ components:
                 - US_CENTRAL1
                 - EUROPE_WEST1
                 - US_EAST4
+                - US_WEST1
             type: string
         ApiTransitionDataAction:
             allOf:
@@ -6632,6 +6714,15 @@ components:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation.
             title: export
             type: object
+        AutoScalingSettings:
+            description: Options that determine how this cluster handles resource scaling.
+            properties:
+                compute:
+                    $ref: '#/components/schemas/AdvancedComputeAutoScaling'
+                diskGB:
+                    $ref: '#/components/schemas/DiskGBAutoScaling'
+            title: Automatic Scaling Settings
+            type: object
         AutomationConfigEventTypeView:
             description: Unique identifier of event type.
             enum:
@@ -7896,11 +7987,11 @@ components:
                 - $ref: '#/components/schemas/CloudRegionConfig'
                 - properties:
                     analyticsAutoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     analyticsSpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                     autoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     readOnlySpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                   type: object
@@ -8823,6 +8914,7 @@ components:
                     - M140_GEN_2
                     - M200_GEN_2
                     - M300_GEN_2
+                    - M700_GEN_2
                     - R40_GEN_2
                     - R50_GEN_2
                     - R60_GEN_2
@@ -10183,6 +10275,7 @@ components:
                             - M140_GEN_2
                             - M200_GEN_2
                             - M300_GEN_2
+                            - M700_GEN_2
                             - R40_GEN_2
                             - R50_GEN_2
                             - R60_GEN_2
@@ -11633,6 +11726,24 @@ components:
                     x-xgen-IPA-exception:
                         xgen-IPA-112-field-names-are-camel-case: Schema predates IPA validation.
             title: Automatic Cluster Scaling Settings
+            type: object
+        ClusterBackupSubscriptionResponse:
+            description: Paid-backup subscription state for a free (M0) cluster.
+            properties:
+                enabled:
+                    description: Flag that indicates whether paid backups are enabled for the free (M0) cluster.
+                    type: boolean
+            required:
+                - enabled
+            title: Cluster Backup Subscription Response
+            type: object
+        ClusterBackupSubscriptionUpdateRequest:
+            description: Paid-backup subscription state to apply to a free (M0) cluster. Omit enabled to leave the subscription unchanged.
+            properties:
+                enabled:
+                    description: Flag that indicates whether paid backups are enabled for the free (M0) cluster. Omit this field to leave the subscription unchanged.
+                    type: boolean
+            title: Cluster Backup Subscription Update Request
             type: object
         ClusterCloudProviderInstanceSize:
             properties:
@@ -13846,6 +13957,7 @@ components:
                     type: array
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: MCP config IP access list mirrors service account access list which supports 200 entries. All MCP configuration management is maintained under a single resource.
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Human-readable name that identifies this MCP configuration.
                     maxLength: 64
@@ -13861,6 +13973,7 @@ components:
                     maxItems: 100
                     minItems: 1
                     type: array
+                    x-xgen-array-semantic: set
             required:
                 - mcpConfigName
                 - roles
@@ -13875,6 +13988,7 @@ components:
                     type: array
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: MCP config IP access list mirrors service account access list which supports 200 entries. All MCP configuration management is maintained under a single resource.
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Human-readable name that identifies this MCP configuration.
                     maxLength: 64
@@ -13896,6 +14010,7 @@ components:
                     maxItems: 100
                     minItems: 1
                     type: array
+                    x-xgen-array-semantic: set
             required:
                 - mcpConfigName
                 - roles
@@ -20835,6 +20950,7 @@ components:
                     - CLUSTER_FORCE_RECONFIG_REQUESTED
                     - AGENT_FORCE_RESTART_REQUESTED
                     - CLUSTER_RESET_FORCE_RECONFIG_REQUESTED
+                    - CLUSTER_FORCE_PAUSE_REQUESTED
                     - PROJECT_BYPASSED_MAINTENANCE
                     - FEATURE_FLAG_MAINTENANCE
                     - DATA_FEDERATION_QUERY_LIMIT_CONFIGURED
@@ -24232,6 +24348,7 @@ components:
                         - M140_GEN_2
                         - M200_GEN_2
                         - M300_GEN_2
+                        - M700_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -24274,6 +24391,7 @@ components:
                         - M140_GEN_2
                         - M200_GEN_2
                         - M300_GEN_2
+                        - M700_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -24455,6 +24573,7 @@ components:
                         - M140_GEN_2
                         - M200_GEN_2
                         - M300_GEN_2
+                        - M700_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -24534,6 +24653,7 @@ components:
                         - M140_GEN_2
                         - M200_GEN_2
                         - M300_GEN_2
+                        - M700_GEN_2
                         - R40_GEN_2
                         - R50_GEN_2
                         - R60_GEN_2
@@ -24605,11 +24725,11 @@ components:
                 - $ref: '#/components/schemas/CloudRegionConfig'
                 - properties:
                     analyticsAutoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     analyticsSpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                     autoScaling:
-                        $ref: '#/components/schemas/AdvancedAutoScalingSettings'
+                        $ref: '#/components/schemas/AutoScalingSettings'
                     readOnlySpecs:
                         $ref: '#/components/schemas/DedicatedHardwareSpec'
                   type: object
@@ -25405,8 +25525,6 @@ components:
                     minimum: 1
                     nullable: true
                     type: integer
-            required:
-                - dayOfWeek
             type: object
         GroupMaintenanceWindowPreviewResponse:
             properties:
@@ -25464,8 +25582,6 @@ components:
                     minimum: 1
                     nullable: true
                     type: integer
-            required:
-                - dayOfWeek
             type: object
         GroupMaintenanceWindowPreviewUpdateRequest:
             properties:
@@ -25530,6 +25646,7 @@ components:
                     type: array
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: MCP config IP access list mirrors service account access list which supports 200 entries. All MCP configuration management is maintained under a single resource.
+                    x-xgen-array-semantic: set
                 mcpConfigId:
                     description: Unique identifier that identifies this MCP configuration.
                     example: b9254bc4-d6cc-4325-abf4-fb9d2a9de00a
@@ -25549,6 +25666,7 @@ components:
                         type: string
                     maxItems: 100
                     type: array
+                    x-xgen-array-semantic: set
             type: object
         GroupMcpConfigUpdateRequest:
             properties:
@@ -25560,6 +25678,7 @@ components:
                     type: array
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: MCP config IP access list mirrors service account access list which supports 200 entries. All MCP configuration management is maintained under a single resource.
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Updated human-readable name for this MCP configuration.
                     maxLength: 64
@@ -25577,6 +25696,7 @@ components:
                     maxItems: 100
                     minItems: 1
                     type: array
+                    x-xgen-array-semantic: set
             type: object
         GroupMigrationRequest:
             properties:
@@ -25800,6 +25920,12 @@ components:
                     uniqueItems: true
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: Schema predates IPA validation.
+                systemManaged:
+                    description: Indicates whether the Service Account is system managed.
+                    readOnly: true
+                    type: boolean
+            required:
+                - systemManaged
             type: object
         GroupServiceAccountRequest:
             properties:
@@ -30935,6 +31061,7 @@ components:
                     description: The provider type for the metric integration. Identifies the third-party service provider.
                     enum:
                         - CUSTOM
+                        - DATADOG
                         - DYNATRACE
                         - NEW_RELIC
                     type: string
@@ -31003,6 +31130,7 @@ components:
                     description: The provider type for the metric integration. Identifies the third-party service provider.
                     enum:
                         - CUSTOM
+                        - DATADOG
                         - DYNATRACE
                         - NEW_RELIC
                     type: string
@@ -31064,6 +31192,7 @@ components:
                     description: The provider type for the metric integration. Identifies the third-party service provider.
                     enum:
                         - CUSTOM
+                        - DATADOG
                         - DYNATRACE
                         - NEW_RELIC
                     type: string
@@ -31778,6 +31907,7 @@ components:
                 - CLUSTER_FORCE_RECONFIG_REQUESTED
                 - AGENT_FORCE_RESTART_REQUESTED
                 - CLUSTER_RESET_FORCE_RECONFIG_REQUESTED
+                - CLUSTER_FORCE_PAUSE_REQUESTED
                 - PROJECT_BYPASSED_MAINTENANCE
                 - FEATURE_FLAG_MAINTENANCE
                 - DATA_FEDERATION_QUERY_LIMIT_CONFIGURED
@@ -34650,6 +34780,7 @@ components:
                     type: array
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: MCP config IP access list mirrors service account access list which supports 200 entries. All MCP configuration management is maintained under a single resource.
+                    x-xgen-array-semantic: set
                 mcpConfigId:
                     description: Unique identifier that identifies this MCP configuration.
                     example: b9254bc4-d6cc-4325-abf4-fb9d2a9de00a
@@ -34675,6 +34806,7 @@ components:
                         type: string
                     maxItems: 100
                     type: array
+                    x-xgen-array-semantic: set
             type: object
         OrgMcpConfigUpdateRequest:
             properties:
@@ -34686,6 +34818,7 @@ components:
                     type: array
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: MCP config IP access list mirrors service account access list which supports 200 entries. All MCP configuration management is maintained under a single resource.
+                    x-xgen-array-semantic: set
                 mcpConfigName:
                     description: Updated human-readable name for this MCP configuration.
                     maxLength: 64
@@ -34710,6 +34843,7 @@ components:
                     maxItems: 100
                     minItems: 1
                     type: array
+                    x-xgen-array-semantic: set
             type: object
         OrgNotification:
             description: Organization notification configuration for MongoDB Cloud to send information when an event triggers an alert condition.
@@ -34964,7 +35098,13 @@ components:
                     uniqueItems: true
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: Schema predates IPA validation.
+                systemManaged:
+                    description: Indicates whether the Service Account is system managed.
+                    readOnly: true
+                    type: boolean
             readOnly: true
+            required:
+                - systemManaged
             type: object
         OrgServiceAccountRequest:
             description: Organization Service Account that Atlas creates for this organization. If omitted, Atlas doesn't create an organization Service Account for this organization. If specified, this object requires all body parameters. Note that API Keys cannot be specified in the same request.
@@ -38845,6 +38985,60 @@ components:
             required:
                 - metricName
             type: object
+        QueryStatsCollectionRateLimitedResponse:
+            allOf:
+                - $ref: '#/components/schemas/QueryStatsCollectionResponse'
+                - properties:
+                    rateLimitPerSecond:
+                        description: Maximum read queries recorded per second.
+                        example: 100
+                        format: int32
+                        readOnly: true
+                        type: integer
+                  type: object
+            description: Entries were collected by rate-limiting read queries.
+            required:
+                - mode
+                - rateLimitPerSecond
+            type: object
+        QueryStatsCollectionResponse:
+            description: How `queryStats` entries were collected on this cluster's processes. Reflects the collection mode of the cluster's processes regardless of any host or process type filters in the request. Omitted when the collection mode cannot be determined. Sample-based collection requires MongoDB 9.0 or later but may not be enabled on every such cluster; this reflects the mode in effect on the cluster.
+            discriminator:
+                mapping:
+                    RATE_LIMITED: '#/components/schemas/QueryStatsCollectionRateLimitedResponse'
+                    SAMPLED: '#/components/schemas/QueryStatsCollectionSampledResponse'
+                propertyName: mode
+            oneOf:
+                - $ref: '#/components/schemas/QueryStatsCollectionSampledResponse'
+                - $ref: '#/components/schemas/QueryStatsCollectionRateLimitedResponse'
+            properties:
+                mode:
+                    description: Method used to collect `queryStats` entries on the cluster's processes.
+                    enum:
+                        - RATE_LIMITED
+                        - SAMPLED
+                    readOnly: true
+                    type: string
+            readOnly: true
+            required:
+                - mode
+            type: object
+        QueryStatsCollectionSampledResponse:
+            allOf:
+                - $ref: '#/components/schemas/QueryStatsCollectionResponse'
+                - properties:
+                    sampleRate:
+                        description: Fraction of operations recorded. Dividing reported counts by this rate yields an unbiased estimate of the true totals.
+                        example: 0.01
+                        format: double
+                        readOnly: true
+                        type: number
+                  type: object
+            description: Entries were collected by sampling each operation.
+            required:
+                - mode
+                - sampleRate
+            type: object
         QueryStatsDetailsResponse:
             description: Metadata and summary statistics for a given query shape.
             properties:
@@ -38854,6 +39048,8 @@ components:
                     $ref: '#/components/schemas/QueryShapeSeenMetadata'
                 queryStats:
                     $ref: '#/components/schemas/QueryStatsSummary'
+                queryStatsCollection:
+                    $ref: '#/components/schemas/QueryStatsCollectionResponse'
             type: object
         QueryStatsSummary:
             description: A summary of execution statistics for a given query shape.
@@ -38884,11 +39080,6 @@ components:
                     format: double
                     nullable: true
                     type: number
-                docsDeleted:
-                    description: Total number of documents deleted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
-                    format: double
-                    nullable: true
-                    type: number
                 docsExamined:
                     description: Total number of documents examined by queries with the given query shape.
                     format: double
@@ -38897,29 +39088,9 @@ components:
                     description: Ratio of documents examined to documents returned by queries with the given query shape.
                     format: double
                     type: number
-                docsInserted:
-                    description: Total number of documents inserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
-                    format: double
-                    nullable: true
-                    type: number
-                docsMatched:
-                    description: Total number of documents matched by queries with the given query shape. Available for MongoDB 9.0+ write commands.
-                    format: double
-                    nullable: true
-                    type: number
-                docsModified:
-                    description: Total number of documents modified by queries with the given query shape. Available for MongoDB 9.0+ write commands.
-                    format: double
-                    nullable: true
-                    type: number
                 docsReturned:
                     description: Total number of documents returned by queries with the given query shape.
                     format: double
-                    type: number
-                docsUpserted:
-                    description: Total number of documents upserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
-                    format: double
-                    nullable: true
                     type: number
                 execCount:
                     description: Total number of times that queries with the given query shape have been executed.
@@ -38946,6 +39117,31 @@ components:
                 lastExecMicros:
                     description: Execution runtime in microseconds for the most recent query with the given query shape.
                     format: double
+                    type: number
+                nDeleted:
+                    description: Total number of documents deleted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nInserted:
+                    description: Total number of documents inserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nMatched:
+                    description: Total number of documents matched by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nModified:
+                    description: Total number of documents modified by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
+                    type: number
+                nUpserted:
+                    description: Total number of documents upserted by queries with the given query shape. Available for MongoDB 9.0+ write commands.
+                    format: double
+                    nullable: true
                     type: number
                 namespace:
                     description: Human-readable label that identifies the namespace on the specified host. The resource expresses this parameter value as `<database>.<collection>`.
@@ -38991,6 +39187,8 @@ components:
             type: object
         QueryStatsSummaryListResponse:
             properties:
+                queryStatsCollection:
+                    $ref: '#/components/schemas/QueryStatsCollectionResponse'
                 summaries:
                     description: List of query shape statistic summaries from Query Shape Insights.
                     items:
@@ -48590,7 +48788,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3592731ea7b1af707f6db551e5344b9d92435c55
+    x-xgen-sha: 7a7467ef8b9d772978d5198115757453001c28a5
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -54165,13 +54363,10 @@ paths:
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.preview+json:
+                        application/vnd.atlas.2025-03-12+json:
                             schema:
                                 $ref: '#/components/schemas/AdaptiveSettingsResponse'
-                            x-xgen-preview:
-                                name: adaptive-settings
-                                public: "false"
-                            x-xgen-version: preview
+                            x-xgen-version: "2025-03-12"
                     description: OK.
                     headers:
                         RateLimit-Limit:
@@ -54211,25 +54406,18 @@ paths:
                     type: string
             requestBody:
                 content:
-                    application/vnd.atlas.preview+json:
+                    application/vnd.atlas.2025-03-12+json:
                         schema:
                             $ref: '#/components/schemas/AdaptiveSettingsUpdateRequest'
-                        x-xgen-preview:
-                            name: adaptive-settings
-                            public: "false"
-                        x-xgen-version: preview
                 description: Adaptive Settings overrides to apply to the specified cluster. Omitting `adaptiveSettingsOverrides` is a no-op.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.preview+json:
+                        application/vnd.atlas.2025-03-12+json:
                             schema:
                                 $ref: '#/components/schemas/AdaptiveSettingsResponse'
-                            x-xgen-preview:
-                                name: adaptive-settings
-                                public: "false"
-                            x-xgen-version: preview
+                            x-xgen-version: "2025-03-12"
                     description: OK.
                     headers:
                         RateLimit-Limit:
@@ -55668,6 +55856,122 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Legacy-Backup/operation/getGroupClusterBackupCheckpoint
             x-xgen-operation-id-override: getClusterBackupCheckpoint
             x-xgen-owner-team: Backup - Atlas
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription:
+        get:
+            description: Returns whether the free (M0) cluster has an active paid-backups subscription.
+            operationId: getGroupClusterBackupSubscription
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterBackupSubscriptionResponse'
+                            x-xgen-preview:
+                                name: m0-paid-backup
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Cluster Backup Subscription
+            tags:
+                - Cloud Backups
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSubscription
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: getClusterBackupSubscription
+            x-xgen-owner-team: Atlas Growth
+        patch:
+            description: Enables or disables the paid-backup subscription for a free (M0) cluster. Set enabled to update the backup state on the cluster. Omit enabled to leave the subscription unchanged.
+            operationId: updateGroupClusterBackupSubscription
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/ClusterBackupSubscriptionUpdateRequest'
+                        x-xgen-preview:
+                            name: m0-paid-backup
+                        x-xgen-version: preview
+                description: Paid-backup subscription state to apply to the free (M0) cluster. An empty body is a no-op.
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/ClusterBackupSubscriptionResponse'
+                            x-xgen-preview:
+                                name: m0-paid-backup
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "402":
+                    $ref: '#/components/responses/paymentRequired'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update One Cluster Backup Subscription
+            tags:
+                - Cloud Backups
+            x-rolesRequirements:
+                - Project Cluster Manager
+                - Project Cluster Resilience Tester
+                - Project Replica Set Manager
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateGroupClusterBackupSubscription
+            x-xgen-hidden-env:
+                envs: qa,stage,prod
+            x-xgen-operation-id-override: updateClusterBackupSubscription
+            x-xgen-owner-team: Atlas Growth
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/pinned:
         get:
             description: Returns a list of given cluster's pinned namespaces, a set of namespaces manually selected by users to collect query latency metrics on.
@@ -71539,7 +71843,7 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Standby-Links/operation/listGroupStandbyLinks
             x-xgen-owner-team: Standby Clusters
         post:
-            description: Creates a disaster recovery standby link between an active cluster and a standby cluster. Both clusters must not already be part of a standby link system, must be single-region clusters, and must be in different regions.
+            description: Creates a disaster recovery standby link between an active cluster and a standby cluster. Both clusters must not already be part of a standby link system and must be single-region clusters.
             operationId: createGroupStandbyLink
             parameters:
                 - description: Unique 24-hexadecimal digit string that identifies the project containing the clusters.
