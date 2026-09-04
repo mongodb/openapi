@@ -776,6 +776,45 @@ Rule checks for the following conditions:
 
 
 
+### IPA-111
+
+Rules are based on [https://mongodb.github.io/ipa/111](https://mongodb.github.io/ipa/111).
+
+#### xgen-IPA-111-optional-fields-no-default
+
+ ![error](https://img.shields.io/badge/error-red) 
+Optional fields must not define a default value.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to optional (non-required) schema properties in request bodies only
+  - Boolean fields are exempt (covered by xgen-IPA-111-optional-boolean-fields-default-false)
+  - Fields marked with the x-xgen-server-computed-when-client-omitted extension are exempt
+  - Fails if the field defines a default value
+
+#### xgen-IPA-111-effective-fields-read-only
+
+ ![error](https://img.shields.io/badge/error-red) 
+Effective-value fields must be marked as readOnly: true and must not appear in request schemas.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to schema properties whose name starts with the "effective" prefix
+  - Fails if the field appears in a request schema
+  - Fails if the field is not marked with readOnly: true
+
+#### xgen-IPA-111-optional-boolean-fields-default-false
+
+ ![error](https://img.shields.io/badge/error-red) 
+Optional boolean fields must default to false.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to optional (non-required) boolean schema properties in request bodies only
+  - Fails if the field does not define a default value of false
+
+
+
 ### IPA-112
 
 Rules are based on [https://mongodb.github.io/ipa/112](https://mongodb.github.io/ipa/112).
