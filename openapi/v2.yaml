@@ -24422,6 +24422,46 @@ components:
                 isPerformanceAdvisorEnabled:
                     description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
                     type: boolean
+                isRealtimePerformancePanelEnabled:
+                    description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
+                    type: boolean
+                isSchemaAdvisorEnabled:
+                    description: Flag that indicates whether to enable the Schema Advisor for the specified project.
+                    type: boolean
+            type: object
+        GroupSettingsPreview:
+            properties:
+                isAtlasHomePageAiAssistantEnabled:
+                    description: Flag that indicates whether the MongoDB Assistant on the Atlas Home Page is enabled for the specified project.
+                    type: boolean
+                isClusterAiAssistantEnabled:
+                    description: Flag that indicates whether the AI Cluster Assistant is enabled for the specified project.
+                    type: boolean
+                isCollectDatabaseSpecificsStatisticsEnabled:
+                    description: Flag that indicates whether to collect database-specific metrics for the specified project.
+                    type: boolean
+                isDataExplorerEnabled:
+                    description: Flag that indicates whether to enable the Data Explorer for the specified project.
+                    type: boolean
+                isDataExplorerGenAIFeaturesEnabled:
+                    description: Flag that indicates whether to enable the use of generative AI features which make requests to 3rd party services in Data Explorer for the specified project.
+                    type: boolean
+                isDataExplorerGenAISampleDocumentPassingEnabled:
+                    default: false
+                    description: Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.
+                    type: boolean
+                isDataValidationEnabled:
+                    description: Flag that indicates whether data validation is enabled for all clusters in the specified project.
+                    type: boolean
+                isExtendedStorageSizesEnabled:
+                    description: Flag that indicates whether to enable extended storage sizes for the specified project.
+                    type: boolean
+                isNativeRerankingEnabled:
+                    description: Flag that indicates whether to enable Native Reranking with Voyage AI models in the Aggregation Pipeline for the specified project.
+                    type: boolean
+                isPerformanceAdvisorEnabled:
+                    description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
+                    type: boolean
                 isQueryInsightsGenAiFeaturesEnabled:
                     description: Flag that indicates whether to enable AI features in Query Insights for the specified project.
                     type: boolean
@@ -41619,7 +41659,7 @@ components:
                     description: Amazon Resource Name (ARN) that identifies the Amazon Web Services (AWS) Identity and Access Management (IAM) role that MongoDB Cloud assumes when it accesses resources in your AWS account.
                     type: string
                 testBucket:
-                    description: The name of an S3 bucket used to check authorization of the passed-in IAM role ARN.
+                    description: The name of an S3 bucket used to check authorization of the passed-in IAM role ARN. This field applies only to S3 connections and is ignored for all other connection types and configurations.
                     type: string
             type: object
         StreamsAWSKinesisDataStreamsConnection:
@@ -46382,7 +46422,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 2623f37f836c144e4fc94e6912f53ee683e67ff7
+    x-xgen-sha: ee4e1dae6444ce6a433bd546cfdfad1ecab476dc
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -67707,6 +67747,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/GroupSettings'
                             x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupSettingsPreview'
+                            x-xgen-preview:
+                                name: query-insights-gen-ai-features
+                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -67741,6 +67787,12 @@ paths:
                     application/vnd.atlas.2023-01-01+json:
                         schema:
                             $ref: '#/components/schemas/GroupSettings'
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/GroupSettingsPreview'
+                        x-xgen-preview:
+                            name: query-insights-gen-ai-features
+                        x-xgen-version: preview
                 description: Settings to update.
                 required: true
             responses:
@@ -67750,6 +67802,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/GroupSettings'
                             x-xgen-version: "2023-01-01"
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/GroupSettingsPreview'
+                            x-xgen-preview:
+                                name: query-insights-gen-ai-features
+                            x-xgen-version: preview
                     description: OK
                     headers:
                         RateLimit-Limit:
@@ -68737,7 +68795,11 @@ paths:
             tags:
                 - Streams
             x-rolesRequirements:
-                - Project Read Only
+                - Organization Stream Processing Admin
+                - Project Data Access Admin
+                - Project Data Access Read Only
+                - Project Data Access Read Write
+                - Project Stream Processing Manager
             x-xgen-changelog:
                 "2023-09-11": The MongoDB Atlas Streams Processing API is now exposed as part of private preview, but is subject to change until GA.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/getGroupStreamConnection
