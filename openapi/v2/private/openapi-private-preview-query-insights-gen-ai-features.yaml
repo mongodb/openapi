@@ -339,18 +339,6 @@ components:
                 - error
                 - errorCode
             type: object
-        AssociatedInvoice:
-            description: An invoice associated with an organization.
-            properties:
-                invoiceId:
-                    description: Unique 24-hexadecimal digit identifier for an invoice.
-                    readOnly: true
-                    type: string
-                orgId:
-                    description: Unique 24-hexadecimal digit identifier for an organization.
-                    readOnly: true
-                    type: string
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             properties:
@@ -373,41 +361,48 @@ components:
                 - description
                 - field
             type: object
-        OrgAssociatedInvoiceResponse:
-            description: Response containing associated invoices for an organization.
+        GroupSettingsPreview:
             properties:
-                associatedInvoices:
-                    description: List of invoices associated with the organization for the specified period.
-                    items:
-                        $ref: '#/components/schemas/AssociatedInvoice'
-                    readOnly: true
-                    type: array
-                month:
-                    description: Two-digit number that represents the month of the associated invoices.
-                    example: "01"
-                    readOnly: true
-                    type: string
-                year:
-                    description: Four-digit number that represents the year of the associated invoices.
-                    example: "2024"
-                    readOnly: true
-                    type: string
-            type: object
-        ReportGenerationRequest:
-            properties:
-                reportFormat:
-                    description: Format of the report.
-                    enum:
-                        - CSV
-                    type: string
-                reportType:
-                    description: Type of report to generate.
-                    enum:
-                        - FOCUS
-                    type: string
-                version:
-                    description: Version of the report format specification.
-                    type: string
+                isAtlasHomePageAiAssistantEnabled:
+                    description: Flag that indicates whether the MongoDB Assistant on the Atlas Home Page is enabled for the specified project.
+                    type: boolean
+                isClusterAiAssistantEnabled:
+                    description: Flag that indicates whether the AI Cluster Assistant is enabled for the specified project.
+                    type: boolean
+                isCollectDatabaseSpecificsStatisticsEnabled:
+                    description: Flag that indicates whether to collect database-specific metrics for the specified project.
+                    type: boolean
+                isDataExplorerEnabled:
+                    description: Flag that indicates whether to enable the Data Explorer for the specified project.
+                    type: boolean
+                isDataExplorerGenAIFeaturesEnabled:
+                    description: Flag that indicates whether to enable the use of generative AI features which make requests to 3rd party services in Data Explorer for the specified project.
+                    type: boolean
+                isDataExplorerGenAISampleDocumentPassingEnabled:
+                    default: false
+                    description: Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.
+                    type: boolean
+                isDataValidationEnabled:
+                    description: Flag that indicates whether data validation is enabled for all clusters in the specified project.
+                    type: boolean
+                isExtendedStorageSizesEnabled:
+                    description: Flag that indicates whether to enable extended storage sizes for the specified project.
+                    type: boolean
+                isNativeRerankingEnabled:
+                    description: Flag that indicates whether to enable Native Reranking with Voyage AI models in the Aggregation Pipeline for the specified project.
+                    type: boolean
+                isPerformanceAdvisorEnabled:
+                    description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
+                    type: boolean
+                isQueryInsightsGenAiFeaturesEnabled:
+                    description: Flag that indicates whether to enable AI features in Query Insights for the specified project.
+                    type: boolean
+                isRealtimePerformancePanelEnabled:
+                    description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
+                    type: boolean
+                isSchemaAdvisorEnabled:
+                    description: Flag that indicates whether to enable the Schema Advisor for the specified project.
+                    type: boolean
             type: object
     securitySchemes:
         DigestAuth:
@@ -438,7 +433,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-invoicereporting+json" \
+          --header "Accept: application/vnd.atlas.private-preview-query-insights-gen-ai-features+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -456,53 +451,32 @@ info:
     x-xgen-sha: d3321478485e1e13b082c5b5e869cfcb781f2786
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/orgs/{orgId}/associatedInvoices:
+    /api/atlas/v2/groups/{groupId}/settings:
         get:
-            deprecated: true
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns a list of invoice IDs for the specified organization and month/year. Optionally includes invoices from linked organizations. Deprecated versions: v2-{2025-03-12}
-            operationId: getOrgAssociatedInvoices
+                 Returns details about the specified project's settings. Deprecated versions: v2-{2023-01-01}
+            operationId: getGroupSettings
             parameters:
-                - $ref: '#/components/parameters/orgId'
-                - description: The month for which to retrieve invoices (1-12). Defaults to current month.
-                  in: query
-                  name: month
-                  schema:
-                    format: int64
-                    maximum: 12
-                    minimum: 1
-                    type: integer
-                - description: The year for which to retrieve invoices. Defaults to current year.
-                  in: query
-                  name: year
-                  schema:
-                    format: int64
-                    minimum: 2000
-                    type: integer
-                - description: Whether to include invoices from linked organizations. Defaults to false.
-                  in: query
-                  name: includeLinkedOrgs
-                  schema:
-                    type: boolean
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/OrgAssociatedInvoiceResponse'
+                                $ref: '#/components/schemas/GroupSettingsPreview'
                             x-xgen-preview:
-                                name: invoicereporting
-                            x-xgen-version: private-preview-invoicereporting
-                    description: Associated invoices retrieved successfully
+                                name: query-insights-gen-ai-features
+                            x-xgen-version: private-preview-query-insights-gen-ai-features
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
@@ -513,78 +487,68 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return Associated Invoices
+            summary: Return Project Settings
             tags:
-                - Invoices
+                - Projects
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api invoices getOrgAssociatedInvoices --help
+                  source: atlas api projects getGroupSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/associatedInvoices?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings?pretty=true"
             x-rolesRequirements:
-                - Organization Billing Viewer
+                - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-sunset: "2026-09-16"
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/getOrgAssociatedInvoices
-    /api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport:
-        post:
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/getGroupSettings
+        patch:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Generates and downloads a report for the specified invoice.
-            operationId: generateOrgInvoiceAndDownloadReport
+                 Updates the settings of the specified project. You can update any of the options available. MongoDB cloud only updates the options provided in the request. Deprecated versions: v2-{2023-01-01}
+            operationId: updateGroupSettings
             parameters:
-                - $ref: '#/components/parameters/orgId'
-                - description: Unique string that identifies the invoice for which to generate the report.
-                  in: path
-                  name: invoiceId
-                  required: true
-                  schema:
-                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
             requestBody:
                 content:
                     application/vnd.atlas.preview+json:
                         schema:
-                            $ref: '#/components/schemas/ReportGenerationRequest'
+                            $ref: '#/components/schemas/GroupSettingsPreview'
                         x-xgen-preview:
-                            name: invoicereporting
-                        x-xgen-version: private-preview-invoicereporting
-                description: Generate and Download Invoice Report request body.
+                            name: query-insights-gen-ai-features
+                        x-xgen-version: private-preview-query-insights-gen-ai-features
+                description: Settings to update.
                 required: true
             responses:
                 "200":
                     content:
-                        application/vnd.atlas.preview+gzip:
-                            example: |
-                                invoice_abc123_focus.csv.gz
+                        application/vnd.atlas.preview+json:
                             schema:
-                                type: string
+                                $ref: '#/components/schemas/GroupSettingsPreview'
                             x-xgen-preview:
-                                name: invoicereporting
-                            x-xgen-version: private-preview-invoicereporting
-                    description: Report generated successfully
+                                name: query-insights-gen-ai-features
+                            x-xgen-version: private-preview-query-insights-gen-ai-features
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
@@ -595,46 +559,45 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Generate and Download Invoice Report
+            summary: Update Project Settings
             tags:
-                - Invoices
+                - Projects
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api invoices generateInvoiceReport --help
+                  source: atlas api projects updateGroupSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                      --header "Accept: application/vnd.atlas.preview+gzip" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings" \
                       -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
-                      --header "Accept: application/vnd.atlas.preview+gzip" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X POST "https://cloud.mongodb.com/api/atlas/v2/orgs/{orgId}/invoices/{invoiceId}:generateAndDownloadReport" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings" \
                       -d '{ <Payload> }'
             x-rolesRequirements:
-                - Organization Billing Viewer
+                - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/generateOrgInvoiceAndDownloadReport
-            x-xgen-operation-id-override: generateInvoiceReport
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupSettings
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns invoices.
-      name: Invoices
+    - description: Returns, adds, and edits collections of clusters and users in MongoDB Cloud.
+      name: Projects
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
