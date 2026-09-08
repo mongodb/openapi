@@ -1197,3 +1197,108 @@ func getApplyOas() *openapi3.T {
 
 	return oas
 }
+
+func hiddenSchemaRef() *openapi3.SchemaRef {
+	return &openapi3.SchemaRef{Value: &openapi3.Schema{
+		Type: &openapi3.Types{"object"},
+		Extensions: map[string]any{
+			hiddenEnvsExtension: map[string]any{"envs": "stage,prod"},
+		},
+	}}
+}
+
+func strRef() *openapi3.SchemaRef {
+	return &openapi3.SchemaRef{Value: &openapi3.Schema{Type: &openapi3.Types{"string"}}}
+}
+
+func buildOAS(schemas openapi3.Schemas) *openapi3.T {
+	return &openapi3.T{
+		OpenAPI:    "3.0.1",
+		Info:       &openapi3.Info{Title: "test", Version: "1.0"},
+		Paths:      &openapi3.Paths{},
+		Components: &openapi3.Components{Schemas: schemas},
+	}
+}
+
+func applyForStage(t *testing.T, oas *openapi3.T) openapi3.Schemas {
+	t.Helper()
+	filter := &HiddenEnvsFilter{oas: oas, metadata: &Metadata{targetEnv: "stage"}}
+	require.NoError(t, filter.Apply())
+	return oas.Components.Schemas
+}
+
+// TestApply_DanglingRefs covers all positions where a $ref to a hidden schema
+// can appear and must be cleaned up.
+func TestApply_DanglingRefs(t *testing.T) {
+	type tcase struct {
+		name    string
+		schemas openapi3.Schemas
+		assert  func(s openapi3.Schemas)
+	}
+	hidden := "#/components/schemas/Hidden"
+	tests := []tcase{
+		{
+			name: "property/allOf wrapper without annotation (real-world: ApiSearchAutoScalingView)",
+			schemas: openapi3.Schemas{
+				"Hidden": hiddenSchemaRef(),
+				"Parent": {Value: &openapi3.Schema{
+					Type: &openapi3.Types{"object"},
+					Properties: openapi3.Schemas{
+						"gone": {Value: &openapi3.Schema{AllOf: openapi3.SchemaRefs{{Ref: hidden}}}},
+						"keep": strRef(),
+					},
+				}},
+			},
+			assert: func(s openapi3.Schemas) {
+				assert.NotContains(t, s, "Hidden")
+				assert.NotContains(t, s["Parent"].Value.Properties, "gone")
+				assert.Contains(t, s["Parent"].Value.Properties, "keep")
+			},
+		},
+		{
+			name: "property/allOf wrapper with annotation on property",
+			schemas: openapi3.Schemas{
+				"Hidden": hiddenSchemaRef(),
+				"Parent": {Value: &openapi3.Schema{
+					Type: &openapi3.Types{"object"},
+					Properties: openapi3.Schemas{
+						"gone": {Value: &openapi3.Schema{
+							AllOf:      openapi3.SchemaRefs{{Ref: hidden}},
+							Extensions: map[string]any{hiddenEnvsExtension: map[string]any{"envs": "stage,prod"}},
+						}},
+						"keep": strRef(),
+					},
+				}},
+			},
+			assert: func(s openapi3.Schemas) {
+				assert.NotContains(t, s, "Hidden")
+				assert.NotContains(t, s["Parent"].Value.Properties, "gone")
+				assert.Contains(t, s["Parent"].Value.Properties, "keep")
+			},
+		},
+		{
+			name: "property/bare $ref without annotation",
+			schemas: openapi3.Schemas{
+				"Hidden": hiddenSchemaRef(),
+				"Parent": {Value: &openapi3.Schema{
+					Type: &openapi3.Types{"object"},
+					Properties: openapi3.Schemas{
+						"gone": {Ref: hidden},
+						"keep": strRef(),
+					},
+				}},
+			},
+			assert: func(s openapi3.Schemas) {
+				assert.NotContains(t, s, "Hidden")
+				assert.NotContains(t, s["Parent"].Value.Properties, "gone")
+				assert.Contains(t, s["Parent"].Value.Properties, "keep")
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.assert(applyForStage(t, buildOAS(tc.schemas)))
+		})
+	}
+}

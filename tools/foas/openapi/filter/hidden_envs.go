@@ -57,7 +57,80 @@ func (f *HiddenEnvsFilter) Apply() error {
 		return nil
 	}
 
-	return f.applyOnSchemas(f.oas.Components.Schemas)
+	if err := f.applyOnSchemas(f.oas.Components.Schemas); err != nil {
+		return err
+	}
+
+	f.removeDanglingSchemaRefs(f.oas.Components.Schemas)
+	return nil
+}
+
+// removeDanglingSchemaRefs removes properties whose $ref (bare or via allOf/anyOf/oneOf)
+// points to a schema deleted by HiddenEnvsFilter.
+func (*HiddenEnvsFilter) removeDanglingSchemaRefs(schemas openapi3.Schemas) {
+	for _, schema := range schemas {
+		if schema == nil || schema.Value == nil {
+			continue
+		}
+		for propName, prop := range schema.Value.Properties {
+			if isDanglingRef(prop, schemas) {
+				log.Printf("Removing property %q because its $ref points to a deleted schema", propName)
+				delete(schema.Value.Properties, propName)
+				continue
+			}
+			if prop == nil || prop.Value == nil {
+				continue
+			}
+			prop.Value.AllOf = filterDanglingRefs(prop.Value.AllOf, schemas)
+			prop.Value.AnyOf = filterDanglingRefs(prop.Value.AnyOf, schemas)
+			prop.Value.OneOf = filterDanglingRefs(prop.Value.OneOf, schemas)
+			if isPropertyEmpty(prop.Value) {
+				log.Printf("Removing property %q because its only type refs were deleted", propName)
+				delete(schema.Value.Properties, propName)
+			}
+		}
+	}
+}
+
+// isDanglingRef reports whether ref is an unresolved $ref to a deleted schema.
+func isDanglingRef(ref *openapi3.SchemaRef, schemas openapi3.Schemas) bool {
+	if ref == nil || ref.Value != nil {
+		return false
+	}
+	if ref.Ref == "" || !strings.HasPrefix(ref.Ref, "#/components/schemas/") {
+		return false
+	}
+	name := strings.TrimPrefix(ref.Ref, "#/components/schemas/")
+	_, exists := schemas[name]
+	return !exists
+}
+
+// filterDanglingRefs drops dangling $ref entries from a SchemaRefs slice.
+func filterDanglingRefs(refs openapi3.SchemaRefs, schemas openapi3.Schemas) openapi3.SchemaRefs {
+	if len(refs) == 0 {
+		return refs
+	}
+	out := refs[:0]
+	for _, ref := range refs {
+		if !isDanglingRef(ref, schemas) {
+			out = append(out, ref)
+		}
+	}
+	return out
+}
+
+// isPropertyEmpty reports whether a schema has no type definition left.
+func isPropertyEmpty(s *openapi3.Schema) bool {
+	if s == nil {
+		return true
+	}
+	if s.Type != nil && len(*s.Type) > 0 {
+		return false
+	}
+	if len(s.Properties) > 0 || s.Items != nil || s.AdditionalProperties.Schema != nil {
+		return false
+	}
+	return len(s.AllOf) == 0 && len(s.AnyOf) == 0 && len(s.OneOf) == 0
 }
 
 func (f *HiddenEnvsFilter) applyOnSchemas(schemas openapi3.Schemas) error {
