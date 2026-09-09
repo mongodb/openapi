@@ -1494,8 +1494,6 @@ components:
                         - $ref: '#/components/schemas/StorageConfig'
                     description: 'Available in Public Preview: Settings that determine the per-shard data-size limit for this cluster. Applies only to Atlas INFINITE clusters. MongoDB Cloud accepts these settings only on `autoScaling` and rejects them on `analyticsAutoScaling`, including when you send them as `null`. In a request that includes `replicationSpecs`, omitting `storageConfig` or sending it as `null` or `{}` clears the limit. Omitting `replicationSpecs` preserves it.'
                     nullable: true
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
             title: Automatic Scaling Settings
             type: object
         AdvancedClusterDescription:
@@ -2841,8 +2839,6 @@ components:
                         - CORE
                         - INFINITE
                     type: string
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
                 diskWarmingMode:
                     default: FULLY_WARMED
                     description: Disk warming mode selection.
@@ -2860,8 +2856,6 @@ components:
                         - INFINITE
                     readOnly: true
                     type: string
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
                 effectiveReplicationSpecs:
                     description: List of settings that represent the actual cluster state. This is read-only and always returned in the response. It reflects the current cluster configuration, which may differ from `replicationSpecs` due to system-managed changes.
                     items:
@@ -6439,8 +6433,6 @@ components:
                         - CORE
                         - INFINITE
                     type: string
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
                 diskWarmingMode:
                     default: FULLY_WARMED
                     description: Disk warming mode selection.
@@ -6458,8 +6450,6 @@ components:
                         - INFINITE
                     readOnly: true
                     type: string
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
                 effectiveReplicationSpecs:
                     description: List of settings that represent the actual cluster state. This is read-only and always returned in the response. It reflects the current cluster configuration, which may differ from `replicationSpecs` due to system-managed changes.
                     items:
@@ -12039,8 +12029,6 @@ components:
                         - CORE
                         - INFINITE
                     type: string
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
                 diskWarmingMode:
                     default: FULLY_WARMED
                     description: Disk warming mode selection.
@@ -12058,8 +12046,6 @@ components:
                         - INFINITE
                     readOnly: true
                     type: string
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
                 effectiveReplicationSpecs:
                     description: List of settings that represent the actual cluster state. This is read-only and always returned in the response. It reflects the current cluster configuration, which may differ from `replicationSpecs` due to system-managed changes.
                     items:
@@ -31154,9 +31140,10 @@ components:
                         - CUMULATIVE
                     type: string
                 authType:
-                    description: Authentication method the integration uses when exporting metrics to the endpoint. `HEADER` authenticates with the static HTTP headers provided in the `headers` field, which must be set when this value is used.
+                    description: Authentication method the integration uses when exporting metrics to the endpoint. `HEADER` authenticates with the static HTTP headers provided in the `headers` field, which must be set when this value is used. `OAUTH2` acquires a bearer token from an OAuth 2.0 token endpoint using the `oauth` field.
                     enum:
                         - HEADER
+                        - OAUTH2
                     type: string
                 endpoint:
                     description: OpenTelemetry collector endpoint URL. Must use HTTPS.
@@ -31188,6 +31175,8 @@ components:
                     minItems: 1
                     type: array
                     uniqueItems: true
+                oauth:
+                    $ref: '#/components/schemas/OAuthConfigRequest'
                 providerType:
                     description: The provider type for the metric integration. Identifies the third-party service provider.
                     enum:
@@ -31218,6 +31207,7 @@ components:
                     description: Authentication method the integration uses when exporting metrics to the endpoint.
                     enum:
                         - HEADER
+                        - OAUTH2
                     type: string
                 endpoint:
                     description: OpenTelemetry collector endpoint URL.
@@ -31257,6 +31247,8 @@ components:
                     minItems: 1
                     type: array
                     uniqueItems: true
+                oauth:
+                    $ref: '#/components/schemas/OAuthConfigResponse'
                 providerType:
                     description: The provider type for the metric integration. Identifies the third-party service provider.
                     enum:
@@ -31276,7 +31268,7 @@ components:
             title: Metric Integration Response
             type: object
         MetricIntegrationUpdateRequest:
-            description: Request schema for updating a metric integration.
+            description: Request schema for updating a metric integration. Omitted OAuth fields keep their stored values. An explicit null, an empty `scopes` array, or an empty `tokenRequestParams` object clears that field. Omitting `clientSecret` keeps the stored secret.
             properties:
                 aggregationTemporality:
                     description: The temporality to send to the metric integration.
@@ -31285,9 +31277,10 @@ components:
                         - CUMULATIVE
                     type: string
                 authType:
-                    description: Authentication method the integration uses when exporting metrics to the endpoint. `HEADER` authenticates with the static HTTP headers provided in the `headers` field, which must be set when this value is used.
+                    description: Authentication method the integration uses when exporting metrics to the endpoint. `HEADER` authenticates with the static HTTP headers provided in the `headers` field, which must be set when this value is used. `OAUTH2` acquires a bearer token from an OAuth 2.0 token endpoint using the `oauth` field.
                     enum:
                         - HEADER
+                        - OAUTH2
                     type: string
                 endpoint:
                     description: OpenTelemetry collector endpoint URL. Must use HTTPS.
@@ -31319,6 +31312,8 @@ components:
                     minItems: 1
                     type: array
                     uniqueItems: true
+                oauth:
+                    $ref: '#/components/schemas/OAuthConfigRequest'
                 providerType:
                     description: The provider type for the metric integration. Identifies the third-party service provider.
                     enum:
@@ -33583,6 +33578,121 @@ components:
                     $ref: '#/components/schemas/NumberMetricUnits'
             readOnly: true
             title: Number Metric Value
+            type: object
+        OAuthConfigRequest:
+            description: OAuth 2.0 client credentials configuration. Required when `authType` is `OAUTH2`. Secrets are never returned.
+            properties:
+                clientAuthMethod:
+                    description: How the client authenticates to the token endpoint. `CLIENT_SECRET` sends a shared secret. `PRIVATE_KEY_JWT` signs a client assertion with an Atlas-generated, Atlas-managed key. Register the returned JWKS URL with your identity provider.
+                    enum:
+                        - CLIENT_SECRET
+                        - PRIVATE_KEY_JWT
+                    type: string
+                clientId:
+                    description: OAuth 2.0 client identifier registered with the token endpoint.
+                    example: atlas-otel
+                    maxLength: 2048
+                    type: string
+                clientSecret:
+                    description: Shared client secret. Required when `clientAuthMethod` is `CLIENT_SECRET`, and rejected for `PRIVATE_KEY_JWT`. Encrypted at rest and never returned.
+                    format: password
+                    type: string
+                    writeOnly: true
+                scopes:
+                    description: Optional OAuth 2.0 scopes requested on the token, sent as a space delimited `scope` parameter. Applies to both client authentication methods.
+                    items:
+                        maxLength: 256
+                        type: string
+                    maxItems: 20
+                    type: array
+                    uniqueItems: true
+                tokenEndpoint:
+                    description: OAuth 2.0 token endpoint URL. Must use HTTPS.
+                    example: https://idp.example.com/oauth2/token
+                    maxLength: 2048
+                    type: string
+                tokenRequestParams:
+                    additionalProperties:
+                        description: Optional provider-specific parameters added to the token request, for example a resource indicator. Applies to both client authentication methods.
+                        example: '{"resource":"https://otel.example.com/metrics"}'
+                        maxProperties: 10
+                        type: string
+                    description: Optional provider-specific parameters added to the token request, for example a resource indicator. Applies to both client authentication methods.
+                    example:
+                        resource: https://otel.example.com/metrics
+                    maxProperties: 10
+                    type: object
+            required:
+                - clientAuthMethod
+                - clientId
+                - tokenEndpoint
+            title: OAuth Config Request
+            type: object
+        OAuthConfigResponse:
+            description: OAuth 2.0 configuration returned for a metric integration. Secrets are never returned.
+            properties:
+                clientAuthMethod:
+                    description: How the client authenticates to the token endpoint.
+                    enum:
+                        - CLIENT_SECRET
+                        - PRIVATE_KEY_JWT
+                    type: string
+                clientId:
+                    description: OAuth 2.0 client identifier registered with the token endpoint.
+                    maxLength: 2048
+                    type: string
+                scopes:
+                    description: OAuth 2.0 scopes requested on the token.
+                    items:
+                        maxLength: 256
+                        type: string
+                    maxItems: 20
+                    type: array
+                    uniqueItems: true
+                signingKeyInfo:
+                    $ref: '#/components/schemas/OAuthSigningKeyInfo'
+                tokenEndpoint:
+                    description: OAuth 2.0 token endpoint URL.
+                    maxLength: 2048
+                    type: string
+                tokenRequestParams:
+                    additionalProperties:
+                        description: Provider-specific parameters added to the token request.
+                        maxProperties: 10
+                        type: string
+                    description: Provider-specific parameters added to the token request.
+                    maxProperties: 10
+                    type: object
+            required:
+                - clientAuthMethod
+                - clientId
+                - tokenEndpoint
+            title: OAuth Config Response
+            type: object
+        OAuthSigningKeyInfo:
+            description: Read-only metadata for the Atlas-managed signing key used by `PRIVATE_KEY_JWT`. Present only for that method. Register the `jwksUri` with your identity provider. Atlas rotates the underlying key without changing this URL.
+            properties:
+                algorithm:
+                    description: Signing algorithm of the Atlas-managed key.
+                    example: RS256
+                    readOnly: true
+                    type: string
+                createdAt:
+                    description: When the currently active signing key was created. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                jwksUri:
+                    description: Public JWKS URL serving this integration's signing keys. Fixed for the lifetime of the integration.
+                    example: https://cloud.mongodb.com/api/keys/clientJwks/9f6c2a1e-8b3d-4e7a-a2c5-1f0e9d41d000
+                    readOnly: true
+                    type: string
+                kid:
+                    description: Key ID stamped on client assertions, the `SHA-1` thumbprint of the key certificate in uppercase hexadecimal. Changes when Atlas rotates the key.
+                    readOnly: true
+                    type: string
+            readOnly: true
+            title: OAuth Signing Key Info
             type: object
         ObjectCreated:
             description: Created.
@@ -43388,8 +43498,6 @@ components:
                     type: integer
                     x-xgen-IPA-exception:
                         xgen-IPA-112-field-names-are-camel-case: Field name ends in the unit abbreviation GB, matching existing size fields such as diskSizeGB.
-                    x-xgen-hidden-env:
-                        envs: qa,stage,prod
             type: object
         StorageEngine:
             additionalProperties:
@@ -48941,7 +49049,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 28b4fa0521232b375ebf9c9a60960fd18862fbeb
+    x-xgen-sha: 667df3938237c6abe132c232aad4765b2ff6e25f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
