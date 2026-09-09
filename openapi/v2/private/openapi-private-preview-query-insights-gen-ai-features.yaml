@@ -361,41 +361,48 @@ components:
                 - description
                 - field
             type: object
-        SqlInterfaceStatusResponse:
+        GroupSettingsPreview:
             properties:
-                status:
-                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
-                    enum:
-                        - "ON"
-                        - "OFF"
-                    type: string
-                supported:
-                    default: false
-                    description: Whether the cluster tier and type support SQL Interface.
-                    readOnly: true
+                isAtlasHomePageAiAssistantEnabled:
+                    description: Flag that indicates whether the MongoDB Assistant on the Atlas Home Page is enabled for the specified project.
                     type: boolean
-                unsupportedReason:
-                    description: Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.
-                    enum:
-                        - UNSUPPORTED_TIER
-                        - UNSUPPORTED_TYPE
-                        - UNSUPPORTED_MONGODB_VERSION
-                    nullable: true
-                    readOnly: true
-                    type: string
-            required:
-                - status
-            type: object
-        SqlInterfaceStatusUpdateRequest:
-            properties:
-                status:
-                    description: Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.
-                    enum:
-                        - "ON"
-                        - "OFF"
-                    type: string
-            required:
-                - status
+                isClusterAiAssistantEnabled:
+                    description: Flag that indicates whether the AI Cluster Assistant is enabled for the specified project.
+                    type: boolean
+                isCollectDatabaseSpecificsStatisticsEnabled:
+                    description: Flag that indicates whether to collect database-specific metrics for the specified project.
+                    type: boolean
+                isDataExplorerEnabled:
+                    description: Flag that indicates whether to enable the Data Explorer for the specified project.
+                    type: boolean
+                isDataExplorerGenAIFeaturesEnabled:
+                    description: Flag that indicates whether to enable the use of generative AI features which make requests to 3rd party services in Data Explorer for the specified project.
+                    type: boolean
+                isDataExplorerGenAISampleDocumentPassingEnabled:
+                    default: false
+                    description: Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.
+                    type: boolean
+                isDataValidationEnabled:
+                    description: Flag that indicates whether data validation is enabled for all clusters in the specified project.
+                    type: boolean
+                isExtendedStorageSizesEnabled:
+                    description: Flag that indicates whether to enable extended storage sizes for the specified project.
+                    type: boolean
+                isNativeRerankingEnabled:
+                    description: Flag that indicates whether to enable Native Reranking with Voyage AI models in the Aggregation Pipeline for the specified project.
+                    type: boolean
+                isPerformanceAdvisorEnabled:
+                    description: Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.
+                    type: boolean
+                isQueryInsightsGenAiFeaturesEnabled:
+                    description: Flag that indicates whether to enable AI features in Query Insights for the specified project.
+                    type: boolean
+                isRealtimePerformancePanelEnabled:
+                    description: Flag that indicates whether to enable the Real Time Performance Panel for the specified project.
+                    type: boolean
+                isSchemaAdvisorEnabled:
+                    description: Flag that indicates whether to enable the Schema Advisor for the specified project.
+                    type: boolean
             type: object
     securitySchemes:
         DigestAuth:
@@ -426,7 +433,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-sql-interface+json" \
+          --header "Accept: application/vnd.atlas.private-preview-query-insights-gen-ai-features+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -444,41 +451,32 @@ info:
     x-xgen-sha: c00ff9e4c41453d42e1493f24b00cfa762a634a5
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface:
+    /api/atlas/v2/groups/{groupId}/settings:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Returns the current SQL Interface status, either ON or OFF, for the specified cluster. If no status is configured, this resource returns OFF. The response also indicates whether SQL Interface is supported for this cluster.
-            operationId: getGroupClusterSqlInterface
+                 Returns details about the specified project's settings. Deprecated versions: v2-{2023-01-01}
+            operationId: getGroupSettings
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
-                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                                $ref: '#/components/schemas/GroupSettingsPreview'
                             x-xgen-preview:
-                                name: sql-interface
-                            x-xgen-version: private-preview-sql-interface
-                    description: SQL Interface status successfully retrieved.
+                                name: query-insights-gen-ai-features
+                            x-xgen-version: private-preview-query-insights-gen-ai-features
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
@@ -489,104 +487,93 @@ paths:
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return SQL Interface Status
+            summary: Return Project Settings
             tags:
-                - Clusters
+                - Projects
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api clusters getClusterSqlInterface --help
+                  source: atlas api projects getGroupSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings?pretty=true"
             x-rolesRequirements:
                 - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterSqlInterface
-            x-xgen-operation-id-override: getClusterSqlInterface
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/getGroupSettings
         patch:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.
-            operationId: updateGroupClusterSqlInterface
+                 Updates the settings of the specified project. You can update any of the options available. MongoDB cloud only updates the options provided in the request. Deprecated versions: v2-{2023-01-01}
+            operationId: updateGroupSettings
             parameters:
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/pretty'
-                - description: Human-readable label that identifies the cluster.
-                  in: path
-                  name: clusterName
-                  required: true
-                  schema:
-                    type: string
             requestBody:
                 content:
                     application/vnd.atlas.preview+json:
                         schema:
-                            $ref: '#/components/schemas/SqlInterfaceStatusUpdateRequest'
+                            $ref: '#/components/schemas/GroupSettingsPreview'
                         x-xgen-preview:
-                            name: sql-interface
-                        x-xgen-version: private-preview-sql-interface
-                description: Desired SQL Interface status for the cluster.
+                            name: query-insights-gen-ai-features
+                        x-xgen-version: private-preview-query-insights-gen-ai-features
+                description: Settings to update.
                 required: true
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/SqlInterfaceStatusResponse'
+                                $ref: '#/components/schemas/GroupSettingsPreview'
                             x-xgen-preview:
-                                name: sql-interface
-                            x-xgen-version: private-preview-sql-interface
-                    description: SQL Interface status successfully updated.
+                                name: query-insights-gen-ai-features
+                            x-xgen-version: private-preview-query-insights-gen-ai-features
+                    description: OK
                     headers:
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
                             $ref: '#/components/headers/HeaderRateLimitRemaining'
-                "400":
-                    $ref: '#/components/responses/badRequest'
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
                     $ref: '#/components/responses/forbidden'
                 "404":
                     $ref: '#/components/responses/notFound'
-                "409":
-                    $ref: '#/components/responses/conflict'
                 "429":
                     $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Update SQL Interface Status
+            summary: Update Project Settings
             tags:
-                - Clusters
+                - Projects
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api clusters updateClusterSqlInterface --help
+                  source: atlas api projects updateGroupSettings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings" \
                       -d '{ <Payload> }'
                 - label: curl (Digest)
                   lang: cURL
@@ -595,24 +582,22 @@ paths:
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
                       --header "Content-Type: application/json" \
-                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/settings" \
                       -d '{ <Payload> }'
             x-rolesRequirements:
-                - Project Cluster Manager
-                - Project Replica Set Manager
+                - Project Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
-            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface
-            x-xgen-operation-id-override: updateClusterSqlInterface
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/updateGroupSettings
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.
-      name: Clusters
+    - description: Returns, adds, and edits collections of clusters and users in MongoDB Cloud.
+      name: Projects
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/
