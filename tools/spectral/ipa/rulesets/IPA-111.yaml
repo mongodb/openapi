@@ -1,0 +1,62 @@
+# IPA-111: Default Values
+# https://mongodb.github.io/ipa/111
+
+functions:
+  - IPA111OptionalFieldsNoDefault
+  - IPA111EffectiveFieldsReadOnly
+  - IPA111OptionalBooleanFieldsDefaultFalse
+
+rules:
+  xgen-IPA-111-optional-fields-no-default:
+    description: |
+      Optional fields must not define a default value.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to optional (non-required) schema properties in request bodies only
+        - Boolean fields are exempt (covered by xgen-IPA-111-optional-boolean-fields-default-false)
+        - Fields marked with the x-xgen-server-computed-when-client-omitted extension are exempt
+        - Fails if the field defines a default value
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-111-optional-fields-no-default'
+    severity: error
+    resolved: false
+    given:
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+    then:
+      field: '@key'
+      function: 'IPA111OptionalFieldsNoDefault'
+  xgen-IPA-111-effective-fields-read-only:
+    description: |
+      Effective-value fields must be marked as readOnly: true and must not appear in request schemas.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to schema properties whose name starts with the "effective" prefix
+        - Fails if the field appears in a request schema
+        - Fails if the field is not marked with readOnly: true
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-111-effective-fields-read-only'
+    severity: error
+    resolved: false
+    given:
+      - '$.components.schemas..properties'
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+      - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties'
+    then:
+      field: '@key'
+      function: 'IPA111EffectiveFieldsReadOnly'
+  xgen-IPA-111-optional-boolean-fields-default-false:
+    description: |
+      Optional boolean fields must default to false.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to optional (non-required) boolean schema properties in request bodies only
+        - Fails if the field does not define a default value of false
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-111-optional-boolean-fields-default-false'
+    severity: error
+    resolved: false
+    given:
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+    then:
+      field: '@key'
+      function: 'IPA111OptionalBooleanFieldsDefaultFalse'
