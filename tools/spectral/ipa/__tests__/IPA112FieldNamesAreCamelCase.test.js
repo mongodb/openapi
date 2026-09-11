@@ -13,6 +13,13 @@ testRule('xgen-IPA-112-field-names-are-camel-case', [
               firstName: { type: 'string' },
               emailAddress: { type: 'string' },
               phoneNumber: { type: 'string' },
+              diskGB: { type: 'integer' },
+              memoryMB: { type: 'integer' },
+              storageKB: { type: 'integer' },
+              maxSizeGB: { type: 'integer' },
+              diskGBEnabled: { type: 'boolean' },
+              cpuGHz: { type: 'number' },
+              bandwidthMbps: { type: 'integer' },
             },
           },
         },
@@ -54,6 +61,49 @@ testRule('xgen-IPA-112-field-names-are-camel-case', [
       },
     },
     errors: [],
+  },
+  {
+    name: 'invalid examples - UoM abbreviations in invalid positions',
+    document: {
+      components: {
+        schemas: {
+          SchemaName: {
+            properties: {
+              GBSize: { type: 'integer' },
+              DISKGB: { type: 'integer' },
+              diskGBs: { type: 'integer' },
+              diskGBMB: { type: 'integer' },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "GBSize" must use camelCase format.',
+        path: ['components', 'schemas', 'SchemaName', 'properties', 'GBSize'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "DISKGB" must use camelCase format.',
+        path: ['components', 'schemas', 'SchemaName', 'properties', 'DISKGB'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "diskGBs" must use camelCase format.',
+        path: ['components', 'schemas', 'SchemaName', 'properties', 'diskGBs'],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-112-field-names-are-camel-case',
+        message: 'Property "diskGBMB" must use camelCase format.',
+        path: ['components', 'schemas', 'SchemaName', 'properties', 'diskGBMB'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
   },
   {
     name: 'invalid examples',
