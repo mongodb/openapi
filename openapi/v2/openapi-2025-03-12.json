@@ -42669,6 +42669,41 @@
         ],
         "type": "object"
       },
+      "PaginatedStreamsWorkspacePrivateEndpointResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedTeamRoleView": {
         "properties": {
           "links": {
@@ -55481,7 +55516,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "68d0e4e026243f5a46ce65fbdf18de4140862eac"
+    "x-xgen-sha": "f6d3e1c140f9108a6612245cdf0c4f779b2daf74"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -98285,6 +98320,103 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/withGroupStreamSampleConnections",
         "x-xgen-operation-id-override": "withStreamSampleConnections"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints": {
+      "get": {
+        "description": "Returns all private endpoints registered for Atlas Stream Processing in the specified project.",
+        "operationId": "listGroupStreamsWorkspacePrivateEndpoints",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedStreamsWorkspacePrivateEndpointResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Workspace Private Endpoints for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams listWorkspacePrivateEndpoints --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupStreamsWorkspacePrivateEndpointsApiParams{}\n\tsdkResp, httpResp, err := client.StreamsApi.\n\t\tListGroupStreamsWorkspacePrivateEndpointsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listGroupStreamsWorkspacePrivateEndpoints",
+        "x-xgen-operation-id-override": "listWorkspacePrivateEndpoints"
       }
     },
     "/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}": {
