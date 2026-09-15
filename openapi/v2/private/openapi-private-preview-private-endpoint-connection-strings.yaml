@@ -339,12 +339,6 @@ components:
                 - error
                 - errorCode
             type: object
-        ApiVersion:
-            properties:
-                version:
-                    description: Object representing a version of the Atlas Admin API.
-                    type: string
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             properties:
@@ -378,7 +372,7 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedApiVersions:
+        PaginatedPrivateEndpointConnectionStringResponse:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -392,7 +386,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/ApiVersion'
+                        $ref: '#/components/schemas/PrivateEndpointConnectionStringResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -403,6 +397,91 @@ components:
                     type: integer
             required:
                 - results
+            type: object
+        PrivateEndpointConnectionStringResponse:
+            description: Private endpoint connection string for one cluster.
+            properties:
+                connectionString:
+                    description: Private endpoint-aware connection string that uses the `mongodb://` protocol to connect to this cluster through the selected private endpoints. MongoDB Cloud returns this value when `status` is `AVAILABLE`. After you submit an update, MongoDB Cloud continues to return the existing connection string until the updated connection string becomes available.
+                    maxLength: 2048
+                    readOnly: true
+                    type: string
+                connectionStringId:
+                    description: Unique 24-hexadecimal digit string that identifies this private endpoint connection string. This value is the `connectionStringId` path parameter of this resource's endpoints.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                createdAt:
+                    description: Date and time when MongoDB Cloud created this private endpoint connection string. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                errorMessage:
+                    description: Error message that explains why this private endpoint connection string is in the `FAILED` state, including the remediation, for example when a selected endpoint was deleted mid-flight. Present only when `status` is `FAILED`.
+                    readOnly: true
+                    type: string
+                managementType:
+                    description: Party that manages this private endpoint connection string. MongoDB Cloud returns `SELF_MANAGED` for connection strings that you create and maintain through this resource, and `IMPORTED` for records that preserve the private endpoint connection strings that this cluster exposed before migration. You can delete an imported record but not update it.
+                    enum:
+                        - SELF_MANAGED
+                        - IMPORTED
+                    readOnly: true
+                    type: string
+                name:
+                    description: Human-readable label of at most 64 characters that identifies this private endpoint connection string. You can change this label without changing the connection string.
+                    example: reporting-vpc
+                    maxLength: 64
+                    type: string
+                optimizedModeEnabled:
+                    default: false
+                    description: Flag that indicates whether this private endpoint connection string uses the optimized load-balanced mode. This mode requires a sharded cluster and a private endpoint selection that satisfies the optimized connection string requirements.
+                    type: boolean
+                privateEndpointIds:
+                    description: Set of private endpoints that this connection string covers. MongoDB Cloud stores this set as a snapshot of your selection and never adds newly created private endpoints to it. The set accepts at most one private endpoint per cloud provider region, and can include private endpoints that the cluster does not use yet. Order is not significant and MongoDB Cloud rejects duplicate values.
+                    items:
+                        description: 'Unique string of at most 512 characters that identifies one private endpoint. The format depends on the cloud provider: for Amazon Web Services, this value is a private endpoint ID; for Azure, this value is a resource ID; for Google Cloud, this value is either the forwarding rule name of a port mapped Private Service Connect endpoint or the endpoint group name of a legacy Private Service Connect endpoint group.'
+                        maxLength: 512
+                        type: string
+                    maxItems: 50
+                    type: array
+                    uniqueItems: true
+                    x-xgen-array-semantic: set
+                selectiveMongosEnabled:
+                    default: false
+                    description: Flag that indicates whether this private endpoint connection string routes clients to a subset of the `mongos` processes of the cluster.
+                    type: boolean
+                slug:
+                    description: Short generated pin of at most 64 characters, unique per project. Present only when `managementType` is `SELF_MANAGED`. A self-managed connection string embeds this value in its DNS names, and its replica set horizon name is `cs-` plus this value.
+                    example: ztevkhxb
+                    maxLength: 64
+                    readOnly: true
+                    type: string
+                srvConnectionString:
+                    description: Private endpoint-aware connection string that uses the `mongodb+srv://` protocol to connect to this cluster through the selected private endpoints. MongoDB Cloud returns this value when `status` is `AVAILABLE`. After you submit an update, MongoDB Cloud continues to return the existing connection string until the updated connection string becomes available.
+                    maxLength: 2048
+                    readOnly: true
+                    type: string
+                status:
+                    description: State of this private endpoint connection string. MongoDB Cloud returns `PENDING` while it reconfigures the cluster, `AVAILABLE` once the connection string is usable, and `FAILED` when creation cannot complete.
+                    enum:
+                        - PENDING
+                        - AVAILABLE
+                        - FAILED
+                    readOnly: true
+                    type: string
+                updatedAt:
+                    description: Date and time when MongoDB Cloud last updated this private endpoint connection string. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+            required:
+                - connectionStringId
+                - managementType
+                - name
+                - privateEndpointIds
+                - status
+            title: Private Endpoint Connection String
             type: object
     securitySchemes:
         DigestAuth:
@@ -433,7 +512,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-version-resource+json" \
+          --header "Accept: application/vnd.atlas.private-preview-private-endpoint-connection-strings+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -451,78 +530,181 @@ info:
     x-xgen-sha: 3bc7f646ef6714ed1b0a17d05c5961ccbf9eecf1
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/unauth/openapi/versions:
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 API that provides a list of available versions for a given environment. Deprecated versions: v2-{2024-08-05}
-            operationId: listOpenapiVersions
+                 Returns all private endpoint connection strings for the specified cluster.
+            operationId: listGroupClusterPrivateEndpointConnectionStrings
             parameters:
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: The environment to get the versions from. If not provided, it returns the versions for the given MongoDB URL. (E.g. prod for cloud.mongodb.com).
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+                - description: Filter records by lifecycle status.
                   in: query
-                  name: env
+                  name: status
                   schema:
                     enum:
-                        - dev
-                        - qa
-                        - prod
-                        - stage
+                        - PENDING
+                        - AVAILABLE
+                        - FAILED
+                    type: string
+                - description: Filter records by management type.
+                  in: query
+                  name: managementType
+                  schema:
+                    enum:
+                        - SELF_MANAGED
+                        - IMPORTED
                     type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
+                                $ref: '#/components/schemas/PaginatedPrivateEndpointConnectionStringResponse'
                             x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
-                        application/vnd.atlas.preview+yaml:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
+                                name: private-endpoint-connection-strings
+                            x-xgen-version: private-preview-private-endpoint-connection-strings
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return All Versions for One Environment
+            summary: Return All Private Endpoint Connection Strings for One Cluster
             tags:
-                - OpenAPI
+                - Clusters
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api openApi listOpenapiVersions --help
+                  source: atlas api clusters listEndpointConnectionStrings --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusterPrivateEndpointConnectionStrings
+            x-xgen-operation-id-override: listEndpointConnectionStrings
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns one private endpoint connection string from the specified cluster. This endpoint treats `deleteRequested = true` records as not found.
+            operationId: getGroupClusterPrivateEndpointConnectionString
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies this private endpoint connection string.
+                  in: path
+                  name: connectionStringId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PrivateEndpointConnectionStringResponse'
+                            x-xgen-preview:
+                                name: private-endpoint-connection-strings
+                            x-xgen-version: private-preview-private-endpoint-connection-strings
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Private Endpoint Connection String for One Cluster
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters getEndpointConnectionString --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterPrivateEndpointConnectionString
+            x-xgen-operation-id-override: getEndpointConnectionString
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns information about the MongoDB Atlas Specification.
-      name: OpenAPI
+    - description: Returns, adds, edits, and removes database deployments. Changes to cluster configurations can affect costs. This resource requires your Project ID.
+      name: Clusters
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/

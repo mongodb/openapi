@@ -339,12 +339,6 @@ components:
                 - error
                 - errorCode
             type: object
-        ApiVersion:
-            properties:
-                version:
-                    description: Object representing a version of the Atlas Admin API.
-                    type: string
-            type: object
         BadRequestDetail:
             description: Bad request detail.
             properties:
@@ -378,7 +372,7 @@ components:
                     example: self
                     type: string
             type: object
-        PaginatedApiVersions:
+        PaginatedStreamsWorkspacePrivateEndpointResponse:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -392,7 +386,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/ApiVersion'
+                        $ref: '#/components/schemas/StreamsWorkspacePrivateEndpointResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -403,6 +397,44 @@ components:
                     type: integer
             required:
                 - results
+            type: object
+        StreamsWorkspacePrivateEndpointResponse:
+            description: Customer VPC endpoint registered for inbound private connectivity to Atlas Stream Processing.
+            properties:
+                customerDnsName:
+                    description: DNS name of the customer's VPC endpoint.
+                    example: vpce-0abc123def4567890-abc123.us-east-1.vpce.amazonaws.com
+                    readOnly: true
+                    type: string
+                endpointServiceName:
+                    description: Name of the Atlas endpoint service the customer's VPC endpoint connects to. Absent when no endpoint service is configured for the endpoint's region.
+                    example: com.amazonaws.vpce.us-east-1.vpce-svc-0123456789abcdef0
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique identifier of the customer's VPC endpoint.
+                    example: vpce-0abc123def4567890
+                    readOnly: true
+                    type: string
+                provider:
+                    description: Cloud provider hosting the customer's VPC endpoint.
+                    example: AWS
+                    readOnly: true
+                    type: string
+                region:
+                    description: Human-readable label identifying the region of the customer's VPC endpoint.
+                    example: US_EAST_1
+                    readOnly: true
+                    type: string
+                status:
+                    description: Status of the endpoint registration.
+                    enum:
+                        - PENDING
+                        - OK
+                        - FAILED
+                        - DELETING
+                    readOnly: true
+                    type: string
             type: object
     securitySchemes:
         DigestAuth:
@@ -433,7 +465,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.private-preview-version-resource+json" \
+          --header "Accept: application/vnd.atlas.private-preview-streams-workspace-private-endpoint+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -451,78 +483,158 @@ info:
     x-xgen-sha: 3bc7f646ef6714ed1b0a17d05c5961ccbf9eecf1
 openapi: 3.0.1
 paths:
-    /api/atlas/v2/unauth/openapi/versions:
+    /api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints:
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
 
-                 API that provides a list of available versions for a given environment. Deprecated versions: v2-{2024-08-05}
-            operationId: listOpenapiVersions
+                 Returns all private endpoints registered for Atlas Stream Processing in the specified project.
+            operationId: listGroupStreamsWorkspacePrivateEndpoints
             parameters:
+                - $ref: '#/components/parameters/groupId'
                 - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
                 - $ref: '#/components/parameters/itemsPerPage'
                 - $ref: '#/components/parameters/pageNum'
                 - $ref: '#/components/parameters/pretty'
-                - description: The environment to get the versions from. If not provided, it returns the versions for the given MongoDB URL. (E.g. prod for cloud.mongodb.com).
-                  in: query
-                  name: env
-                  schema:
-                    enum:
-                        - dev
-                        - qa
-                        - prod
-                        - stage
-                    type: string
             responses:
                 "200":
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
+                                $ref: '#/components/schemas/PaginatedStreamsWorkspacePrivateEndpointResponse'
                             x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
-                        application/vnd.atlas.preview+yaml:
-                            schema:
-                                $ref: '#/components/schemas/PaginatedApiVersions'
-                            x-xgen-preview:
-                                name: version-resource
-                            x-xgen-version: private-preview-version-resource
+                                name: streams-workspace-private-endpoint
+                            x-xgen-version: private-preview-streams-workspace-private-endpoint
                     description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
                 "500":
                     $ref: '#/components/responses/internalServerError'
-            summary: Return All Versions for One Environment
+            summary: Return All Workspace Private Endpoints for Atlas Stream Processing
             tags:
-                - OpenAPI
+                - Streams
             x-beta: true
             x-codeSamples:
                 - label: Atlas CLI
                   lang: cURL
-                  source: atlas api openApi listOpenapiVersions --help
+                  source: atlas api streams listWorkspacePrivateEndpoints --help
                 - label: curl (Service Accounts)
                   lang: cURL
                   source: |-
                     curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true"
                 - label: curl (Digest)
                   lang: cURL
                   source: |-
                     curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
                       --digest --include \
                       --header "Accept: application/vnd.atlas.preview+json" \
-                      -X GET "https://cloud.mongodb.com/api/atlas/v2/unauth/openapi/versions?pretty=true"
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true"
+            x-rolesRequirements:
+                - Organization Stream Processing Admin
+                - Project Stream Processing Owner
             x-state:
                 color: '#B89D09'
                 label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listGroupStreamsWorkspacePrivateEndpoints
+            x-xgen-operation-id-override: listWorkspacePrivateEndpoints
+    /api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns one private endpoint registered for Atlas Stream Processing in the specified project.
+            operationId: getGroupStreamsWorkspacePrivateEndpoint
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/envelope'
+                - description: Unique identifier of the customer's VPC endpoint.
+                  in: path
+                  name: endpointId
+                  required: true
+                  schema:
+                    example: vpce-0abc123def4567890
+                    pattern: ^vpce-[a-z0-9]{17}$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/StreamsWorkspacePrivateEndpointResponse'
+                            x-xgen-preview:
+                                name: streams-workspace-private-endpoint
+                            x-xgen-version: private-preview-streams-workspace-private-endpoint
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Workspace Private Endpoint for Atlas Stream Processing
+            tags:
+                - Streams
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api streams getWorkspacePrivateEndpoint --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}?pretty=true"
+            x-rolesRequirements:
+                - Organization Stream Processing Admin
+                - Project Stream Processing Owner
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/getGroupStreamsWorkspacePrivateEndpoint
+            x-xgen-operation-id-override: getWorkspacePrivateEndpoint
 security:
     - ServiceAccounts: []
     - DigestAuth: []
 servers:
     - url: https://cloud.mongodb.com
 tags:
-    - description: Returns information about the MongoDB Atlas Specification.
-      name: OpenAPI
+    - description: Returns, adds, edits, and removes Streams Workspaces. This resource requires your project ID.
+      name: Streams
 x-externalLinks:
     - label: Back to Atlas Docs
       url: https://www.mongodb.com/docs/atlas/

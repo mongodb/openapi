@@ -45597,6 +45597,41 @@
         ],
         "type": "object"
       },
+      "PaginatedPrivateEndpointConnectionStringResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/PrivateEndpointConnectionStringResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedPrivateNetworkEndpointIdEntryView": {
         "properties": {
           "links": {
@@ -46627,6 +46662,110 @@
           }
         },
         "readOnly": true,
+        "type": "object"
+      },
+      "PrivateEndpointConnectionStringResponse": {
+        "description": "Private endpoint connection string for one cluster.",
+        "properties": {
+          "connectionString": {
+            "description": "Private endpoint-aware connection string that uses the `mongodb://` protocol to connect to this cluster through the selected private endpoints. MongoDB Cloud returns this value when `status` is `AVAILABLE`. After you submit an update, MongoDB Cloud continues to return the existing connection string until the updated connection string becomes available.",
+            "maxLength": 2048,
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectionStringId": {
+            "description": "Unique 24-hexadecimal digit string that identifies this private endpoint connection string. This value is the `connectionStringId` path parameter of this resource's endpoints.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date and time when MongoDB Cloud created this private endpoint connection string. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "errorMessage": {
+            "description": "Error message that explains why this private endpoint connection string is in the `FAILED` state, including the remediation, for example when a selected endpoint was deleted mid-flight. Present only when `status` is `FAILED`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "managementType": {
+            "description": "Party that manages this private endpoint connection string. MongoDB Cloud returns `SELF_MANAGED` for connection strings that you create and maintain through this resource, and `IMPORTED` for records that preserve the private endpoint connection strings that this cluster exposed before migration. You can delete an imported record but not update it.",
+            "enum": [
+              "SELF_MANAGED",
+              "IMPORTED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable label of at most 64 characters that identifies this private endpoint connection string. You can change this label without changing the connection string.",
+            "example": "reporting-vpc",
+            "maxLength": 64,
+            "type": "string"
+          },
+          "optimizedModeEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether this private endpoint connection string uses the optimized load-balanced mode. This mode requires a sharded cluster and a private endpoint selection that satisfies the optimized connection string requirements.",
+            "type": "boolean"
+          },
+          "privateEndpointIds": {
+            "description": "Set of private endpoints that this connection string covers. MongoDB Cloud stores this set as a snapshot of your selection and never adds newly created private endpoints to it. The set accepts at most one private endpoint per cloud provider region, and can include private endpoints that the cluster does not use yet. Order is not significant and MongoDB Cloud rejects duplicate values.",
+            "items": {
+              "description": "Unique string of at most 512 characters that identifies one private endpoint. The format depends on the cloud provider: for Amazon Web Services, this value is a private endpoint ID; for Azure, this value is a resource ID; for Google Cloud, this value is either the forwarding rule name of a port mapped Private Service Connect endpoint or the endpoint group name of a legacy Private Service Connect endpoint group.",
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "type": "array",
+            "uniqueItems": true,
+            "x-xgen-array-semantic": "set"
+          },
+          "selectiveMongosEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether this private endpoint connection string routes clients to a subset of the `mongos` processes of the cluster.",
+            "type": "boolean"
+          },
+          "slug": {
+            "description": "Short generated pin of at most 64 characters, unique per project. Present only when `managementType` is `SELF_MANAGED`. A self-managed connection string embeds this value in its DNS names, and its replica set horizon name is `cs-` plus this value.",
+            "example": "ztevkhxb",
+            "maxLength": 64,
+            "readOnly": true,
+            "type": "string"
+          },
+          "srvConnectionString": {
+            "description": "Private endpoint-aware connection string that uses the `mongodb+srv://` protocol to connect to this cluster through the selected private endpoints. MongoDB Cloud returns this value when `status` is `AVAILABLE`. After you submit an update, MongoDB Cloud continues to return the existing connection string until the updated connection string becomes available.",
+            "maxLength": 2048,
+            "readOnly": true,
+            "type": "string"
+          },
+          "status": {
+            "description": "State of this private endpoint connection string. MongoDB Cloud returns `PENDING` while it reconfigures the cluster, `AVAILABLE` once the connection string is usable, and `FAILED` when creation cannot complete.",
+            "enum": [
+              "PENDING",
+              "AVAILABLE",
+              "FAILED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "Date and time when MongoDB Cloud last updated this private endpoint connection string. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "connectionStringId",
+          "managementType",
+          "name",
+          "privateEndpointIds",
+          "status"
+        ],
+        "title": "Private Endpoint Connection String",
         "type": "object"
       },
       "PrivateEndpointHostname": {
@@ -59396,7 +59535,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "4b1a293f54fba3cd1c6fd959bc41e3dc5d6d5566"
+    "x-xgen-sha": "3bc7f646ef6714ed1b0a17d05c5961ccbf9eecf1"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -73778,6 +73917,198 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Performance-Advisor/operation/listGroupClusterPerformanceAdvisorSuggestedIndexes",
         "x-xgen-operation-id-override": "listClusterSuggestedIndexes"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings": {
+      "get": {
+        "description": "Returns all private endpoint connection strings for the specified cluster.",
+        "operationId": "listGroupClusterPrivateEndpointConnectionStrings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter records by lifecycle status.",
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "enum": [
+                "PENDING",
+                "AVAILABLE",
+                "FAILED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter records by management type.",
+            "in": "query",
+            "name": "managementType",
+            "schema": {
+              "enum": [
+                "SELF_MANAGED",
+                "IMPORTED"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedPrivateEndpointConnectionStringResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "private-endpoint-connection-strings"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Private Endpoint Connection Strings for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusterPrivateEndpointConnectionStrings",
+        "x-xgen-operation-id-override": "listEndpointConnectionStrings"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}": {
+      "get": {
+        "description": "Returns one private endpoint connection string from the specified cluster. This endpoint treats `deleteRequested = true` records as not found.",
+        "operationId": "getGroupClusterPrivateEndpointConnectionString",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies this private endpoint connection string.",
+            "in": "path",
+            "name": "connectionStringId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateEndpointConnectionStringResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "private-endpoint-connection-strings"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Private Endpoint Connection String for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterPrivateEndpointConnectionString",
+        "x-xgen-operation-id-override": "getEndpointConnectionString"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/processArgs": {
@@ -97336,11 +97667,14 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2025-03-12+json": {
+              "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedStreamsWorkspacePrivateEndpointResponse"
                 },
-                "x-xgen-version": "2025-03-12"
+                "x-xgen-preview": {
+                  "name": "streams-workspace-private-endpoint"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -97410,11 +97744,14 @@
         "responses": {
           "200": {
             "content": {
-              "application/vnd.atlas.2025-03-12+json": {
+              "application/vnd.atlas.preview+json": {
                 "schema": {
                   "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointResponse"
                 },
-                "x-xgen-version": "2025-03-12"
+                "x-xgen-preview": {
+                  "name": "streams-workspace-private-endpoint"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
