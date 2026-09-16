@@ -24534,6 +24534,7 @@
               "MONGOTUNE_WRITE_BLOCK_POLICY_INELIGIBLE",
               "PREDICTIVE_AUTOSCALING_ENABLED",
               "PREDICTIVE_AUTOSCALING_DISABLED",
+              "ADAPTIVE_SETTINGS_LOAD_SHEDDING_UPDATED",
               "SHADOW_CLUSTER_CREATE_EXPOSURE",
               "SHADOW_CLUSTER_DELETE_EXPOSURE",
               "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE",
@@ -38278,6 +38279,7 @@
           "MONGOTUNE_WRITE_BLOCK_POLICY_INELIGIBLE",
           "PREDICTIVE_AUTOSCALING_ENABLED",
           "PREDICTIVE_AUTOSCALING_DISABLED",
+          "ADAPTIVE_SETTINGS_LOAD_SHEDDING_UPDATED",
           "SHADOW_CLUSTER_CREATE_EXPOSURE",
           "SHADOW_CLUSTER_DELETE_EXPOSURE",
           "SHADOW_CLUSTER_RECORDING_STATUS_UPDATE",
@@ -47270,6 +47272,83 @@
         },
         "required": [
           "metricName"
+        ],
+        "type": "object"
+      },
+      "QuerySamplingCreateRequest": {
+        "description": "Namespace on which to start query sampling.",
+        "properties": {
+          "namespace": {
+            "description": "Human-readable label that identifies the namespace (`<database>.<collection>`) on which to sample queries.",
+            "example": "sales.orders",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "QuerySamplingResponse": {
+        "description": "Query sampling state for one namespace of one cluster. Sampled queries feed the shard key analysis for the namespace.",
+        "properties": {
+          "active": {
+            "description": "Flag that indicates whether query sampling is observably running on the namespace. May still be `false` in the response to a successful create request; it becomes `true` asynchronously once the cluster applies the sampling configuration.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "namespace": {
+            "description": "Human-readable label that identifies the namespace (`<database>.<collection>`) on which queries are sampled.",
+            "example": "sales.orders",
+            "type": "string"
+          },
+          "sampledReadsBytes": {
+            "description": "Total size in bytes of the read operations sampled on the namespace.",
+            "format": "int64",
+            "nullable": true,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "sampledReadsCount": {
+            "description": "Number of read operations sampled on the namespace.",
+            "format": "int64",
+            "nullable": true,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "sampledWritesBytes": {
+            "description": "Total size in bytes of the write operations sampled on the namespace.",
+            "format": "int64",
+            "nullable": true,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "sampledWritesCount": {
+            "description": "Number of write operations sampled on the namespace.",
+            "format": "int64",
+            "nullable": true,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "samplesPerSecond": {
+            "description": "Maximum number of queries sampled per second on the namespace. MongoDB Cloud sets this rate.",
+            "format": "double",
+            "nullable": true,
+            "readOnly": true,
+            "type": "number"
+          },
+          "startTime": {
+            "description": "Date and time when query sampling started on the namespace. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "active",
+          "namespace"
         ],
         "type": "object"
       },
@@ -59535,7 +59614,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "06c946b7e94e27b5373f891015d6a61f010512c6"
+    "x-xgen-sha": "a035bea8ebac09b0f31be1894a0237364e40c549"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -74297,6 +74376,267 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterProcessArgs",
         "x-xgen-operation-id-override": "updateProcessArgs"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/querySampling": {
+      "post": {
+        "description": "Starts query sampling on one namespace of the specified cluster. Sampled queries feed the shard key analysis for the namespace. The response reports the observed sampling state, in which `active` may still be false: the cluster applies the sampling configuration asynchronously.",
+        "operationId": "createGroupClusterQuerySampling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuerySamplingCreateRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Namespace on which to start query sampling.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuerySamplingResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create Query Sampling for One Namespace",
+        "tags": [
+          "Query Sampling"
+        ],
+        "x-rolesRequirements": [
+          "Project Data Access Admin",
+          "Project Data Access Read Only",
+          "Project Data Access Read Write",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Sampling/operation/createGroupClusterQuerySampling",
+        "x-xgen-operation-id-override": "createClusterQuerySampling"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/querySampling/{namespace}": {
+      "delete": {
+        "description": "Stops query sampling on one namespace of the specified cluster.",
+        "operationId": "deleteGroupClusterQuerySampling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the namespace (`<database>.<collection>`) on which queries are sampled.",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "example": "sales.orders",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove Query Sampling from One Namespace",
+        "tags": [
+          "Query Sampling"
+        ],
+        "x-rolesRequirements": [
+          "Project Data Access Admin",
+          "Project Data Access Read Only",
+          "Project Data Access Read Write",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Sampling/operation/deleteGroupClusterQuerySampling",
+        "x-xgen-operation-id-override": "deleteClusterQuerySampling"
+      },
+      "get": {
+        "description": "Returns the query sampling state of one namespace of the specified cluster, including counters for the operations sampled so far. Returns 404 if query sampling is not configured on the namespace. `active` becomes true asynchronously after query sampling starts.",
+        "operationId": "getGroupClusterQuerySampling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the namespace (`<database>.<collection>`) on which queries are sampled.",
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "example": "sales.orders",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuerySamplingResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Query Sampling State for One Namespace",
+        "tags": [
+          "Query Sampling"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Query-Sampling/operation/getGroupClusterQuerySampling",
+        "x-xgen-operation-id-override": "getClusterQuerySampling"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/queryShapeInsights/summaries": {
@@ -109315,6 +109655,10 @@
     {
       "description": "You can continually export mongod, mongos, and audit logs to an AWS S3 bucket. The new `/logIntegrations` API provides 1-minute log export on a best-effort basis. The existing `/pushBasedLogExport` API provides 5-minute log export and will be deprecated in the future. The log export integrations are managed at the project level.",
       "name": "Push-Based Log Export"
+    },
+    {
+      "description": "Starts, returns, and stops query sampling on one namespace of one cluster. Sampled queries feed the shard key analysis for the namespace.",
+      "name": "Query Sampling"
     },
     {
       "description": "Returns details about rate limit policies for the Atlas Administration API.",
