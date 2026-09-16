@@ -446,6 +446,82 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         expected: true,
       },
       {
+        description: 'schema with unmarked nested object containing only readOnly properties',
+        schema: {
+          type: 'object',
+          properties: {
+            metadata: {
+              type: 'object',
+              properties: {
+                createdBy: { type: 'string', readOnly: true },
+                updatedBy: { type: 'string', readOnly: true },
+              },
+            },
+          },
+        },
+        expected: true,
+      },
+      {
+        description: 'schema with nested object containing a writable property',
+        schema: {
+          type: 'object',
+          properties: {
+            metadata: {
+              type: 'object',
+              properties: {
+                createdBy: { type: 'string', readOnly: true },
+                displayName: { type: 'string' },
+              },
+            },
+          },
+        },
+        expected: false,
+      },
+      {
+        description: 'schema with nested array containing only readOnly properties',
+        schema: {
+          type: 'object',
+          properties: {
+            entries: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', readOnly: true },
+                  status: { type: 'string', readOnly: true },
+                },
+              },
+            },
+          },
+        },
+        expected: true,
+      },
+      {
+        description: 'schema with nested allOf containing only readOnly properties',
+        schema: {
+          type: 'object',
+          properties: {
+            metadata: {
+              allOf: [
+                {
+                  type: 'object',
+                  properties: {
+                    createdBy: { type: 'string', readOnly: true },
+                  },
+                },
+                {
+                  type: 'object',
+                  properties: {
+                    updatedBy: { type: 'string', readOnly: true },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        expected: true,
+      },
+      {
         description: 'schema with array items all readOnly',
         schema: {
           type: 'array',
@@ -537,6 +613,18 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       it(`returns ${testCase.expected} for ${testCase.description}`, () => {
         expect(allPropertiesAreReadOnly(testCase.schema)).toEqual(testCase.expected);
       });
+    });
+
+    it('returns false for an unmarked circular schema', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          id: { type: 'string', readOnly: true },
+        },
+      };
+      schema.properties.parent = schema;
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(false);
     });
   });
 
