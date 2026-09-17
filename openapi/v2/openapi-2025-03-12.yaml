@@ -38460,6 +38460,68 @@ components:
                 - key
             type: object
             writeOnly: true
+        ShardingInsightsBalancingWindow:
+            description: Balancing window configured on the sharded cluster. When configured, the balancer moves data only during the daily interval between `startTime` and `endTime`.
+            properties:
+                endTime:
+                    description: Time of day at which the balancing window ends, in 24-hour `HH:MM` format as configured on the cluster. Present only when `status` is `CONFIGURED`.
+                    example: "06:00"
+                    nullable: true
+                    pattern: ^([01]?\d|2[0-3]):[0-5]\d$
+                    readOnly: true
+                    type: string
+                startTime:
+                    description: Time of day at which the balancing window starts, in 24-hour `HH:MM` format as configured on the cluster. Present only when `status` is `CONFIGURED`.
+                    example: "02:00"
+                    nullable: true
+                    pattern: ^([01]?\d|2[0-3]):[0-5]\d$
+                    readOnly: true
+                    type: string
+                status:
+                    description: State of the balancing window. `CONFIGURED` means the cluster restricts balancing to the interval between `startTime` and `endTime`. `NOT_CONFIGURED` means the balancer may run at any time. `FAILED_INITIAL_METRIC_PENDING` means MongoDB Cloud has not yet collected balancer metrics for a recently created or converted cluster. `FAILED_TO_DETERMINE` means the window could not be resolved.
+                    enum:
+                        - CONFIGURED
+                        - NOT_CONFIGURED
+                        - FAILED_TO_DETERMINE
+                        - FAILED_INITIAL_METRIC_PENDING
+                    readOnly: true
+                    type: string
+            required:
+                - status
+            type: object
+        ShardingInsightsResponse:
+            description: 'Cluster-level sharding state of one sharded cluster: shard count, balancer state, config server availability, and the configured balancing window.'
+            properties:
+                balancerState:
+                    description: State of the cluster balancer. `BALANCING` means a balancer round is in progress. `IDLE` means the balancer is enabled and no round is in progress. `DISABLED` means the balancer is turned off. `FAILED_TO_DETERMINE` means the balancer state could not be resolved.
+                    enum:
+                        - BALANCING
+                        - IDLE
+                        - DISABLED
+                        - FAILED_TO_DETERMINE
+                    readOnly: true
+                    type: string
+                balancingWindow:
+                    $ref: '#/components/schemas/ShardingInsightsBalancingWindow'
+                configServerStatus:
+                    description: Availability of the cluster's config servers. `AVAILABLE` means at least one config server reported recently. `UNAVAILABLE` means config servers exist but none has reported recently. `FAILED_TO_DETERMINE` means availability could not be resolved.
+                    enum:
+                        - AVAILABLE
+                        - UNAVAILABLE
+                        - FAILED_TO_DETERMINE
+                    readOnly: true
+                    type: string
+                totalShards:
+                    description: Number of shards in the cluster.
+                    format: int32
+                    readOnly: true
+                    type: integer
+            required:
+                - balancerState
+                - balancingWindow
+                - configServerStatus
+                - totalShards
+            type: object
         ShardingRequest:
             description: Document that configures sharding on the destination cluster when migrating from a replica set source to a sharded cluster destination on MongoDB 6.0 or higher. If you don't wish to shard any collections on the destination cluster, leave this empty.
             properties:
@@ -43730,7 +43792,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: a035bea8ebac09b0f31be1894a0237364e40c549
+    x-xgen-sha: aa26cc2756bea171ceec377cad4e0e6f1533fdaf
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -61934,6 +61996,97 @@ paths:
                 - Project Search Index Editor
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterSearchIndex
             x-xgen-operation-id-override: updateClusterSearchIndex
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardingInsights:
+        get:
+            description: 'Returns the cluster-level sharding state of one sharded cluster: the number of shards, the balancer state, the availability of the config servers, and the configured balancing window.'
+            operationId: getGroupClusterShardingInsights
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ShardingInsightsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Sharding Insights for One Cluster
+            tags:
+                - Sharding Insights
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api shardingInsights getClusterShardingInsights --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.GetGroupClusterShardingInsightsApiParams{}
+                    	sdkResp, httpResp, err := client.ShardingInsightsApi.
+                    		GetGroupClusterShardingInsightsWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardingInsights?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardingInsights?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sharding-Insights/operation/getGroupClusterShardingInsights
+            x-xgen-operation-id-override: getClusterShardingInsights
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/snapshotSchedule:
         get:
             deprecated: true
@@ -96128,6 +96281,8 @@ tags:
         description: Get Started with the Atlas Administration API
         url: https://www.mongodb.com/docs/atlas/configure-api-access/
       name: Service Accounts
+    - description: Returns the cluster-level sharding state of one sharded cluster, including the balancer state, config server availability, and the configured balancing window.
+      name: Sharding Insights
     - description: Returns, adds, edits, and removes Streams Workspaces. This resource requires your project ID.
       name: Streams
     - description: Returns, adds, edits, or removes teams.
