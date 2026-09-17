@@ -527,7 +527,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: a633f7cd7ce97ed69957a65f2ee280283d7dc350
+    x-xgen-sha: 3fddeb69a4ae6b744efabd94afecb970eccb9ac6
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings:
@@ -621,6 +621,80 @@ paths:
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusterPrivateEndpointConnectionStrings
             x-xgen-operation-id-override: listEndpointConnectionStrings
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}:
+        delete:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Deletes one private endpoint connection string from the specified cluster.
+            operationId: deleteGroupClusterPrivateEndpointConnectionString
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+                - description: Unique 24-hexadecimal digit string that identifies this private endpoint connection string.
+                  in: path
+                  name: connectionStringId
+                  required: true
+                  schema:
+                    pattern: ^([a-f0-9]{24})$
+                    type: string
+            responses:
+                "204":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                name: private-endpoint-connection-strings
+                            x-xgen-version: private-preview-private-endpoint-connection-strings
+                    description: No Content
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Delete One Private Endpoint Connection String from One Cluster
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters deleteEndpointConnectionString --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X DELETE "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}"
+            x-rolesRequirements:
+                - Project Owner
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/deleteGroupClusterPrivateEndpointConnectionString
+            x-xgen-operation-id-override: deleteEndpointConnectionString
         get:
             description: |-
                 This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.

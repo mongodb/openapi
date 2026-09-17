@@ -23752,12 +23752,12 @@
             "description": "Status of the Ephemeral cluster.",
             "enum": [
               "ACTIVE",
-              "PAUSED"
+              "PROVISIONING"
             ],
             "type": "string"
           },
           "termsOfService": {
-            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.",
+            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>.",
             "type": "string"
           }
         },
@@ -23795,7 +23795,7 @@
             "type": "string"
           },
           "termsOfService": {
-            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.",
+            "description": "Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>.",
             "type": "string"
           }
         },
@@ -25154,7 +25154,10 @@
               "ORG_LIMIT_UPDATED",
               "SHADOW_CLUSTER_ORG_OPT_IN",
               "SHADOW_CLUSTER_ORG_OPT_OUT",
-              "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN"
+              "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN",
+              "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
+              "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
+              "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED"
             ],
             "title": "Atlas Audit Types",
             "type": "string"
@@ -38317,7 +38320,10 @@
           "ORG_LIMIT_UPDATED",
           "SHADOW_CLUSTER_ORG_OPT_IN",
           "SHADOW_CLUSTER_ORG_OPT_OUT",
-          "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN"
+          "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN",
+          "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
+          "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
+          "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED"
         ],
         "example": "ORG_LIMIT_UPDATED",
         "title": "Atlas Audit Types",
@@ -59692,7 +59698,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "a633f7cd7ce97ed69957a65f2ee280283d7dc350"
+    "x-xgen-sha": "3fddeb69a4ae6b744efabd94afecb970eccb9ac6"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -74185,6 +74191,85 @@
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}": {
+      "delete": {
+        "description": "Deletes one private endpoint connection string from the specified cluster.",
+        "operationId": "deleteGroupClusterPrivateEndpointConnectionString",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies this private endpoint connection string.",
+            "in": "path",
+            "name": "connectionStringId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "private-endpoint-connection-strings"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Delete One Private Endpoint Connection String from One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/deleteGroupClusterPrivateEndpointConnectionString",
+        "x-xgen-operation-id-override": "deleteEndpointConnectionString"
+      },
       "get": {
         "description": "Returns one private endpoint connection string from the specified cluster. This endpoint treats `deleteRequested = true` records as not found.",
         "operationId": "getGroupClusterPrivateEndpointConnectionString",
@@ -109163,8 +109248,7 @@
               "x-xgen-version": "preview"
             }
           },
-          "description": "Ephemeral cluster to create.",
-          "required": true
+          "description": "Ephemeral cluster to create. An empty body creates a cluster with the default name."
         },
         "responses": {
           "201": {
