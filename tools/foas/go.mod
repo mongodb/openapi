@@ -1,8 +1,6 @@
 module github.com/mongodb/openapi/tools/foas
 
-go 1.26
-
-toolchain go1.26.0
+go 1.26.0
 
 require (
 	github.com/getkin/kin-openapi v0.149.0
@@ -11,7 +9,7 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0
-	golang.org/x/text v0.41.0
+	golang.org/x/text v0.42.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
