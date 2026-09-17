@@ -242,51 +242,62 @@ export function removePrefix(path) {
 }
 
 /**
- * Checks if all properties in a schema have readOnly: true.
+ * Checks if all properties in a schema are read-only.
  *
  * @param {Object} schema - The schema to check
+ * @param {Set<Object>} visiting - Schemas in the current traversal path
  * @returns {boolean} true if all properties are readOnly, false otherwise
  */
-export function allPropertiesAreReadOnly(schema) {
+export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
   if (!schema || typeof schema !== 'object') {
     return false;
   }
 
-  if (schema.properties) {
-    if (schema.properties.results && schema.properties.results.type === 'array' && schema.properties.results.items) {
-      return allPropertiesAreReadOnly(schema.properties.results.items);
-    }
+  if (visiting.has(schema)) {
+    return false;
+  }
+  visiting.add(schema);
 
-    for (const [, propSchema] of Object.entries(schema.properties)) {
-      if (propSchema.readOnly !== true) {
-        return false;
+  try {
+    if (schema.properties) {
+      if (schema.properties.results && schema.properties.results.type === 'array' && schema.properties.results.items) {
+        return isSchemaReadOnly(schema.properties.results.items, visiting);
       }
+
+      const properties = Object.values(schema.properties);
+      return properties.length > 0 && properties.every((property) => isSchemaReadOnly(property, visiting));
     }
-    return Object.keys(schema.properties).length > 0;
-  }
 
-  if (schema.items) {
-    return allPropertiesAreReadOnly(schema.items);
-  }
+    if (schema.items) {
+      return isSchemaReadOnly(schema.items, visiting);
+    }
 
-  if (Array.isArray(schema.allOf)) {
-    return schema.allOf.every((subSchema) => allPropertiesAreReadOnly(subSchema));
-  }
+    if (Array.isArray(schema.allOf)) {
+      return schema.allOf.every((subSchema) => isSchemaReadOnly(subSchema, visiting));
+    }
 
-  if (Array.isArray(schema.anyOf)) {
-    return schema.anyOf.some((subSchema) => allPropertiesAreReadOnly(subSchema));
-  }
+    if (Array.isArray(schema.anyOf)) {
+      return schema.anyOf.some((subSchema) => isSchemaReadOnly(subSchema, visiting));
+    }
 
-  if (Array.isArray(schema.oneOf)) {
-    return schema.oneOf.some((subSchema) => allPropertiesAreReadOnly(subSchema));
-  }
+    if (Array.isArray(schema.oneOf)) {
+      return schema.oneOf.some((subSchema) => isSchemaReadOnly(subSchema, visiting));
+    }
 
-  return false;
+    return false;
+  } finally {
+    visiting.delete(schema);
+  }
+}
+
+function isSchemaReadOnly(schema, visiting) {
+  return schema?.readOnly === true || allPropertiesAreReadOnly(schema, visiting);
 }
 
 /**
  * Checks if a resource is a read-only resource.
- * A read-only resource has all properties in its GET response schema marked as readOnly: true.
+ * A read-only resource has all properties in its GET response schema marked as readOnly: true
+ * or composed only of read-only properties.
  *
  * @param {Object} resourcePathItems - All path items for the resource to be evaluated
  * @returns {boolean} true if the resource is read-only, false otherwise

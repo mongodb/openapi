@@ -95,6 +95,100 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
     errors: [],
   },
   {
+    name: 'read-only singleton with referenced nested schema does not require update method',
+    document: {
+      paths: {
+        '/resource/{exampleId}/readOnlySingleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/ReadOnlySingleton',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          ReadOnlySingleton: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', readOnly: true },
+              metadata: {
+                $ref: '#/components/schemas/ReadOnlyMetadata',
+              },
+            },
+          },
+          ReadOnlyMetadata: {
+            type: 'object',
+            properties: {
+              createdAt: { type: 'string', readOnly: true },
+              updatedAt: { type: 'string', readOnly: true },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'singleton with writable property in referenced nested schema requires update method',
+    document: {
+      paths: {
+        '/resource/{exampleId}/writableSingleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/WritableSingleton',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          WritableSingleton: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', readOnly: true },
+              metadata: {
+                $ref: '#/components/schemas/WritableMetadata',
+              },
+            },
+          },
+          WritableMetadata: {
+            type: 'object',
+            properties: {
+              createdAt: { type: 'string', readOnly: true },
+              displayName: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-113-singleton-should-have-update-method',
+        message:
+          'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.',
+        path: ['paths', '/resource/{exampleId}/writableSingleton'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
     name: 'read-only singleton with List response',
     document: {
       paths: {
