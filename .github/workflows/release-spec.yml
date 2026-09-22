@@ -38,6 +38,11 @@ on:
         description: 'Bump Doc ID for the v2 specs'
         required: true
         type: string
+      force_bump:
+        description: 'Force Bump.sh deployment even when the spec diff is a single line.'
+        required: false
+        type: boolean
+        default: false
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -162,11 +167,15 @@ jobs:
             # which suggests that we are not only updating the x-xgen-sha property.
             
             export bump_release='false'
-            changed_lines=$(git diff --numstat openapi/v2.json | awk '{print $1}')
-            # Default to 0 if empty
-            changed_lines=${changed_lines:-0}
-            if [ "${changed_lines}" -gt 1 ]; then
+            if [ "${{ inputs.force_bump }}" = 'true' ]; then
               export bump_release='true'
+            else
+              changed_lines=$(git diff --numstat openapi/v2.json | awk '{print $1}')
+              # Default to 0 if empty
+              changed_lines=${changed_lines:-0}
+              if [ "${changed_lines}" -gt 1 ]; then
+                export bump_release='true'
+              fi
             fi
             
             echo "bump_release=${bump_release}" >> "${GITHUB_OUTPUT:?}"
