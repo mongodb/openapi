@@ -2,7 +2,25 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [11.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.0.0...11.1.0)
+#### [11.2.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.1.0...11.2.0)
+
+- feat(ipa): Add IPA-111 validation rules [`#1460`](https://github.com/mongodb/openapi/pull/1460)
+- chore(ipa): bump auto-changelog from 2.6.0 to 2.6.1 in /tools/spectral/ipa [`#1479`](https://github.com/mongodb/openapi/pull/1479)
+- chore(ipa): CLOUDP-442116 - backport from MMS [`#1472`](https://github.com/mongodb/openapi/pull/1472)
+- feat(ipa): require long-running operations to expose an Operations endpoint [`#1461`](https://github.com/mongodb/openapi/pull/1461)
+- feat(ipa): add IPA-132 long-running operation initiation rules [`#1448`](https://github.com/mongodb/openapi/pull/1448)
+- fix(ipa): correct parent-resource check in resourceBelongsToSingleParent [`#1449`](https://github.com/mongodb/openapi/pull/1449)
+- refactor(ipa): single-source the legacy long-running operation list [`#1447`](https://github.com/mongodb/openapi/pull/1447)
+- feat(ipa): forbid custom methods on Operations endpoints [`#1446`](https://github.com/mongodb/openapi/pull/1446)
+- feat(ipa): add IPA-132 LRO classification rules [`#1444`](https://github.com/mongodb/openapi/pull/1444)
+- feat(ipa): add IPA-132 OperationResponse schema rules [`#1437`](https://github.com/mongodb/openapi/pull/1437)
+- feat(ipa): implement IPA-132 ruleset and base Operations resource rules [`#1435`](https://github.com/mongodb/openapi/pull/1435)
+- chore(ipa): bump @stoplight/spectral-cli from 6.16.2 to 6.16.3 in /tools/spectral/ipa [`#1431`](https://github.com/mongodb/openapi/pull/1431)
+- fix(ipa): preserve resource scope in Operations resource operation IDs [`#1414`](https://github.com/mongodb/openapi/pull/1414)
+
+#### [ipa-validation-ruleset-v11.1.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.0.0...ipa-validation-ruleset-v11.1.0)
+
+> 29 July 2026
 
 - fix(ipa): allow Operations endpoint paths in IPA-102 alternation check [`#1406`](https://github.com/mongodb/openapi/pull/1406)
 - chore(ipa): bump @stoplight/spectral-cli from 6.16.1 to 6.16.2 in /tools/spectral/ipa [`#1391`](https://github.com/mongodb/openapi/pull/1391)
