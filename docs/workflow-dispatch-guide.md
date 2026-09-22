@@ -5,7 +5,10 @@ pipeline skips the Bump.sh deployment (e.g., because the diff is a single-line e
 removal that does not exceed the `changed_lines -gt 1` threshold), you can manually
 trigger the release via `workflow_dispatch`.
 
-The bump check is at [`release-spec.yml:155-172`](https://github.com/mongodb/openapi/blob/main/.github/workflows/release-spec.yml#L155-L172).
+The bump check counts both added and deleted lines in `openapi/v2.json`, requiring
+either count to exceed 1. This catches enum removals (>1 deleted line) while still
+skipping x-xgen-sha-only updates (1 added + 1 deleted, neither exceeds 1).
+The check is at [`release-spec.yml:155-172`](https://github.com/mongodb/openapi/blob/main/.github/workflows/release-spec.yml#L155-L172).
 
 ## Triggering the Release Runner
 
@@ -24,9 +27,7 @@ The bump check is at [`release-spec.yml:155-172`](https://github.com/mongodb/ope
    |`dev,qa,staging`|All three|Multi-env batch|
    |`dev,qa,staging,prod`|All four|Full pipeline|
 
-5. Set **`force_bump`** to `true` if the spec diff is a single line (e.g., enum removal
-   only) and you need Bump.sh to deploy regardless. Leave `false` for normal behavior.
-6. Click **"Run workflow"**.
+5. Click **"Run workflow"**.
 
 The workflow also runs automatically on a schedule (every 2 hours, Mon-Fri). The
 scheduled run always targets `dev` and runs the `retry-handler` on failure for up to
@@ -40,10 +41,9 @@ Once the run starts, watch the following jobs in the workflow run summary:
 
 **`bump_changes` step** — determines whether Bump.sh deployment will proceed.
 
-- When `force_bump` is `true`, `bump_release` is forced to `true` regardless of diff size.
-- When `force_bump` is `false` (default): the step compares the diff of `openapi/v2.json`.
-  If more than 1 added line changed, `bump_release=true`; otherwise the Bump.sh
-  deployment is skipped.
+- The step checks both added and deleted lines in `openapi/v2.json`. If either count
+  exceeds 1, `bump_release=true`. This covers enum removals (>1 deleted line) while
+  skipping x-xgen-sha-only updates (1 added + 1 deleted, neither > 1).
 - Open the `release` job → **"Check if changes should be deployed to bump.sh"** step.
 - Look for `bump_release=true` in the step output.
 
