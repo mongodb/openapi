@@ -38,6 +38,11 @@ on:
         description: 'Bump Doc ID for the v2 specs'
         required: true
         type: string
+      force_bump:
+        description: 'Force Bump.sh deployment when the spec change is already committed and the diff is empty.'
+        required: false
+        type: boolean
+        default: false
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -163,13 +168,18 @@ jobs:
             # skipping x-xgen-sha-only updates (which are 1 added + 1 deleted).
             
             export bump_release='false'
-            added=$(git diff --numstat openapi/v2.json | awk '{print $1}')
-            deleted=$(git diff --numstat openapi/v2.json | awk '{print $2}')
-            added=${added:-0}
-            deleted=${deleted:-0}
-            if [ "${added}" -gt 1 ] || [ "${deleted}" -gt 1 ]; then
+            if [ "${{ inputs.force_bump }}" = 'true' ]; then
               export bump_release='true'
+            else
+              added=$(git diff --numstat openapi/v2.json | awk '{print $1}')
+              deleted=$(git diff --numstat openapi/v2.json | awk '{print $2}')
+              added=${added:-0}
+              deleted=${deleted:-0}
+              if [ "${added}" -gt 1 ] || [ "${deleted}" -gt 1 ]; then
+                export bump_release='true'
+              fi
             fi
+            echo "bump_release=${bump_release}"
             
             echo "bump_release=${bump_release}" >> "${GITHUB_OUTPUT:?}"
         - name: Commit changes
