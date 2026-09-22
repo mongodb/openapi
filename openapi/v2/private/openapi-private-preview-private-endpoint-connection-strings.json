@@ -487,53 +487,158 @@
         ],
         "type": "object"
       },
-      "SqlInterfaceStatusResponse": {
+      "Link": {
         "properties": {
-          "status": {
-            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
-            "enum": [
-              "ON",
-              "OFF"
-            ],
+          "href": {
+            "description": "Uniform Resource Locator (URL) that points another API resource to which this response has some relationship. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "https://cloud.mongodb.com/api/atlas",
             "type": "string"
           },
-          "supported": {
-            "default": false,
-            "description": "Whether the cluster tier and type support SQL Interface.",
-            "readOnly": true,
-            "type": "boolean"
-          },
-          "unsupportedReason": {
-            "description": "Machine-readable reason why SQL Interface isn't supported for this cluster. Present only when supported is false.",
-            "enum": [
-              "UNSUPPORTED_TIER",
-              "UNSUPPORTED_TYPE",
-              "UNSUPPORTED_MONGODB_VERSION"
-            ],
-            "nullable": true,
-            "readOnly": true,
+          "rel": {
+            "description": "Uniform Resource Locator (URL) that defines the semantic relationship between this resource and another API resource. This URL often begins with `https://cloud.mongodb.com/api/atlas`.",
+            "example": "self",
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "PaginatedPrivateEndpointConnectionStringResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/PrivateEndpointConnectionStringResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
         "required": [
-          "status"
+          "results"
         ],
         "type": "object"
       },
-      "SqlInterfaceStatusUpdateRequest": {
+      "PrivateEndpointConnectionStringResponse": {
+        "description": "Private endpoint connection string for one cluster.",
         "properties": {
-          "status": {
-            "description": "Current or desired SQL Interface status for the cluster. The GET endpoint returns OFF when no status is configured.",
+          "connectionString": {
+            "description": "Private endpoint-aware connection string that uses the `mongodb://` protocol to connect to this cluster through the selected private endpoints. MongoDB Cloud returns this value when `status` is `AVAILABLE`. After you submit an update, MongoDB Cloud continues to return the existing connection string until the updated connection string becomes available.",
+            "maxLength": 2048,
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectionStringId": {
+            "description": "Unique 24-hexadecimal digit string that identifies this private endpoint connection string. This value is the `connectionStringId` path parameter of this resource's endpoints.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date and time when MongoDB Cloud created this private endpoint connection string. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "errorMessage": {
+            "description": "Error message that explains why this private endpoint connection string is in the `FAILED` state, including the remediation, for example when a selected endpoint was deleted mid-flight. Present only when `status` is `FAILED`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "managementType": {
+            "description": "Party that manages this private endpoint connection string. MongoDB Cloud returns `SELF_MANAGED` for connection strings that you create and maintain through this resource, and `IMPORTED` for records that preserve the private endpoint connection strings that this cluster exposed before migration. You can delete an imported record but not update it.",
             "enum": [
-              "ON",
-              "OFF"
+              "SELF_MANAGED",
+              "IMPORTED"
             ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable label of at most 64 characters that identifies this private endpoint connection string. You can change this label without changing the connection string.",
+            "example": "reporting-vpc",
+            "maxLength": 64,
+            "type": "string"
+          },
+          "optimizedModeEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether this private endpoint connection string uses the optimized load-balanced mode. This mode requires a sharded cluster and a private endpoint selection that satisfies the optimized connection string requirements.",
+            "type": "boolean"
+          },
+          "privateEndpointIds": {
+            "description": "Set of private endpoints that this connection string covers. MongoDB Cloud stores this set as a snapshot of your selection and never adds newly created private endpoints to it. The set accepts at most one private endpoint per cloud provider region, and can include private endpoints that the cluster does not use yet. Order is not significant and MongoDB Cloud rejects duplicate values.",
+            "items": {
+              "description": "Unique string of at most 512 characters that identifies one private endpoint. The format depends on the cloud provider: for Amazon Web Services, this value is a private endpoint ID; for Azure, this value is a resource ID; for Google Cloud, this value is either the forwarding rule name of a port mapped Private Service Connect endpoint or the endpoint group name of a legacy Private Service Connect endpoint group.",
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "type": "array",
+            "uniqueItems": true,
+            "x-xgen-array-semantic": "set"
+          },
+          "selectiveMongosEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether this private endpoint connection string routes clients to a subset of the `mongos` processes of the cluster.",
+            "type": "boolean"
+          },
+          "slug": {
+            "description": "Short generated pin of at most 64 characters, unique per project. Present only when `managementType` is `SELF_MANAGED`. A self-managed connection string embeds this value in its DNS names, and its replica set horizon name is `cs-` plus this value.",
+            "example": "ztevkhxb",
+            "maxLength": 64,
+            "readOnly": true,
+            "type": "string"
+          },
+          "srvConnectionString": {
+            "description": "Private endpoint-aware connection string that uses the `mongodb+srv://` protocol to connect to this cluster through the selected private endpoints. MongoDB Cloud returns this value when `status` is `AVAILABLE`. After you submit an update, MongoDB Cloud continues to return the existing connection string until the updated connection string becomes available.",
+            "maxLength": 2048,
+            "readOnly": true,
+            "type": "string"
+          },
+          "status": {
+            "description": "State of this private endpoint connection string. MongoDB Cloud returns `PENDING` while it reconfigures the cluster, `AVAILABLE` once the connection string is usable, and `FAILED` when creation cannot complete.",
+            "enum": [
+              "PENDING",
+              "AVAILABLE",
+              "FAILED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "Date and time when MongoDB Cloud last updated this private endpoint connection string. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
             "type": "string"
           }
         },
         "required": [
+          "connectionStringId",
+          "managementType",
+          "name",
+          "privateEndpointIds",
           "status"
         ],
+        "title": "Private Endpoint Connection String",
         "type": "object"
       }
     },
@@ -555,7 +660,7 @@
     }
   },
   "info": {
-    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-sql-interface+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
+    "description": "The MongoDB Atlas Administration API allows developers to manage all components in MongoDB Atlas.\n\nThe Atlas Administration API supports OAuth2 Service Accounts and HTTP Digest-based API keys. Service accounts are the recommended authentication method and API keys are considered a legacy option.\n\nTo authenticate with a Service Account, first exchange its client ID and secret for an access token using the OAuth 2.0 Client Credentials flow. Atlas provides a token endpoint at `POST https://cloud.mongodb.com/api/oauth/token`, which returns a Bearer token that is reusable and valid for 1 hour (3600 seconds).\n\nFor example, to [return a list of your organizations](https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-listorgs) with [cURL](https://en.wikipedia.org/wiki/CURL), first generate an access token and then use that token to call the same Atlas Administration API endpoint shown in the current example:\n\n```\nACCESS_TOKEN=$(curl -fsS --request POST https://cloud.mongodb.com/api/oauth/token \\\n  --header \"Authorization: Basic $(printf '%s' \"${CLIENT_ID}:${CLIENT_SECRET}\" | base64 | tr -d '\\n')\" \\\n  --header \"Content-Type: application/x-www-form-urlencoded\" \\\n  --header \"Accept: application/json\" \\\n  --data \"grant_type=client_credentials\" | jq -r '.access_token')\n\ncurl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.private-preview-private-endpoint-connection-strings+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true\"\n```\n\nIf your organization requires an IP access list for the Atlas Administration API, the token can be created from any IP address, but the API call that uses the token must originate from an allowed IP.\n\nTo learn more, see [Get Started with the Atlas Administration API](https://www.mongodb.com/docs/atlas/configure-api-access/). For support, see [MongoDB Support](https://www.mongodb.com/support/get-started).\n\nYou can also explore the various endpoints available through the Atlas Administration API in MongoDB's [Postman workspace](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/) (requires a Postman account).",
     "license": {
       "name": "CC BY-NC-SA 3.0 US",
       "url": "https://creativecommons.org/licenses/by-nc-sa/3.0/us/"
@@ -567,16 +672,25 @@
   },
   "openapi": "3.0.1",
   "paths": {
-    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface": {
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings": {
       "get": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns the current SQL Interface status, either ON or OFF, for the specified cluster. If no status is configured, this resource returns OFF. The response also indicates whether SQL Interface is supported for this cluster.",
-        "operationId": "getGroupClusterSqlInterface",
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all private endpoint connection strings for the specified cluster.",
+        "operationId": "listGroupClusterPrivateEndpointConnectionStrings",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
           },
           {
             "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
           },
           {
             "$ref": "#/components/parameters/pretty"
@@ -587,7 +701,31 @@
             "name": "clusterName",
             "required": true,
             "schema": {
-              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter records by lifecycle status.",
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "enum": [
+                "PENDING",
+                "AVAILABLE",
+                "FAILED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter records by management type.",
+            "in": "query",
+            "name": "managementType",
+            "schema": {
+              "enum": [
+                "SELF_MANAGED",
+                "IMPORTED"
+              ],
               "type": "string"
             }
           }
@@ -597,15 +735,15 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SqlInterfaceStatusResponse"
+                  "$ref": "#/components/schemas/PaginatedPrivateEndpointConnectionStringResponse"
                 },
                 "x-xgen-preview": {
-                  "name": "sql-interface"
+                  "name": "private-endpoint-connection-strings"
                 },
-                "x-xgen-version": "private-preview-sql-interface"
+                "x-xgen-version": "private-preview-private-endpoint-connection-strings"
               }
             },
-            "description": "SQL Interface status successfully retrieved.",
+            "description": "OK",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -614,9 +752,6 @@
                 "$ref": "#/components/headers/HeaderRateLimitRemaining"
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -634,7 +769,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Return SQL Interface Status",
+        "summary": "Return All Private Endpoint Connection Strings for One Cluster",
         "tags": [
           "Clusters"
         ],
@@ -643,17 +778,17 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api clusters getClusterSqlInterface --help"
+            "source": "atlas api clusters listEndpointConnectionStrings --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true\""
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings?pretty=true\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface?pretty=true\""
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings?pretty=true\""
           }
         ],
         "x-rolesRequirements": [
@@ -663,12 +798,14 @@
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterSqlInterface",
-        "x-xgen-operation-id-override": "getClusterSqlInterface"
-      },
-      "patch": {
-        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Enables or disables the SQL Interface for the specified cluster by setting its status to ON or OFF. Returns a conflict if SQL Interface can't be enabled for this cluster or project.",
-        "operationId": "updateGroupClusterSqlInterface",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusterPrivateEndpointConnectionStrings",
+        "x-xgen-operation-id-override": "listEndpointConnectionStrings"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}": {
+      "delete": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Deletes one private endpoint connection string from the specified cluster.",
+        "operationId": "deleteGroupClusterPrivateEndpointConnectionString",
         "parameters": [
           {
             "$ref": "#/components/parameters/envelope"
@@ -687,37 +824,29 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies this private endpoint connection string.",
+            "in": "path",
+            "name": "connectionStringId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/vnd.atlas.preview+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SqlInterfaceStatusUpdateRequest"
-              },
-              "x-xgen-preview": {
-                "name": "sql-interface"
-              },
-              "x-xgen-version": "private-preview-sql-interface"
-            }
-          },
-          "description": "Desired SQL Interface status for the cluster.",
-          "required": true
-        },
         "responses": {
-          "200": {
+          "204": {
             "content": {
               "application/vnd.atlas.preview+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SqlInterfaceStatusResponse"
-                },
                 "x-xgen-preview": {
-                  "name": "sql-interface"
+                  "name": "private-endpoint-connection-strings"
                 },
-                "x-xgen-version": "private-preview-sql-interface"
+                "x-xgen-version": "private-preview-private-endpoint-connection-strings"
               }
             },
-            "description": "SQL Interface status successfully updated.",
+            "description": "No Content",
             "headers": {
               "RateLimit-Limit": {
                 "$ref": "#/components/headers/HeaderRateLimitLimit"
@@ -726,9 +855,6 @@
                 "$ref": "#/components/headers/HeaderRateLimitRemaining"
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/badRequest"
           },
           "401": {
             "$ref": "#/components/responses/unauthorized"
@@ -739,9 +865,6 @@
           "404": {
             "$ref": "#/components/responses/notFound"
           },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
           },
@@ -749,7 +872,7 @@
             "$ref": "#/components/responses/internalServerError"
           }
         },
-        "summary": "Update SQL Interface Status",
+        "summary": "Delete One Private Endpoint Connection String from One Cluster",
         "tags": [
           "Clusters"
         ],
@@ -758,29 +881,132 @@
           {
             "lang": "cURL",
             "label": "Atlas CLI",
-            "source": "atlas api clusters updateClusterSqlInterface --help"
+            "source": "atlas api clusters deleteEndpointConnectionString --help"
           },
           {
             "lang": "cURL",
             "label": "curl (Service Accounts)",
-            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}\""
           },
           {
             "lang": "cURL",
             "label": "curl (Digest)",
-            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/sqlInterface\" \\\n  -d '{ <Payload> }'"
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}\""
           }
         ],
         "x-rolesRequirements": [
-          "Project Cluster Manager",
-          "Project Replica Set Manager"
+          "Project Owner"
         ],
         "x-state": {
           "label": "PREVIEW",
           "color": "#B89D09"
         },
-        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterSqlInterface",
-        "x-xgen-operation-id-override": "updateClusterSqlInterface"
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/deleteGroupClusterPrivateEndpointConnectionString",
+        "x-xgen-operation-id-override": "deleteEndpointConnectionString"
+      },
+      "get": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns one private endpoint connection string from the specified cluster. This endpoint treats `deleteRequested = true` records as not found.",
+        "operationId": "getGroupClusterPrivateEndpointConnectionString",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies this private endpoint connection string.",
+            "in": "path",
+            "name": "connectionStringId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateEndpointConnectionStringResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "private-endpoint-connection-strings"
+                },
+                "x-xgen-version": "private-preview-private-endpoint-connection-strings"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Private Endpoint Connection String for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api clusters getEndpointConnectionString --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterPrivateEndpointConnectionString",
+        "x-xgen-operation-id-override": "getEndpointConnectionString"
       }
     }
   },

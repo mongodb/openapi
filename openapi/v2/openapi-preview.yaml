@@ -82,7 +82,7 @@ components:
                 pattern: ^([a-f0-9]{20})$
                 type: string
         includeCount:
-            description: Flag that indicates whether the response returns the total number of items (`totalCount`) in the response.
+            description: Flag that indicates whether MongoDB Cloud calculates the total number of items for the response. When set to `false`, MongoDB Cloud may skip an additional count operation. The response may still include `totalCount` when the count is available without additional calculation.
             in: query
             name: includeCount
             schema:
@@ -404,10 +404,10 @@ components:
                     description: Status of the Ephemeral cluster.
                     enum:
                         - ACTIVE
-                        - PAUSED
+                        - PROVISIONING
                     type: string
                 termsOfService:
-                    description: Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.
+                    description: Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>.
                     type: string
             type: object
         EphemeralClusterStatusResponse:
@@ -436,7 +436,7 @@ components:
                         - PAUSED
                     type: string
                 termsOfService:
-                    description: Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>. Includes a link to the full terms.
+                    description: Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>.
                     type: string
             type: object
         FieldViolation:
@@ -681,7 +681,7 @@ components:
                     readOnly: true
                     type: array
                 totalCount:
-                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    description: Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.
                     format: int32
                     minimum: 0
                     readOnly: true
@@ -707,7 +707,7 @@ components:
                     readOnly: true
                     type: array
                 totalCount:
-                    description: Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.
+                    description: Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.
                     format: int32
                     minimum: 0
                     readOnly: true
@@ -759,7 +759,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 698c4d313ff577b0b6a1c2ab70427a3ae05bcb2a
+    x-xgen-sha: 82cf68349c95d37a0e13f30a8f90c8d7b25ef114
 openapi: 3.0.1
 paths:
     /api/atlas/v2/defaultGroupLimits:
@@ -1352,8 +1352,7 @@ paths:
                         x-xgen-preview:
                             public: "true"
                         x-xgen-version: preview
-                description: Ephemeral cluster to create.
-                required: true
+                description: Ephemeral cluster to create. An empty body creates a cluster with the default name.
             responses:
                 "201":
                     content:
