@@ -39675,8 +39675,12 @@ components:
         QueryStatsSummary:
             description: A summary of execution statistics for a given query shape.
             properties:
+                avgTimeToResponseMicros:
+                    description: 'Average time in microseconds from the beginning of query processing to the first server response, per execution of queries with the given query shape. Calculated as `totalTimeToResponseMicros` divided by `execCount` over the requested time range. As a duration it can be longer or shorter than `avgWorkingMillis` (reported in milliseconds, so convert before comparing): longer when executions spent time blocked on locks or flow control rather than working, shorter when they kept working after the first batch to return later `getMore` batches.'
+                    format: double
+                    type: number
                 avgWorkingMillis:
-                    description: Average total time in milliseconds spent running queries with the given query shape. If the query resulted in `getMore` commands, this metric includes the time spent processing the `getMore` requests. This metric does not include time spent waiting for the client.
+                    description: Average active execution time in milliseconds per execution of queries with the given query shape, calculated as `totalWorkingMillis` divided by `execCount` over the requested time range. Excludes intentional pauses such as time waiting on locks or flow control.
                     format: double
                     type: number
                 bytesRead:
@@ -39798,11 +39802,11 @@ components:
                     description: Indicates whether this query shape represents a system-initiated query.
                     type: boolean
                 totalTimeToResponseMicros:
-                    description: Time in microseconds spent from the beginning of query processing to the first server response.
+                    description: Total time in microseconds from the beginning of query processing to the first server response, summed across executions of queries with the given query shape. Includes time spent waiting on locks or flow control. Stops at the first batch of results, so time spent serving later `getMore` batches is not counted.
                     format: double
                     type: number
                 totalWorkingMillis:
-                    description: Total time in milliseconds spent running queries with the given query shape. If the query resulted in `getMore` commands, this metric includes the time spent processing the `getMore` requests. This metric does not include time spent waiting for the client.
+                    description: Total time in milliseconds that queries with the given query shape spent actively executing, summed across executions, including time spent processing `getMore` requests. Excludes intentional pauses such as time waiting on locks or flow control, and time spent waiting for the client.
                     format: double
                     type: number
             type: object
@@ -49887,7 +49891,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: df522d66347c55a4a5edac7a98fb40ae66f42594
+    x-xgen-sha: 5f5e7c16a20a581388fc29c044d06b1a70bcb478
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -60612,6 +60616,7 @@ paths:
                             - DOCS_EXAMINED
                             - DOCS_RETURNED
                             - TOTAL_TIME_TO_RESPONSE
+                            - AVG_TIME_TO_RESPONSE
                             - BYTES_READ
                             - CPU_TIME
                             - KEYS_EXAMINED_RETURNED
@@ -60628,7 +60633,7 @@ paths:
                             - KEYS_INSERTED
                             - KEYS_DELETED
                         type: string
-                    maxItems: 22
+                    maxItems: 23
                     type: array
                     uniqueItems: true
                     x-xgen-IPA-exception:
