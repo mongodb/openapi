@@ -13,6 +13,3 @@ automated pipeline. Additionally we explain how we can force a Bump.sh deploymen
    original release skipped Bump.sh.
 6. Click **"Run workflow"**.
 
-The workflow also runs automatically on a schedule (every 2 hours, Mon-Fri). The
-scheduled run always targets `dev` and runs the `retry-handler` on failure for up to
-3 attempts.
