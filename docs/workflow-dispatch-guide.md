@@ -29,8 +29,9 @@ The bump check is at [`release-spec.yml:155-172`](https://github.com/mongodb/ope
    original release skipped Bump.sh.
 6. Click **"Run workflow"**.
 
-The workflow also runs on a schedule (every 2 hours, Mon-Fri), which executes
-**all environments** (dev, qa, staging, prod, plus the deprecated v1 spec for prod).
+The workflow also runs automatically on a schedule (every 2 hours, Mon-Fri). The
+scheduled run always targets `dev` and runs the `retry-handler` on failure for up to
+3 attempts.
 
 ## Key Jobs to Monitor During the Rerun
 
@@ -59,7 +60,7 @@ to deploy OpenAPI specs to Bump.sh for the target branch's documentation hub.
 ### `release-changelog` job (`release-changelog.yml`)
 
 Generates and commits the API changelog by diffing the current spec against the
-previous version.
+previous version. Skips if the latest changelog entry is already from today.
 
 - Confirm the **"Generate Changelog"** step runs without error.
 - Verify a commit with message `ci(<env>): Release API Changelog` appears on the
