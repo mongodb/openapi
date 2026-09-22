@@ -76,6 +76,22 @@ previous version.
 3. **Changelog entry**: Check `changelog/changelog.json` on the target branch — the
    change should appear as an entry with today's date.
 
+## Alternative: Direct Bump.sh Deployment
+
+When the spec is already committed and you only need to redeploy to Bump.sh
+(skipping the full release pipeline), dispatch **"Release the OpenAPI spec to
+Bump.sh"** directly:
+
+1. Go to the **Actions** tab and select the workflow.
+2. Click **"Run workflow"**.
+3. Set `branch` (e.g. `main` for prod, `staging`, `qa`, `dev`).
+4. Set `atlas_admin_v2_doc_id` to the target doc ID from repo variables.
+5. Optionally set `atlas_admin_v1_doc_id` for the deprecated v1 spec.
+6. Click **"Run workflow"**.
+
+This deploys the committed spec as-is with no diff check — useful when the
+release pipeline already ran but skipped the Bump.sh step.
+
 ## Environment-to-Branch Mapping
 
 |Environment|Branch|S3 Bucket Variable|
