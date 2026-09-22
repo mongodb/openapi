@@ -15,6 +15,11 @@ on:
           - dev,qa
         default: 'dev'
         required: false
+      force_bump:
+        description: 'Force Bump.sh deployment when the spec change is already committed and the diff is empty.'
+        type: boolean
+        default: false
+        required: false
   schedule:
     - cron: '0 */2 * * 1-5' # Run every 2 hours from Monday to Friday
 permissions:
@@ -61,6 +66,7 @@ jobs:
       branch: dev
       foascli_version: ${{ vars.FOASCLI_VERSION }}
       atlas_admin_v2_doc_id: ${{vars.ATLAS_ADMIN_V2_DOC_ID_DEV }}
+      force_bump: ${{ inputs.force_bump }}
 
   release-spec-qa:
     name: Release OpenAPI Spec for QA
@@ -80,6 +86,7 @@ jobs:
         branch: qa
         foascli_version: ${{ vars.FOASCLI_VERSION }}
         atlas_admin_v2_doc_id: ${{vars.ATLAS_ADMIN_V2_DOC_ID_QA }}
+        force_bump: ${{ inputs.force_bump }}
 
   release-spec-staging:
     name: Release OpenAPI Spec for STAGING
@@ -99,6 +106,7 @@ jobs:
         branch: staging
         foascli_version: ${{ vars.FOASCLI_VERSION }}
         atlas_admin_v2_doc_id: ${{vars.ATLAS_ADMIN_V2_DOC_ID_STAGING }}
+        force_bump: ${{ inputs.force_bump }}
 
   release-spec-prod:
     name: Release OpenAPI Spec for PROD
@@ -122,6 +130,7 @@ jobs:
         atlas_prod_base_url: ${{ vars.ATLAS_PROD_BASE_URL }}
         atlas_admin_v2_doc_id: ${{vars.ATLAS_ADMIN_V2_DOC_ID }}
         atlas_admin_v1_doc_id: ${{vars.ATLAS_ADMIN_V1_DOC_ID }}
+        force_bump: ${{ inputs.force_bump }}
 
   release-spec-v1-prod:
     name: Release OpenAPI Spec V1 (Deprecated) for PROD

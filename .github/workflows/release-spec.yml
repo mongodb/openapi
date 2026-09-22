@@ -38,6 +38,11 @@ on:
         description: 'Bump Doc ID for the v2 specs'
         required: true
         type: string
+      force_bump:
+        description: 'Force Bump.sh deployment when the spec change is already committed and the diff is empty.'
+        required: false
+        type: boolean
+        default: false
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
@@ -158,16 +163,23 @@ jobs:
             # We often only update the x-xgen-sha property in OAS since we need
             # this piece of information during the changelog release. However, this small changes
             # should not trigger a bump.sh release since the rendered spec is still the same.
-            # This logic makes sure that the v2.json file changes are more than 1 lines
-            # which suggests that we are not only updating the x-xgen-sha property.
+            # This logic makes sure that the v2.json file changes are more than 1 line
+            # in either added or deleted lines — covering enum removals while still
+            # skipping x-xgen-sha-only updates (which are 1 added + 1 deleted).
             
             export bump_release='false'
-            changed_lines=$(git diff --numstat openapi/v2.json | awk '{print $1}')
-            # Default to 0 if empty
-            changed_lines=${changed_lines:-0}
-            if [ "${changed_lines}" -gt 1 ]; then
+            if [ "${{ inputs.force_bump }}" = 'true' ]; then
               export bump_release='true'
+            else
+              added=$(git diff --numstat openapi/v2.json | awk '{print $1}')
+              deleted=$(git diff --numstat openapi/v2.json | awk '{print $2}')
+              added=${added:-0}
+              deleted=${deleted:-0}
+              if [ "${added}" -gt 1 ] || [ "${deleted}" -gt 1 ]; then
+                export bump_release='true'
+              fi
             fi
+            echo "bump_release=${bump_release}"
             
             echo "bump_release=${bump_release}" >> "${GITHUB_OUTPUT:?}"
         - name: Commit changes
@@ -216,6 +228,7 @@ jobs:
     secrets:
       api_bot_pat: ${{ secrets.api_bot_pat }}
       bump_token: ${{ secrets.bump_token }}
+
     with:
       branch: ${{ inputs.branch }}
       atlas_admin_v1_doc_id:  ${{ inputs.atlas_admin_v1_doc_id }}
