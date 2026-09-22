@@ -91,12 +91,3 @@ Bump.sh"** directly:
 
 This deploys the committed spec as-is with no diff check — useful when the
 release pipeline already ran but skipped the Bump.sh step.
-
-## Environment-to-Branch Mapping
-
-|Environment|Branch|S3 Bucket Variable|
-|---|---|---|
-|`dev`|`dev`|`S3_BUCKET_DEV`|
-|`qa`|`qa`|`S3_BUCKET_QA`|
-|`staging`|`staging`|`S3_BUCKET_STAGING`|
-|`prod`|`main`|`S3_BUCKET_PROD`|
