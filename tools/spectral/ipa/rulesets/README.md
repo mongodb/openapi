@@ -81,6 +81,25 @@ Rule checks for the following conditions:
 
 
 
+### IPA-103
+
+Rules are based on [https://mongodb.github.io/ipa/103](https://mongodb.github.io/ipa/103).
+
+#### xgen-IPA-103-response-body-root-shape
+
+ ![error](https://img.shields.io/badge/error-red) 
+Response bodies must define a well-defined root shape: a JSON object with named properties, or a discriminated `oneOf` whose variants are all objects.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to JSON response bodies that define a schema
+  - The resolved schema must be `type: object` with at least one named property, or a `oneOf` whose variants are all `type: object`
+  - Collection envelopes per IPA-110 (`results`, `links`, `totalCount`) satisfy the rule, as they are objects with named properties
+  - Rejects `type: array`, primitive types, and objects whose only keys are `additionalProperties`
+  - Responses with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+
+
 ### IPA-104
 
 Rules are based on [https://mongodb.github.io/ipa/104](https://mongodb.github.io/ipa/104).
@@ -1256,6 +1275,18 @@ This rule includes a configuration option:
   - `preferredWords`: List of words that the operation summary should use for single items, defaults to `['one']`. Only used for error messages
   - `forbiddenWords`: List of words (lowercase) that the operation summary should not use, defaults to `['a', 'specified']`
 
+#### xgen-IPA-117-oneof-property-descriptions-must-match
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Shared properties across `oneOf` variants should use consistent descriptions.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to every `oneOf` schema in the spec
+  - For every property name shared across two or more variants, the property's `description` must be byte-equal across variants
+  - Some divergence may be intentional, so this rule surfaces cases for review without blocking
+  - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+
 
 
 ### IPA-118
@@ -1442,6 +1473,48 @@ Rule checks for the following conditions:
 This rule includes two configuration options:
   - `ignoreList`: Words that are allowed to maintain their specific casing (e.g., "API", "AWS", "DNS")
   - `grammaticalWords`: Common words that can remain lowercase in titles (e.g., "and", "or", "the")
+
+
+
+### IPA-131
+
+Rules are based on [https://mongodb.github.io/ipa/131](https://mongodb.github.io/ipa/131).
+
+#### xgen-IPA-131-array-semantic
+
+ ![error](https://img.shields.io/badge/error-red) 
+The `x-xgen-array-semantic` extension must be well-formed.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only fires when the `x-xgen-array-semantic` extension is explicitly declared on a property
+  - The carrying property must be `type: array`
+  - The extension value must be `list` or `set`
+  - Properties with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-131-server-computed-when-client-omitted
+
+ ![error](https://img.shields.io/badge/error-red) 
+The `x-xgen-server-computed-when-client-omitted` extension must be well-formed.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only fires when the `x-xgen-server-computed-when-client-omitted` extension is explicitly declared on a property
+  - The extension value must be a boolean
+  - The carrying property must not appear in the schema's `required` list
+  - Properties with `x-xgen-IPA-exception` for this rule are excluded from validation
+
+#### xgen-IPA-131-server-computed-immutable
+
+ ![error](https://img.shields.io/badge/error-red) 
+The `x-xgen-server-computed-immutable` extension must be well-formed.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Only fires when the `x-xgen-server-computed-immutable` extension is explicitly declared on a property
+  - The extension value must be a boolean
+  - The carrying property must also be marked as `readOnly: true`
+  - Properties with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 
 

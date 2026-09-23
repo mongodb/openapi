@@ -15,6 +15,7 @@ functions:
   - IPA117OperationSummaryFormat
   - IPA117OperationSummaryStartsWith
   - IPA117OperationSummarySingleItemWording
+  - IPA117OneOfPropertyDescriptionsMustMatch
 
 aliases:
   OperationObject:
@@ -410,3 +411,19 @@ rules:
           - a
           - specified
           - provided
+  xgen-IPA-117-oneof-property-descriptions-must-match:
+    description: |
+      Shared properties across `oneOf` variants should use consistent descriptions.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to every `oneOf` schema in the spec
+        - For every property name shared across two or more variants, the property's `description` must be byte-equal across variants
+        - Some divergence may be intentional, so this rule surfaces cases for review without blocking
+        - Schemas with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-117-oneof-property-descriptions-must-match'
+    severity: warn
+    given:
+      - '$..oneOf'
+    then:
+      function: 'IPA117OneOfPropertyDescriptionsMustMatch'
