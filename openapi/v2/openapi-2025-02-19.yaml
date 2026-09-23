@@ -13063,6 +13063,7 @@ components:
                             - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                             - ACTIVE_LEGACY_TLS_CONNECTIONS
                             - WEBHOOK_TEMPLATE_RENDER_FAILED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -13323,6 +13324,7 @@ components:
                             - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                             - ACTIVE_LEGACY_TLS_CONNECTIONS
                             - WEBHOOK_TEMPLATE_RENDER_FAILED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -13715,6 +13717,8 @@ components:
                             - ACTIVE_LEGACY_TLS_CONNECTIONS
                             - NO_ACTIVE_LEGACY_TLS_CONNECTIONS
                             - WEBHOOK_TEMPLATE_RENDER_FAILED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_NO_LONGER_STALLED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -16263,6 +16267,73 @@ components:
                 googleCloudKms:
                     $ref: '#/components/schemas/GoogleCloudKMS'
             type: object
+        EncryptionAtRestConfigUpdateStalledAlertConfigViewForNdsGroup:
+            description: Configures the duration after which MongoDB Cloud alerts users that an Encryption at Rest configuration update has stalled.
+            properties:
+                created:
+                    description: Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+                enabled:
+                    default: false
+                    description: Flag that indicates whether someone enabled this alert configuration for the specified project.
+                    type: boolean
+                eventTypeName:
+                    $ref: '#/components/schemas/GroupEventTypeViewForNdsGroupAlertableEncryptionAtRestConfigUpdateStalled'
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                matchers:
+                    description: Matching conditions for target resources.
+                    items:
+                        $ref: '#/components/schemas/AlertMatcher'
+                    type: array
+                notifications:
+                    description: List that contains the targets that MongoDB Cloud sends notifications.
+                    items:
+                        $ref: '#/components/schemas/AlertsNotificationRootForGroup'
+                    maxItems: 25
+                    minItems: 1
+                    type: array
+                severityOverride:
+                    $ref: '#/components/schemas/EventSeverity'
+                threshold:
+                    $ref: '#/components/schemas/GreaterThanTimeThreshold'
+                updated:
+                    description: Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+            required:
+                - eventTypeName
+                - notifications
+            title: Encryption at Rest Update Stalled Alert Configuration
+            type: object
         EncryptionKeyAlertConfigViewForNdsGroup:
             description: Encryption key alert configuration allows to select thresholds  which trigger alerts and how users are notified.
             properties:
@@ -16775,6 +16846,8 @@ components:
                     - ACTIVE_LEGACY_TLS_CONNECTIONS
                     - NO_ACTIVE_LEGACY_TLS_CONNECTIONS
                     - WEBHOOK_TEMPLATE_RENDER_FAILED
+                    - ENCRYPTION_AT_REST_CONFIG_UPDATE_NO_LONGER_STALLED
+                    - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                   title: Group Event Types
                   type: string
                 - enum:
@@ -21115,6 +21188,7 @@ components:
                 - $ref: '#/components/schemas/BillingThresholdAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/ClusterAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/CpsBackupThresholdAlertConfigViewForNdsGroup'
+                - $ref: '#/components/schemas/EncryptionAtRestConfigUpdateStalledAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/EncryptionKeyAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/HostAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/HostMetricAlertConfigViewForNdsGroup'
@@ -21128,6 +21202,16 @@ components:
                 - $ref: '#/components/schemas/StreamProcessorAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/StreamProcessorMetricAlertConfigViewForNdsGroup'
             type: object
+        GroupEventTypeViewForNdsGroupAlertableEncryptionAtRestConfigUpdateStalled:
+            description: Event type that triggers an alert.
+            enum:
+                - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
+            example: ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
+            externalDocs:
+                description: Atlas Alert Event Types
+                url: https://www.mongodb.com/docs/atlas/reference/atlas-alert-event-types/
+            title: Group Event Types
+            type: string
         GroupIPAddresses:
             description: List of IP addresses in a project.
             properties:
@@ -39218,8 +39302,6 @@ components:
                             - Backup
                             - Data Transfer
                             - BI Connector
-                            - DSC Compute
-                            - DSC Storage
                             - Premium Features
                             - Atlas Data Federation
                             - Atlas Stream Processing
@@ -39231,7 +39313,6 @@ components:
                             - AI Model APIs
                             - Automated Embedding
                             - Native Reranking
-                            - Agent Engine
                             - Flex Consulting
                             - Support
                             - Credits
@@ -40852,7 +40933,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d3e37019ed8f59a0fca7a0ac2660648e7b5ca26a
+    x-xgen-sha: e50fbe6024cf5b1f6fe5ce98648e2432f652bf49
 openapi: 3.0.1
 paths:
     /api/atlas/v2:

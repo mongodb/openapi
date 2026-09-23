@@ -824,6 +824,82 @@ components:
                 - error
                 - errorCode
             type: object
+        AutoEmbeddingConfiguredInferenceScope:
+            description: Configured cloud and geographic dimensions. Both values are AUTO when Atlas selects the scope.
+            properties:
+                cloud:
+                    description: Configured cloud provider scope.
+                    enum:
+                        - AUTO
+                        - ANY
+                        - AWS
+                    type: string
+                geography:
+                    description: Configured geographic scope.
+                    enum:
+                        - AUTO
+                        - ANY
+                        - EU
+                        - US
+                    type: string
+            required:
+                - cloud
+                - geography
+            type: object
+        AutoEmbeddingEffectiveInferenceScope:
+            description: Cloud and geographic dimensions that Atlas applies to this cluster.
+            properties:
+                cloud:
+                    description: Effective cloud provider scope.
+                    enum:
+                        - ANY
+                        - AWS
+                    readOnly: true
+                    type: string
+                geography:
+                    description: Effective geographic scope.
+                    enum:
+                        - ANY
+                        - EU
+                        - US
+                    readOnly: true
+                    type: string
+            readOnly: true
+            required:
+                - cloud
+                - geography
+            type: object
+        AutoEmbeddingInferenceScopeResponse:
+            description: Configured and effective inference scope for Auto-Embedding indexes on one cluster.
+            properties:
+                configured:
+                    $ref: '#/components/schemas/AutoEmbeddingConfiguredInferenceScope'
+                effective:
+                    $ref: '#/components/schemas/AutoEmbeddingEffectiveInferenceScope'
+                mutable:
+                    description: Flag that indicates whether the inference scope can be configured.
+                    readOnly: true
+                    type: boolean
+                reason:
+                    description: Reason code that explains why the inference scope cannot be configured.
+                    enum:
+                        - UNSUPPORTED_QUERY_TIER
+                    nullable: true
+                    readOnly: true
+                    type: string
+                source:
+                    description: Source from which Atlas derived the effective inference scope.
+                    enum:
+                        - DEFAULT
+                        - CONFIGURED
+                    readOnly: true
+                    type: string
+            required:
+                - configured
+                - effective
+                - mutable
+                - source
+            type: object
         AzureHardwareSpec20240805:
             properties:
                 diskIOPS:
@@ -2155,7 +2231,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: d3e37019ed8f59a0fca7a0ac2660648e7b5ca26a
+    x-xgen-sha: e50fbe6024cf5b1f6fe5ce98648e2432f652bf49
 openapi: 3.0.1
 paths:
     /api/atlas/v2/defaultGroupLimits:
@@ -2598,6 +2674,82 @@ paths:
                 "2025-06-05": Fixed a bug that previously permitted users to configure multiple regionConfigs for the same region and cloud provider within a replicationSpec
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupCluster
             x-xgen-operation-id-override: updateCluster
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns the configured and effective inference scope for Auto-Embedding indexes on the specified cluster.
+            operationId: getGroupClusterAutoEmbeddingInference
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster for which to return the inference scope.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/AutoEmbeddingInferenceScopeResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return the Auto-Embedding Inference Scope for One Cluster
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters getAutoEmbeddingInference --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterAutoEmbeddingInference
+            x-xgen-method-verb-override:
+                customMethod: false
+                verb: get
+            x-xgen-operation-id-override: getAutoEmbeddingInference
     /api/atlas/v2/openapi/info:
         get:
             deprecated: true

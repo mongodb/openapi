@@ -537,6 +537,47 @@
         ],
         "type": "object"
       },
+      "PrivateEndpointConnectionStringCreateRequest": {
+        "description": "Private endpoint connection string to create for one cluster.",
+        "properties": {
+          "name": {
+            "description": "Human-readable label of at most 64 characters that identifies this private endpoint connection string. You can change this label without changing the connection string.",
+            "example": "reporting-vpc",
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "optimizedModeEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether this private endpoint connection string uses the optimized load-balanced mode. This mode requires a sharded cluster and a private endpoint selection that satisfies the optimized connection string requirements.",
+            "type": "boolean"
+          },
+          "privateEndpointIds": {
+            "description": "Set of private endpoints that this connection string covers. MongoDB Cloud stores this set as a snapshot of your selection and never adds newly created private endpoints to it. The set accepts at most one private endpoint per cloud provider region, and can include private endpoints that the cluster does not use yet. Order is not significant and MongoDB Cloud rejects duplicate values.",
+            "items": {
+              "description": "Unique string of at most 512 characters that identifies one private endpoint. The format depends on the cloud provider: for Amazon Web Services, this value is a private endpoint ID; for Azure, this value is a resource ID; for Google Cloud, this value is either the forwarding rule name of a port mapped Private Service Connect endpoint or the endpoint group name of a legacy Private Service Connect endpoint group.",
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true,
+            "x-xgen-array-semantic": "set"
+          },
+          "selectiveMongosEnabled": {
+            "default": false,
+            "description": "Flag that indicates whether this private endpoint connection string routes clients to a subset of the `mongos` processes of the cluster.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "privateEndpointIds"
+        ],
+        "title": "Private Endpoint Connection String Create Request",
+        "type": "object"
+      },
       "PrivateEndpointConnectionStringResponse": {
         "description": "Private endpoint connection string for one cluster.",
         "properties": {
@@ -640,6 +681,33 @@
         ],
         "title": "Private Endpoint Connection String",
         "type": "object"
+      },
+      "PrivateEndpointConnectionStringUpdateRequest": {
+        "description": "Private endpoint connection string fields to update for one cluster. Only `name` and `privateEndpointIds` can change; a request that carries any other field, including the connection method properties (`optimizedModeEnabled`, `selectiveMongosEnabled`), is rejected with a 400 naming the offending fields.",
+        "properties": {
+          "name": {
+            "description": "Human-readable label of at most 64 characters that identifies this private endpoint connection string. You can change this label without changing the connection string.",
+            "example": "reporting-vpc",
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "privateEndpointIds": {
+            "description": "Set of private endpoints that this connection string covers. MongoDB Cloud replaces the stored snapshot with this set and never adds newly created private endpoints to it. The set accepts at most one private endpoint per cloud provider region, and can include private endpoints that the cluster does not use yet. Order is not significant and MongoDB Cloud rejects duplicate values.",
+            "items": {
+              "description": "Unique string of at most 512 characters that identifies one private endpoint. The format depends on the cloud provider: for Amazon Web Services, this value is a private endpoint ID; for Azure, this value is a resource ID; for Google Cloud, this value is either the forwarding rule name of a port mapped Private Service Connect endpoint or the endpoint group name of a legacy Private Service Connect endpoint group.",
+              "maxLength": 512,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true,
+            "x-xgen-array-semantic": "set"
+          }
+        },
+        "title": "Private Endpoint Connection String Update Request",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -668,7 +736,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "d3e37019ed8f59a0fca7a0ac2660648e7b5ca26a"
+    "x-xgen-sha": "e50fbe6024cf5b1f6fe5ce98648e2432f652bf49"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -800,6 +868,121 @@
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusterPrivateEndpointConnectionStrings",
         "x-xgen-operation-id-override": "listEndpointConnectionStrings"
+      },
+      "post": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Creates one private endpoint connection string for the specified cluster. The new record is returned with `status = PENDING`; MongoDB Cloud publishes the DNS records asynchronously, so poll the record until it reports `AVAILABLE` before connecting with it.",
+        "operationId": "createGroupClusterPrivateEndpointConnectionString",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivateEndpointConnectionStringCreateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "private-endpoint-connection-strings"
+              },
+              "x-xgen-version": "private-preview-private-endpoint-connection-strings"
+            }
+          },
+          "description": "Private endpoint connection string to create.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateEndpointConnectionStringResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "private-endpoint-connection-strings"
+                },
+                "x-xgen-version": "private-preview-private-endpoint-connection-strings"
+              }
+            },
+            "description": "Created",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Private Endpoint Connection String for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api clusters createEndpointConnectionString --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createGroupClusterPrivateEndpointConnectionString",
+        "x-xgen-operation-id-override": "createEndpointConnectionString"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}": {
@@ -1007,6 +1190,134 @@
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterPrivateEndpointConnectionString",
         "x-xgen-operation-id-override": "getEndpointConnectionString"
+      },
+      "patch": {
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Updates one private endpoint connection string. Accepted while the record reports `PENDING`, `AVAILABLE`, or `FAILED`, and returns it with `status = PENDING` while MongoDB Cloud publishes the new DNS records. Only `name` and `privateEndpointIds` can change, and each one you omit keeps its current value. An imported record cannot be updated, and a request that carries a connection method property, a published field, or a lifecycle field is rejected.",
+        "operationId": "updateGroupClusterPrivateEndpointConnectionString",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies this private endpoint connection string.",
+            "in": "path",
+            "name": "connectionStringId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivateEndpointConnectionStringUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "private-endpoint-connection-strings"
+              },
+              "x-xgen-version": "private-preview-private-endpoint-connection-strings"
+            }
+          },
+          "description": "Private endpoint connection string fields to update.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateEndpointConnectionStringResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "private-endpoint-connection-strings"
+                },
+                "x-xgen-version": "private-preview-private-endpoint-connection-strings"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One Private Endpoint Connection String for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api clusters updateEndpointConnectionString --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/privateEndpointConnectionStrings/{connectionStringId}\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterPrivateEndpointConnectionString",
+        "x-xgen-operation-id-override": "updateEndpointConnectionString"
       }
     }
   },
