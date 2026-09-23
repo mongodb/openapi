@@ -259,6 +259,19 @@ export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
   visiting.add(schema);
 
   try {
+    // Compositions can coexist with properties or items; none may hide writable fields in the others.
+    let hasReadOnlyComposition = false;
+    for (const composition of ['allOf', 'anyOf', 'oneOf']) {
+      const branches = schema[composition];
+      if (!Array.isArray(branches)) {
+        continue;
+      }
+      if (branches.length === 0 || !branches.every((subSchema) => isSchemaReadOnly(subSchema, visiting))) {
+        return false;
+      }
+      hasReadOnlyComposition = true;
+    }
+
     if (schema.properties) {
       if (schema.properties.results && schema.properties.results.type === 'array' && schema.properties.results.items) {
         return isSchemaReadOnly(schema.properties.results.items, visiting);
@@ -272,19 +285,7 @@ export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
       return isSchemaReadOnly(schema.items, visiting);
     }
 
-    if (Array.isArray(schema.allOf)) {
-      return schema.allOf.every((subSchema) => isSchemaReadOnly(subSchema, visiting));
-    }
-
-    if (Array.isArray(schema.anyOf)) {
-      return schema.anyOf.some((subSchema) => isSchemaReadOnly(subSchema, visiting));
-    }
-
-    if (Array.isArray(schema.oneOf)) {
-      return schema.oneOf.some((subSchema) => isSchemaReadOnly(subSchema, visiting));
-    }
-
-    return false;
+    return hasReadOnlyComposition;
   } finally {
     visiting.delete(schema);
   }

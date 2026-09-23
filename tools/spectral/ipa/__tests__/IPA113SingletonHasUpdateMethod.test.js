@@ -188,6 +188,69 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
       },
     ],
   },
+  ...['allOf', 'anyOf', 'oneOf'].flatMap((composition) =>
+    [
+      { description: 'read-only branches', withProperties: false, writable: false },
+      { description: 'a writable branch', withProperties: false, writable: true },
+      { description: 'read-only branches alongside properties', withProperties: true, writable: false },
+      { description: 'a writable branch alongside read-only properties', withProperties: true, writable: true },
+    ].map(({ description, withProperties, writable }) => ({
+      name: `singleton with referenced nested ${composition} containing ${description}`,
+      document: {
+        paths: {
+          '/resource/{exampleId}/singleton': {
+            get: {
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Singleton' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Singleton: {
+              type: 'object',
+              properties: {
+                metadata: { $ref: '#/components/schemas/Metadata' },
+              },
+            },
+            Metadata: {
+              ...(withProperties ? { properties: { id: { type: 'string', readOnly: true } } } : {}),
+              [composition]: [
+                { $ref: '#/components/schemas/ReadOnlyMetadataPart' },
+                { $ref: '#/components/schemas/OtherMetadataPart' },
+              ],
+            },
+            ReadOnlyMetadataPart: {
+              type: 'object',
+              properties: { createdAt: { type: 'string', readOnly: true } },
+            },
+            OtherMetadataPart: {
+              type: 'object',
+              properties: { displayName: { type: 'string', readOnly: !writable } },
+            },
+          },
+        },
+      },
+      errors: writable
+        ? [
+            {
+              code: 'xgen-IPA-113-singleton-should-have-update-method',
+              message:
+                'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.',
+              path: ['paths', '/resource/{exampleId}/singleton'],
+              severity: DiagnosticSeverity.Error,
+            },
+          ]
+        : [],
+    }))
+  ),
   {
     name: 'read-only singleton with List response',
     document: {

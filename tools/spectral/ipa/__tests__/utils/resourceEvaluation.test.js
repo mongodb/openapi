@@ -615,6 +615,78 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       });
     });
 
+    describe.each(['allOf', 'anyOf', 'oneOf'])('%s compositions', (composition) => {
+      const readOnlySchema = {
+        type: 'object',
+        properties: { id: { type: 'string', readOnly: true } },
+      };
+      const writableSchema = {
+        type: 'object',
+        properties: { displayName: { type: 'string' } },
+      };
+
+      it.each([
+        {
+          description: 'all branches are read-only, including a shared schema',
+          schema: { [composition]: [readOnlySchema, readOnlySchema] },
+          expected: true,
+        },
+        {
+          description: 'a writable branch follows a read-only branch',
+          schema: { [composition]: [readOnlySchema, writableSchema] },
+          expected: false,
+        },
+        {
+          description: 'a writable branch precedes a read-only branch',
+          schema: { [composition]: [writableSchema, readOnlySchema] },
+          expected: false,
+        },
+        {
+          description: 'read-only properties coexist with read-only branches',
+          schema: { ...readOnlySchema, [composition]: [readOnlySchema] },
+          expected: true,
+        },
+        {
+          description: 'read-only properties coexist with a writable branch',
+          schema: { ...readOnlySchema, [composition]: [writableSchema] },
+          expected: false,
+        },
+        {
+          description: 'writable properties coexist with a read-only branch',
+          schema: { ...writableSchema, [composition]: [readOnlySchema] },
+          expected: false,
+        },
+        {
+          description: 'read-only array items coexist with a writable branch',
+          schema: { type: 'array', items: readOnlySchema, [composition]: [{ type: 'array', items: writableSchema }] },
+          expected: false,
+        },
+        {
+          description: 'the composition is empty',
+          schema: { [composition]: [] },
+          expected: false,
+        },
+      ])('returns $expected when $description', ({ schema, expected }) => {
+        expect(allPropertiesAreReadOnly({ type: 'object', properties: { metadata: schema } })).toEqual(expected);
+      });
+
+      it('returns false for a circular branch after a read-only branch', () => {
+        const schema = { [composition]: [readOnlySchema] };
+        schema[composition].push(schema);
+
+        expect(allPropertiesAreReadOnly(schema)).toEqual(false);
+      });
+    });
+
+    it('checks sibling composition keywords even when allOf is read-only', () => {
+      const schema = {
+        allOf: [{ type: 'object', properties: { id: { type: 'string', readOnly: true } } }],
+        anyOf: [{ type: 'object', properties: { displayName: { type: 'string' } } }],
+      };
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(false);
+    });
+
     it('returns false for an unmarked circular schema', () => {
       const schema = {
         type: 'object',
