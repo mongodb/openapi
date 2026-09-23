@@ -103,7 +103,7 @@
         }
       },
       "includeCount": {
-        "description": "Flag that indicates whether the response returns the total number of items (`totalCount`) in the response.",
+        "description": "Flag that indicates whether MongoDB Cloud calculates the total number of items for the response. When set to `false`, MongoDB Cloud may skip an additional count operation. The response may still include `totalCount` when the count is available without additional calculation.",
         "in": "query",
         "name": "includeCount",
         "schema": {
@@ -480,6 +480,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -552,6 +553,15 @@
           },
           "diskGB": {
             "$ref": "#/components/schemas/DiskGBAutoScaling"
+          },
+          "storageConfig": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StorageConfig"
+              }
+            ],
+            "description": "Available in Public Preview: Settings that determine the per-shard data-size limit for this cluster. Applies only to Atlas INFINITE clusters. MongoDB Cloud accepts these settings only on `autoScaling` and rejects them on `analyticsAutoScaling`, including when you send them as `null`. In a request that includes `replicationSpecs`, omitting `storageConfig` or sending it as `null` or `{}` clears the limit. Omitting `replicationSpecs` preserves it.",
+            "nullable": true
           }
         },
         "title": "Automatic Scaling Settings",
@@ -830,6 +840,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -906,6 +917,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -1344,6 +1356,14 @@
             "readOnly": true,
             "type": "string"
           },
+          "databaseEdition": {
+            "description": "Available in Public Preview: Optional field that indicates whether your cluster will be Atlas INFINITE or CORE. You can set it only when you create the cluster, or when you upgrade a Free or Flex cluster to a dedicated cluster. This value is immutable once the dedicated cluster exists; attempting to change it on an update request returns an error.",
+            "enum": [
+              "CORE",
+              "INFINITE"
+            ],
+            "type": "string"
+          },
           "diskWarmingMode": {
             "default": "FULLY_WARMED",
             "description": "Disk warming mode selection.",
@@ -1355,6 +1375,15 @@
               "description": "Reduce Secondary Disk Warming Impact",
               "url": "https://docs.atlas.mongodb.com/reference/replica-set-tags/#reduce-secondary-disk-warming-impact"
             },
+            "type": "string"
+          },
+          "effectiveDatabaseEdition": {
+            "description": "Available in Public Preview: Field that represents whether your cluster is Atlas INFINITE or CORE. This is read-only and always returned in the response. It reflects the actual cluster state. This value matches `databaseEdition` if it was set, otherwise it reflects the default database edition assigned to the cluster.",
+            "enum": [
+              "CORE",
+              "INFINITE"
+            ],
+            "readOnly": true,
             "type": "string"
           },
           "effectiveReplicationSpecs": {
@@ -1806,6 +1835,7 @@
               "M140_GEN_2",
               "M200_GEN_2",
               "M300_GEN_2",
+              "M700_GEN_2",
               "R40_GEN_2",
               "R50_GEN_2",
               "R60_GEN_2",
@@ -1929,7 +1959,7 @@
             "type": "array"
           },
           "totalCount": {
-            "description": "Total number of documents available. MongoDB Cloud omits this value if `includeCount` is set to `false`. The total number is an estimate and may not be exact.",
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
             "format": "int32",
             "minimum": 0,
             "readOnly": true,
@@ -2066,6 +2096,19 @@
         },
         "type": "object"
       },
+      "StorageConfig": {
+        "nullable": true,
+        "properties": {
+          "shardSizeLimitGB": {
+            "description": "Available in Public Preview: Maximum data size that MongoDB Cloud allows each shard of this cluster to reach, expressed in gigabytes. MongoDB Cloud rejects writes to a shard that reaches the limit that it enforces. In `replicationSpecs`, this field reports the limit that you configured, and MongoDB Cloud omits it when you never configured one. In `effectiveReplicationSpecs`, this field reports the limit that MongoDB Cloud enforces: usually the limit that you configured, otherwise the default limit that MongoDB Cloud assigns when it creates or updates the cluster. This value may differ from the limit that you configured due to system-managed changes. This limit applies to every shard of the cluster; set the same value on each region configuration's `autoScaling`, as MongoDB Cloud rejects requests that specify differing values. You can set this only on Atlas INFINITE clusters: MongoDB Cloud rejects any request that names this field, including as `null`, for a cluster or node type that doesn't support it. In a request that includes `replicationSpecs`, omitting `shardSizeLimitGB` or sending it as `null` clears the limit. Omitting `replicationSpecs` preserves it.",
+            "format": "int32",
+            "minimum": 1,
+            "nullable": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "TenantHardwareSpec20240805": {
         "properties": {
           "diskSizeGB": {
@@ -2156,7 +2199,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "9985ea6b409de8e18e59c60d556137813e699fe8"
+    "x-xgen-sha": "a06785990fe6669e5123654fa1117c0e879e6616"
   },
   "openapi": "3.0.1",
   "paths": {
