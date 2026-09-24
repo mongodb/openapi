@@ -273,10 +273,6 @@ export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
     }
 
     if (schema.properties) {
-      if (schema.properties.results && schema.properties.results.type === 'array' && schema.properties.results.items) {
-        return isSchemaReadOnly(schema.properties.results.items, visiting);
-      }
-
       const properties = Object.values(schema.properties);
       return properties.length > 0 && properties.every((property) => isSchemaReadOnly(property, visiting));
     }

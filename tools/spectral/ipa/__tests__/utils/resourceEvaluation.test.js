@@ -566,28 +566,27 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         expected: false,
       },
       {
-        description: 'singleton List response with all readOnly items',
+        description: 'schema with readOnly array property containing writable item schema',
         schema: {
           type: 'object',
           properties: {
-            results: {
+            auditEvents: {
               type: 'array',
+              readOnly: true,
               items: {
                 type: 'object',
                 properties: {
                   id: { type: 'string', readOnly: true },
-                  name: { type: 'string', readOnly: true },
-                  status: { type: 'string', readOnly: true },
+                  message: { type: 'string' },
                 },
               },
             },
-            totalCount: { type: 'integer' },
           },
         },
         expected: true,
       },
       {
-        description: 'singleton List response with some non-readOnly items',
+        description: 'list response shape with writable metadata is not treated specially',
         schema: {
           type: 'object',
           properties: {
