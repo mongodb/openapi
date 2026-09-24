@@ -292,15 +292,33 @@ export function allPropertiesAreReadOnly(schema) {
  * @returns {boolean} true if the resource is read-only, false otherwise
  */
 export function isReadOnlyResource(resourcePathItems) {
-  const resourcePaths = Object.keys(resourcePathItems);
+  // If any path has an exception for xgen-IPA-104-resource-has-GET, we cannot determine if the resource is read-only
+  return (
+    !anyPathHasException(resourcePathItems, 'xgen-IPA-104-resource-has-GET') &&
+    getResponseIsAllReadOnly(resourcePathItems)
+  );
+}
 
-  // Check if any path has an exception for xgen-IPA-104-resource-has-GET
-  // If so, we cannot determine if the resource is read-only
-  for (const path of resourcePaths) {
-    if (hasException(resourcePathItems[path], 'xgen-IPA-104-resource-has-GET')) {
-      return false;
-    }
-  }
+/**
+ * Checks if any path item of a resource has an exception for the given rule.
+ *
+ * @param {Object} resourcePathItems - All path items for the resource to be evaluated
+ * @param {string} ruleName - The name of the rule to look for
+ * @returns {boolean}
+ */
+export function anyPathHasException(resourcePathItems, ruleName) {
+  return Object.values(resourcePathItems).some((pathItem) => hasException(pathItem, ruleName));
+}
+
+/**
+ * Checks if all properties in the response schema of a resource's Get method are readOnly: true. The standard Get method
+ * (on the single resource path) is preferred; otherwise the first path with a Get method is used, which may be a List.
+ *
+ * @param {Object} resourcePathItems - All path items for the resource to be evaluated
+ * @returns {boolean}
+ */
+export function getResponseIsAllReadOnly(resourcePathItems) {
+  const resourcePaths = Object.keys(resourcePathItems);
 
   // First, look for a standard Get method
   let getPathItem = null;
