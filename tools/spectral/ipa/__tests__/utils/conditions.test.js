@@ -37,6 +37,13 @@ describe('tools/spectral/ipa/rulesets/functions/utils/conditions', () => {
       });
     });
 
+    it('has examples that can be told apart in the glossary', () => {
+      const shown = [...condition.examples.match, ...condition.examples.noMatch].map(
+        (example) => `${example.path.slice(1).join(' ')} ${example.note ?? ''}`
+      );
+      expect(new Set(shown).size).toBe(shown.length);
+    });
+
     it('has an id that starts with its subject', () => {
       expect(condition.id.split('.')[0]).toBe(condition.subject);
     });

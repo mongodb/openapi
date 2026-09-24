@@ -20,8 +20,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to singleton resources that are identified as resource collection identifiers
-        - Checks that the resource has a GET method defined
         - Examines all 2xx response schemas from the GET method
         - Verifies that no schema contains 'id' or '_id' properties in their object definitions
         - Fails if any response schema contains these identifier properties
@@ -36,7 +34,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to singleton resources
         - Checks that the resource does not have a DELETE method defined
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-113-singleton-must-not-have-delete-method'
     severity: error
@@ -49,8 +46,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to singleton resources
-        - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly; for List responses, all properties in the items schema must be readOnly)
         - Checks that the resource has the PUT and/or PATCH methods defined
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-113-singleton-should-have-update-method'
     severity: error
@@ -63,7 +58,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to paths ending with :reset
         - Verifies that only POST method is defined
         - Fails if GET or any other HTTP method is used
         - Fails if multiple HTTP methods are defined for the same :reset endpoint
@@ -78,7 +72,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to POST methods on paths ending with :reset
         - Verifies that the operation object does not contain a requestBody property
         - Fails if any request body is defined
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-113-reset-method-must-not-have-request-body'
@@ -92,7 +85,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to POST methods on paths ending with :reset
         - Verifies that a 200 OK response code is present
         - Fails if the method lacks a 200 OK response or defines a different 2xx status code
         - Verifies that the 200 response has a response body with schema
@@ -107,8 +99,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to POST methods on paths ending with :reset
-        - Applies only to JSON response content types
         - Verifies that both :reset and GET methods have schema references
         - Confirms that the :reset method 200 response schema reference matches the GET method response schema reference
         - Ensures the reset resource returned is the same type as the singleton resource
@@ -124,9 +114,7 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to paths ending with :reset
-        - Verifies that the parent path (without :reset) is a singleton resource
-        - Uses existing isSingletonResource() helper function
+        - Verifies that the base resource (the path without :reset) is a singleton resource (see [`resource.isSingleton`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceissingleton))
         - Fails if :reset is defined on a non-singleton resource
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-113-reset-method-only-on-singleton-resources'
     severity: error
@@ -139,10 +127,8 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to paths ending with :reset
-        - Verifies that the parent singleton resource is not read-only
-        - Uses existing isReadOnlyResource() helper function
-        - Fails if the singleton resource has all properties marked as readOnly: true
+        - Verifies that the base resource (the path without :reset) is not read-only (see [`resource.isReadOnly`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceisreadonly))
+        - Does not check that the base resource is a singleton; that is covered by xgen-IPA-113-reset-method-only-on-singleton-resources
     message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-113-reset-method-not-on-readonly-singleton'
     severity: error
     given: '$.paths[*]'
@@ -154,7 +140,6 @@ rules:
 
       ##### Implementation details
       Rule checks for the following conditions:
-        - Applies only to POST methods on paths ending with :reset
         - Confirms that the operation ID follows the pattern: reset{ResourceName}
         - Uses existing operation ID validation infrastructure
 

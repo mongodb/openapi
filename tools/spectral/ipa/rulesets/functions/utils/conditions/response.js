@@ -4,13 +4,15 @@
 
 import { defineCondition } from './registry.js';
 
-const content = (code, mediaType, mediaTypeObject) => ({
+const content = (code, mediaType, mediaTypeObject, note) => ({
   path: ['paths', '/groups/{groupId}', 'get', 'responses', code, 'content', mediaType],
   paths: { '/groups/{groupId}': { get: { responses: { [code]: { content: { [mediaType]: mediaTypeObject } } } } } },
+  ...(note && { note }),
 });
 
 export const is2xx = defineCondition({
   id: 'response.is2xx',
+  label: 'the response is a 2xx response',
   subject: 'response',
   definition: 'The response status code starts with `2`.',
   fn: (ctx) => ctx.path[4].startsWith('2'),
@@ -22,17 +24,19 @@ export const is2xx = defineCondition({
 
 export const hasSchema = defineCondition({
   id: 'mediaType.hasSchema',
+  label: 'the media type defines a schema',
   subject: 'mediaType',
   definition: 'The media type object exists and defines a `schema`.',
   fn: (ctx) => Boolean(ctx.node?.schema),
   examples: {
-    match: [content('200', 'application/json', { schema: { type: 'object' } })],
-    noMatch: [content('200', 'application/json', { example: {} })],
+    match: [content('200', 'application/json', { schema: { type: 'object' } }, 'has a schema')],
+    noMatch: [content('200', 'application/json', { example: {} }, 'an example but no schema')],
   },
 });
 
 export const isJson = defineCondition({
   id: 'mediaType.isJson',
+  label: 'the media type is JSON',
   subject: 'mediaType',
   definition: 'The media type ends in `json`, e.g. `application/vnd.atlas.2023-01-01+json`.',
   fn: (ctx) => ctx.path.at(-1).endsWith('json'),
