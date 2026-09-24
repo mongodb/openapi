@@ -727,6 +727,33 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         expected: true,
       },
       {
+        description: 'singleton with list response shape',
+        resourcePathItems: {
+          '/resource/{id}/listSingleton': {
+            get: {
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          links: { type: 'array', readOnly: true, items: { type: 'object' } },
+                          results: { type: 'array', readOnly: true, items: { type: 'object' } },
+                          totalCount: { type: 'integer', readOnly: true },
+                        },
+                        required: ['results'],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        expected: false,
+      },
+      {
         description: 'resource with xgen-IPA-104-resource-has-GET exception',
         resourcePathItems: {
           '/resource': {

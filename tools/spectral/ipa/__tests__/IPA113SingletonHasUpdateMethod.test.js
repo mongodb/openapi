@@ -252,7 +252,7 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
     }))
   ),
   {
-    name: 'read-only singleton with List response',
+    name: 'list response shape does not prove singleton is read-only',
     document: {
       paths: {
         '/resource/{exampleId}/readOnlyListSingleton': {
@@ -266,6 +266,7 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
                       properties: {
                         results: {
                           type: 'array',
+                          readOnly: true,
                           items: {
                             type: 'object',
                             properties: {
@@ -275,8 +276,9 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
                             },
                           },
                         },
-                        totalCount: { type: 'integer' },
+                        totalCount: { type: 'integer', readOnly: true },
                       },
+                      required: ['results'],
                     },
                   },
                 },
@@ -286,7 +288,15 @@ testRule('xgen-IPA-113-singleton-should-have-update-method', [
         },
       },
     },
-    errors: [],
+    errors: [
+      {
+        code: 'xgen-IPA-113-singleton-should-have-update-method',
+        message:
+          'Singleton resources should define the Update method. If this is not a singleton resource, please implement all CRUDL methods.',
+        path: ['paths', '/resource/{exampleId}/readOnlyListSingleton'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
   },
   {
     name: 'writable singleton with List response',

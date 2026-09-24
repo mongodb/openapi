@@ -359,10 +359,26 @@ export function isReadOnlyResource(resourcePathItems) {
       continue;
     }
 
+    // List responses are containers around resources, not resource schemas themselves.
+    // They cannot prove that a singleton or resource is read-only.
+    if (isListResponseSchema(mediaTypeObj.schema)) {
+      return false;
+    }
+
     if (!allPropertiesAreReadOnly(mediaTypeObj.schema)) {
       return false;
     }
   }
 
   return true;
+}
+
+function isListResponseSchema(schema) {
+  const properties = schema?.properties;
+  const results = properties?.results;
+  return (
+    results?.type === 'array' &&
+    Boolean(results.items) &&
+    Boolean(properties.links || properties.totalCount || schema.required?.includes('results'))
+  );
 }
