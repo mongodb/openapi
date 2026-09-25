@@ -2506,6 +2506,62 @@ components:
                         - DESCENDING
                     type: string
             type: object
+        ApiSearchAutoScalingView:
+            description: Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.
+            properties:
+                compute:
+                    $ref: '#/components/schemas/ApiSearchComputeAutoScalingView'
+            type: object
+        ApiSearchComputeAutoScalingView:
+            description: Settings that control Search Node tier scaling based on load.
+            properties:
+                enabled:
+                    default: false
+                    description: Flag that indicates whether Atlas raises the Search Node tier when the nodes are under sustained load. If set to `true`, you must also set `maxInstanceTier`.
+                    type: boolean
+                maxInstanceTier:
+                    description: Highest Search Node tier that Atlas can scale up to. Required when `enabled` is `true`.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                minInstanceTier:
+                    description: Lowest Search Node tier that Atlas can scale down to. Required when `scaleDownEnabled` is `true`. Scaling down is not supported yet, so setting this returns an error.
+                    enum:
+                        - S10
+                        - S20
+                        - S30
+                        - S40
+                        - S50
+                        - S60
+                        - S70
+                        - S80
+                        - S90
+                        - S100
+                        - S110
+                        - S120
+                        - S130
+                        - S135
+                        - S140
+                    type: string
+                scaleDownEnabled:
+                    default: false
+                    description: Flag that indicates whether Atlas lowers the Search Node tier when load drops. Takes effect only when `enabled` is `true`. If set to `true`, you must also set `minInstanceTier`. Scaling down is not supported yet, so setting this to `true` returns an error.
+                    type: boolean
+            type: object
         ApiSearchDeploymentEffectiveSpecView:
             properties:
                 cloudProvider:
@@ -2558,6 +2614,10 @@ components:
                 regionName:
                     description: Cloud provider region where Search Nodes are provisioned.
                     example: US_EAST_1
+                    readOnly: true
+                    type: string
+                shardId:
+                    description: Shard that owns this Search Node configuration.
                     readOnly: true
                     type: string
             type: object
@@ -2619,6 +2679,10 @@ components:
             type: object
         ApiSearchDeploymentRequestView:
             properties:
+                autoScaling:
+                    allOf:
+                        - $ref: '#/components/schemas/ApiSearchAutoScalingView'
+                    description: Settings that let Atlas change the Search Node tier on its own. Bounds apply to the whole deployment, and Atlas scales each region and shard independently within them. Omit to keep autoscaling off.
                 defaultNodeCount:
                     description: Default number of Search Nodes per region. Applied to a region without an explicit override.
                     example: 2
@@ -2638,6 +2702,17 @@ components:
             type: object
         ApiSearchDeploymentResponseView:
             properties:
+                autoScaling:
+                    allOf:
+                        - $ref: '#/components/schemas/ApiSearchAutoScalingView'
+                    description: Autoscaling settings configured for this Search deployment.
+                    readOnly: true
+                baselineSpecs:
+                    description: List of starting settings for the Search Nodes in each cluster region.
+                    items:
+                        $ref: '#/components/schemas/ApiSearchDeploymentEffectiveSpecView'
+                    readOnly: true
+                    type: array
                 effectiveSpecs:
                     description: List of settings that configure the Search Nodes for your cluster. Each entry describes one region or, when `shardId` is present, one shard in one region.
                     items:
@@ -39072,7 +39147,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 838798eb1e900103f8dedc16bc7227c008965ab3
+    x-xgen-sha: 469cebd5360e69a07150cda6a43829d0073cef3f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
