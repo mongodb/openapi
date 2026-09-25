@@ -34030,6 +34030,32 @@ components:
             required:
                 - results
             type: object
+        PaginatedShardMetricsResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/ShardMetricsResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedSnapshotView:
             properties:
                 links:
@@ -38806,6 +38832,60 @@ components:
             required:
                 - secretExpiresAfterHours
             type: object
+        ShardAlert:
+            description: Open alert on one of the shard's nodes.
+            properties:
+                message:
+                    description: Human-readable description of the condition that triggered this alert.
+                    readOnly: true
+                    type: string
+                severity:
+                    description: Severity that MongoDB Cloud assigned to this alert.
+                    enum:
+                        - INFO
+                        - WARNING
+                        - ERROR
+                        - CRITICAL
+                    readOnly: true
+                    type: string
+            required:
+                - message
+                - severity
+            type: object
+        ShardCacheThroughput:
+            description: Bytes per second that the shard moved in and out of the cache over the last hour.
+            properties:
+                readIntoBytesPerSecond:
+                    description: Average bytes per second read into the cache, across the shard's nodes over the last hour.
+                    format: double
+                    readOnly: true
+                    type: number
+                writtenFromBytesPerSecond:
+                    description: Average bytes per second written from the cache, across the shard's nodes over the last hour.
+                    format: double
+                    readOnly: true
+                    type: number
+            required:
+                - readIntoBytesPerSecond
+                - writtenFromBytesPerSecond
+            type: object
+        ShardCpuUtilization:
+            description: CPU utilization of the shard's nodes over the last hour, as a percentage.
+            properties:
+                averagePercent:
+                    description: Average CPU utilization across the shard's nodes over the last hour.
+                    format: double
+                    readOnly: true
+                    type: number
+                maximumPercent:
+                    description: Highest CPU utilization that any one of the shard's nodes reached over the last hour.
+                    format: double
+                    readOnly: true
+                    type: number
+            required:
+                - averagePercent
+                - maximumPercent
+            type: object
         ShardEntry:
             description: Sharding configuration for a collection to be sharded on the destination cluster.
             properties:
@@ -39010,6 +39090,88 @@ components:
                 - measurements
                 - replicaSetName
                 - start
+            type: object
+        ShardMetricsResponse:
+            description: Metrics for one shard of a sharded cluster, covering its size, its load, and any alerts open on its nodes.
+            properties:
+                alerts:
+                    description: Alerts open on this shard's nodes, sorted by creation date with the most recently created first. MongoDB Cloud returns this property when you request a single shard, and returns at most 100 alerts.
+                    items:
+                        $ref: '#/components/schemas/ShardAlert'
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                cacheThroughput:
+                    $ref: '#/components/schemas/ShardCacheThroughput'
+                cpuUtilization:
+                    $ref: '#/components/schemas/ShardCpuUtilization'
+                dataSizeBytes:
+                    description: Total size of the user data stored on this shard. The resource expresses this value in bytes.
+                    format: int64
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+                rangeDeleterTasks:
+                    description: Average number of range deletion tasks queued across the shard's nodes, measured at the time of the request.
+                    format: double
+                    minimum: 0
+                    readOnly: true
+                    type: number
+                readLatencyMicroseconds:
+                    description: Average latency of the read operations this shard served over the last hour, in microseconds.
+                    format: double
+                    minimum: 0
+                    readOnly: true
+                    type: number
+                readOperationsPerSecond:
+                    $ref: '#/components/schemas/ShardOperations'
+                replicaSetName:
+                    description: Name of the shard's replica set. This is the name that identifies the same shard on the processes, alerts, events, and backup resources.
+                    example: atlas-abcdef-shard-0
+                    readOnly: true
+                    type: string
+                shardedCollections:
+                    description: Number of sharded collections with data on this shard.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+                warnings:
+                    description: Conditions that MongoDB Cloud observed on this shard relative to the rest of the cluster. `HOTSPOT` means this shard's average CPU utilization is more than twice the average across all shards of the cluster. This is a cluster-scoped comparison, so its value depends on how loaded the other shards are and not only on this shard.
+                    items:
+                        enum:
+                            - HOTSPOT
+                        type: string
+                    maxItems: 100
+                    readOnly: true
+                    type: array
+                writeOperationsPerSecond:
+                    $ref: '#/components/schemas/ShardOperations'
+            required:
+                - cpuUtilization
+                - dataSizeBytes
+                - readOperationsPerSecond
+                - replicaSetName
+                - shardedCollections
+                - warnings
+                - writeOperationsPerSecond
+            type: object
+        ShardOperations:
+            description: Operations per second that the shard served over the last hour.
+            properties:
+                average:
+                    description: Average operations per second across the shard's nodes over the last hour.
+                    format: double
+                    readOnly: true
+                    type: number
+                maximum:
+                    description: Highest operations per second that any one of the shard's nodes reached over the last hour.
+                    format: double
+                    readOnly: true
+                    type: number
+            required:
+                - average
+                - maximum
             type: object
         ShardingInsightsBalancingWindow:
             description: Balancing window configured on the sharded cluster. When configured, the balancer moves data only during the daily interval between `startTime` and `endTime`.
@@ -44667,7 +44829,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: e8d458ce415dd8ad6f4a36605318e8c6ed4aac2f
+    x-xgen-sha: 348f01c42fd3b0defc187863e137bb1008ae9062
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -62874,6 +63036,197 @@ paths:
                 - Project Search Index Editor
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterSearchIndex
             x-xgen-operation-id-override: updateClusterSearchIndex
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics:
+        get:
+            description: Returns the size and load of every shard in one sharded cluster. Each shard reports the data it stores, the CPU utilization of its nodes, the read and write operations it served, and any conditions that MongoDB Cloud observed relative to the rest of the cluster. To retrieve more details about a shard such as the latency, cache throughput and open alerts, request with an exact replica set name.
+            operationId: listGroupClusterShardMetrics
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedShardMetricsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Shards in One Cluster
+            tags:
+                - Sharding Insights
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api shardingInsights listClusterShardMetrics --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.ListGroupClusterShardMetricsApiParams{}
+                    	sdkResp, httpResp, err := client.ShardingInsightsApi.
+                    		ListGroupClusterShardMetricsWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sharding-Insights/operation/listGroupClusterShardMetrics
+            x-xgen-operation-id-override: listClusterShardMetrics
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}:
+        get:
+            description: Returns the size, load and open alerts of one shard in one sharded cluster. Returns everything the list method returns for this shard, plus its read latency, its WiredTiger cache throughput, its queued range deletion tasks, and the alerts open on its nodes.
+            operationId: getGroupClusterShardMetric
+            parameters:
+                - $ref: '#/components/parameters/groupId'
+                - description: Human-readable label that identifies the cluster.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Name of the replica set that identifies the shard.
+                  in: path
+                  name: replicaSetName
+                  required: true
+                  schema:
+                    type: string
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/ShardMetricsResponse'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Shard in One Cluster
+            tags:
+                - Sharding Insights
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api shardingInsights getClusterShardMetric --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.GetGroupClusterShardMetricApiParams{}
+                    	sdkResp, httpResp, err := client.ShardingInsightsApi.
+                    		GetGroupClusterShardMetricWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sharding-Insights/operation/getGroupClusterShardMetric
+            x-xgen-operation-id-override: getClusterShardMetric
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}/measurements:
         get:
             description: Returns time series of the requested measurements for one shard of the specified sharded cluster. The series average the readings of the shard's member processes selected by `nodeType`. Responds with a 404 only when no shard with the given `replicaSetName` exists in the cluster; a shard that exists but has no readings yet returns series of `null` data points. Each series carries one data point per `granularity` interval, starting at `start` and not passing `end`. A data point's `value` is `null` when MongoDB Cloud has no reading for that interval; this includes the first minutes after a cluster or shard is created, before its metrics are collected, so `null` must not be read as zero load. Set `period`, or set both `start` and `end`; when neither is set, the response covers the last hour. A request whose window and `granularity` would produce more than 1000 data points per series is rejected.
