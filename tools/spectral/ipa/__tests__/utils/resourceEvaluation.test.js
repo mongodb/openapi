@@ -446,6 +446,82 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         expected: true,
       },
       {
+        description: 'schema with unmarked nested object containing only readOnly properties',
+        schema: {
+          type: 'object',
+          properties: {
+            metadata: {
+              type: 'object',
+              properties: {
+                createdBy: { type: 'string', readOnly: true },
+                updatedBy: { type: 'string', readOnly: true },
+              },
+            },
+          },
+        },
+        expected: true,
+      },
+      {
+        description: 'schema with nested object containing a writable property',
+        schema: {
+          type: 'object',
+          properties: {
+            metadata: {
+              type: 'object',
+              properties: {
+                createdBy: { type: 'string', readOnly: true },
+                displayName: { type: 'string' },
+              },
+            },
+          },
+        },
+        expected: false,
+      },
+      {
+        description: 'schema with nested array containing only readOnly properties',
+        schema: {
+          type: 'object',
+          properties: {
+            entries: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', readOnly: true },
+                  status: { type: 'string', readOnly: true },
+                },
+              },
+            },
+          },
+        },
+        expected: true,
+      },
+      {
+        description: 'schema with nested allOf containing only readOnly properties',
+        schema: {
+          type: 'object',
+          properties: {
+            metadata: {
+              allOf: [
+                {
+                  type: 'object',
+                  properties: {
+                    createdBy: { type: 'string', readOnly: true },
+                  },
+                },
+                {
+                  type: 'object',
+                  properties: {
+                    updatedBy: { type: 'string', readOnly: true },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        expected: true,
+      },
+      {
         description: 'schema with array items all readOnly',
         schema: {
           type: 'array',
@@ -490,28 +566,27 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         expected: false,
       },
       {
-        description: 'singleton List response with all readOnly items',
+        description: 'schema with readOnly array property containing writable item schema',
         schema: {
           type: 'object',
           properties: {
-            results: {
+            auditEvents: {
               type: 'array',
+              readOnly: true,
               items: {
                 type: 'object',
                 properties: {
                   id: { type: 'string', readOnly: true },
-                  name: { type: 'string', readOnly: true },
-                  status: { type: 'string', readOnly: true },
+                  message: { type: 'string' },
                 },
               },
             },
-            totalCount: { type: 'integer' },
           },
         },
         expected: true,
       },
       {
-        description: 'singleton List response with some non-readOnly items',
+        description: 'list response shape with writable metadata is not treated specially',
         schema: {
           type: 'object',
           properties: {
@@ -537,6 +612,90 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       it(`returns ${testCase.expected} for ${testCase.description}`, () => {
         expect(allPropertiesAreReadOnly(testCase.schema)).toEqual(testCase.expected);
       });
+    });
+
+    describe.each(['allOf', 'anyOf', 'oneOf'])('%s compositions', (composition) => {
+      const readOnlySchema = {
+        type: 'object',
+        properties: { id: { type: 'string', readOnly: true } },
+      };
+      const writableSchema = {
+        type: 'object',
+        properties: { displayName: { type: 'string' } },
+      };
+
+      it.each([
+        {
+          description: 'all branches are read-only, including a shared schema',
+          schema: { [composition]: [readOnlySchema, readOnlySchema] },
+          expected: true,
+        },
+        {
+          description: 'a writable branch follows a read-only branch',
+          schema: { [composition]: [readOnlySchema, writableSchema] },
+          expected: false,
+        },
+        {
+          description: 'a writable branch precedes a read-only branch',
+          schema: { [composition]: [writableSchema, readOnlySchema] },
+          expected: false,
+        },
+        {
+          description: 'read-only properties coexist with read-only branches',
+          schema: { ...readOnlySchema, [composition]: [readOnlySchema] },
+          expected: true,
+        },
+        {
+          description: 'read-only properties coexist with a writable branch',
+          schema: { ...readOnlySchema, [composition]: [writableSchema] },
+          expected: false,
+        },
+        {
+          description: 'writable properties coexist with a read-only branch',
+          schema: { ...writableSchema, [composition]: [readOnlySchema] },
+          expected: false,
+        },
+        {
+          description: 'read-only array items coexist with a writable branch',
+          schema: { type: 'array', items: readOnlySchema, [composition]: [{ type: 'array', items: writableSchema }] },
+          expected: false,
+        },
+        {
+          description: 'the composition is empty',
+          schema: { [composition]: [] },
+          expected: false,
+        },
+      ])('returns $expected when $description', ({ schema, expected }) => {
+        expect(allPropertiesAreReadOnly({ type: 'object', properties: { metadata: schema } })).toEqual(expected);
+      });
+
+      it('returns false for a circular branch after a read-only branch', () => {
+        const schema = { [composition]: [readOnlySchema] };
+        schema[composition].push(schema);
+
+        expect(allPropertiesAreReadOnly(schema)).toEqual(false);
+      });
+    });
+
+    it('checks sibling composition keywords even when allOf is read-only', () => {
+      const schema = {
+        allOf: [{ type: 'object', properties: { id: { type: 'string', readOnly: true } } }],
+        anyOf: [{ type: 'object', properties: { displayName: { type: 'string' } } }],
+      };
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(false);
+    });
+
+    it('returns false for an unmarked circular schema', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          id: { type: 'string', readOnly: true },
+        },
+      };
+      schema.properties.parent = schema;
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(false);
     });
   });
 
@@ -566,6 +725,33 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
         description: 'read-only singleton resource',
         resourcePathItems: readOnlySingleton,
         expected: true,
+      },
+      {
+        description: 'singleton with list response shape',
+        resourcePathItems: {
+          '/resource/{id}/listSingleton': {
+            get: {
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          links: { type: 'array', readOnly: true, items: { type: 'object' } },
+                          results: { type: 'array', readOnly: true, items: { type: 'object' } },
+                          totalCount: { type: 'integer', readOnly: true },
+                        },
+                        required: ['results'],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        expected: false,
       },
       {
         description: 'resource with xgen-IPA-104-resource-has-GET exception',

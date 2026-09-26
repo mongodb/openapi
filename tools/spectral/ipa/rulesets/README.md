@@ -365,7 +365,7 @@ Read-only resources must not define the Create method.
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies to POST methods on resource collection paths
-  - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - Checks if the resource is a read-only resource (all properties in the GET response are marked as readOnly or contain only read-only properties)
   - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
   - Fails if a Create method is defined on a read-only resource
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -484,7 +484,7 @@ Read-only resources must not define the Update method.
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies to PUT/PATCH methods on all resource paths
-  - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - Checks if the resource is a read-only resource (all properties in the GET response are marked as readOnly or contain only read-only properties)
   - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
   - Fails if an Update method is defined on a read-only resource
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -577,7 +577,7 @@ Read-only resources must not define the Delete method.
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies to DELETE methods on single resource paths and singleton resources
-  - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
+  - Checks if the resource is a read-only resource (all properties in the GET response are marked as readOnly or contain only read-only properties)
   - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
   - Fails if a Delete method is defined on a read-only resource
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
@@ -891,7 +891,7 @@ Singleton resources should define the Update method. Validation for the presence
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to singleton resources
-  - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly; for List responses, all properties in the items schema must be readOnly)
+  - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly or contain only read-only properties; for List responses, all properties in the items schema must be readOnly)
   - Checks that the resource has the PUT and/or PATCH methods defined
 
 #### xgen-IPA-113-reset-method-must-use-POST
@@ -964,7 +964,7 @@ Rule checks for the following conditions:
   - Applies only to paths ending with :reset
   - Verifies that the parent singleton resource is not read-only
   - Uses existing isReadOnlyResource() helper function
-  - Fails if the singleton resource has all properties marked as readOnly: true
+  - Fails if all properties of the singleton resource are marked as readOnly or contain only read-only properties
 
 #### xgen-IPA-113-reset-method-valid-operation-id
 
@@ -1469,7 +1469,7 @@ Rule checks for the following conditions:
 
  ![warn](https://img.shields.io/badge/warning-yellow) 
 Operations endpoints are read-only. They may only define the get method, and all properties
-of the Operation resource must be readOnly.
+of the Operation resource must be read-only.
 
 ##### Implementation details
 Rule checks for the following conditions:
@@ -1479,7 +1479,7 @@ Rule checks for the following conditions:
   - The path item must not define any HTTP method other than `get`
   - On the single Operation endpoint (`.../operations/{operationId}`), where the Get method
     is defined, all properties of every 2xx response schema of the `get` method must be
-    marked as `readOnly: true`
+    marked as `readOnly: true` or contain only read-only properties
   - Paths with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-132-operations-endpoint-must-be-a-leaf-resource
