@@ -249,8 +249,21 @@ export function removePrefix(path) {
  * @returns {boolean} true if all properties are readOnly, false otherwise
  */
 export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
+  return getReadOnlyState(schema, visiting) === true;
+}
+
+/**
+ * Returns true for read-only fields, false for writable/unknown fields, and undefined for
+ * constraints that do not define fields. A constraint-only schema cannot prove read-only
+ * status on its own, but can accompany field definitions in a composition.
+ */
+function getReadOnlyState(schema, visiting) {
   if (!schema || typeof schema !== 'object') {
     return false;
+  }
+
+  if (schema.readOnly === true) {
+    return true;
   }
 
   if (visiting.has(schema)) {
@@ -259,36 +272,53 @@ export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
   visiting.add(schema);
 
   try {
-    // Compositions can coexist with properties or items; none may hide writable fields in the others.
-    let hasReadOnlyComposition = false;
+    if (schema.$ref || (schema.type && schema.type !== 'object' && schema.type !== 'array')) {
+      return false;
+    }
+
+    let hasReadOnlyFields = false;
+    if (schema.properties && schema.type !== 'array') {
+      const properties = Object.values(schema.properties);
+      if (!properties.every((property) => allPropertiesAreReadOnly(property, visiting))) {
+        return false;
+      }
+      hasReadOnlyFields = properties.length > 0;
+    }
+
+    if (schema.items && schema.type !== 'object') {
+      if (!allPropertiesAreReadOnly(schema.items, visiting)) {
+        return false;
+      }
+      hasReadOnlyFields = true;
+    }
+
+    // Infer from declared fields, retaining the convention that omitted additionalProperties
+    // does not override read-only named fields. Explicit dictionaries must be checked.
+    if (schema.additionalProperties !== undefined && schema.type !== 'array') {
+      if (schema.additionalProperties !== false && !allPropertiesAreReadOnly(schema.additionalProperties, visiting)) {
+        return false;
+      }
+      hasReadOnlyFields = true;
+    }
+
     for (const composition of ['allOf', 'anyOf', 'oneOf']) {
       const branches = schema[composition];
       if (!Array.isArray(branches)) {
         continue;
       }
-      if (branches.length === 0 || !branches.every((subSchema) => isSchemaReadOnly(subSchema, visiting))) {
+      const states = branches.map((subSchema) => getReadOnlyState(subSchema, visiting));
+      if (states.length === 0 || states.includes(false)) {
         return false;
       }
-      hasReadOnlyComposition = true;
+      // allOf shares field definitions between branches. Alternatives must each establish
+      // read-only fields unless a sibling definition already constrains the whole schema.
+      hasReadOnlyFields ||= composition === 'allOf' ? states.includes(true) : states.every((state) => state === true);
     }
 
-    if (schema.properties) {
-      const properties = Object.values(schema.properties);
-      return properties.length > 0 && properties.every((property) => isSchemaReadOnly(property, visiting));
-    }
-
-    if (schema.items) {
-      return isSchemaReadOnly(schema.items, visiting);
-    }
-
-    return hasReadOnlyComposition;
+    return hasReadOnlyFields ? true : undefined;
   } finally {
     visiting.delete(schema);
   }
-}
-
-function isSchemaReadOnly(schema, visiting) {
-  return schema?.readOnly === true || allPropertiesAreReadOnly(schema, visiting);
 }
 
 /**
@@ -374,11 +404,47 @@ export function isReadOnlyResource(resourcePathItems) {
 }
 
 function isListResponseSchema(schema) {
+  return getResponseShapes(schema, new Set()).has(RESULTS_ARRAY | PAGINATION_METADATA);
+}
+
+const RESULTS_ARRAY = 1;
+const PAGINATION_METADATA = 2;
+
+// Track possible response shapes so allOf can combine fields split across branches without
+// combining fields from mutually exclusive anyOf/oneOf alternatives. There are only four shapes.
+function getResponseShapes(schema, visiting) {
+  if (!schema || typeof schema !== 'object' || visiting.has(schema)) {
+    return new Set([0]);
+  }
+
   const properties = schema?.properties;
   const results = properties?.results;
-  return (
-    results?.type === 'array' &&
-    Boolean(results.items) &&
-    Boolean(properties.links || properties.totalCount || schema.required?.includes('results'))
-  );
+  const resultsShape = results?.type === 'array' && results.items ? RESULTS_ARRAY : 0;
+  const metadataShape =
+    properties?.links || properties?.totalCount || schema.required?.includes('results') ? PAGINATION_METADATA : 0;
+  let shapes = new Set([resultsShape | metadataShape]);
+
+  visiting.add(schema);
+  try {
+    for (const composition of ['allOf', 'anyOf', 'oneOf']) {
+      if (!Array.isArray(schema[composition]) || schema[composition].length === 0) {
+        continue;
+      }
+      const branches = schema[composition].map((branch) => getResponseShapes(branch, visiting));
+      if (composition === 'allOf') {
+        for (const branch of branches) {
+          shapes = combineResponseShapes(shapes, branch);
+        }
+      } else {
+        shapes = combineResponseShapes(shapes, new Set(branches.flatMap((branch) => [...branch])));
+      }
+    }
+    return shapes;
+  } finally {
+    visiting.delete(schema);
+  }
+}
+
+function combineResponseShapes(left, right) {
+  return new Set([...left].flatMap((a) => [...right].map((b) => a | b)));
 }

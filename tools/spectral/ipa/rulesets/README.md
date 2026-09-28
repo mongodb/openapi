@@ -891,7 +891,13 @@ Singleton resources should define the Update method. Validation for the presence
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to singleton resources
-  - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly or contain only read-only properties; for List responses, all properties in the items schema must be readOnly)
+  - Excludes read-only singleton resources (where the GET response schema is marked as readOnly or contains only read-only fields)
+  - An explicit `readOnly: true` annotation covers the whole object, including additional properties
+  - Otherwise, checks declared properties, array items, and explicit additionalProperties schemas recursively; writable dictionary entries prevent read-only inference
+  - Omitted additionalProperties does not override read-only declared fields, but an empty or constraint-only schema alone does not prove read-only status
+  - An explicitly closed empty object (`additionalProperties: false`) has no writable fields; use of that keyword is validated separately by IPA-118
+  - Checks all composition branches; constraint-only branches may accompany read-only field definitions but cannot establish read-only status on their own
+  - List response envelopes, including those defined through composition, do not establish that a singleton is read-only
   - Checks that the resource has the PUT and/or PATCH methods defined
 
 #### xgen-IPA-113-reset-method-must-use-POST
@@ -965,6 +971,7 @@ Rule checks for the following conditions:
   - Verifies that the parent singleton resource is not read-only
   - Uses existing isReadOnlyResource() helper function
   - Fails if all properties of the singleton resource are marked as readOnly or contain only read-only properties
+  - List response envelopes, including those defined through composition, do not establish that a singleton is read-only
 
 #### xgen-IPA-113-reset-method-valid-operation-id
 

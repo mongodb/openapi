@@ -9,6 +9,7 @@ import {
   isSingletonResource,
   resourceBelongsToSingleParent,
 } from '../../rulesets/functions/utils/resourceEvaluation';
+import { listResponseCases, listResponseSchema, readOnlySchemaCases } from '../__helpers__/readOnlySchemaCases';
 
 const resource = {
   '/resource': {
@@ -396,6 +397,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
 
   describe('allPropertiesAreReadOnly', () => {
     const testCases = [
+      ...readOnlySchemaCases,
       {
         description: 'schema with all properties readOnly',
         schema: {
@@ -697,9 +699,65 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
 
       expect(allPropertiesAreReadOnly(schema)).toEqual(false);
     });
+
+    it('returns false for a circular dictionary value', () => {
+      const schema = { type: 'object' };
+      schema.additionalProperties = schema;
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(false);
+    });
+
+    it('honors an explicit read-only annotation on a circular dictionary', () => {
+      const schema = { type: 'object', readOnly: true };
+      schema.additionalProperties = schema;
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(true);
+    });
+
+    it('checks a shared schema independently in named and additional properties', () => {
+      const value = { type: 'object', properties: { id: { type: 'string', readOnly: true } } };
+      const schema = { type: 'object', properties: { metadata: value }, additionalProperties: value };
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(true);
+    });
+
+    it('does not treat an unresolved reference as a neutral constraint', () => {
+      const schema = {
+        properties: { id: { type: 'string', readOnly: true } },
+        allOf: [{ $ref: '#/components/schemas/Unknown' }],
+      };
+
+      expect(allPropertiesAreReadOnly(schema)).toEqual(false);
+    });
   });
 
   describe('isReadOnlyResource', () => {
+    function resourceForSchema(schema) {
+      return {
+        '/resource/{id}/singleton': {
+          get: { responses: { 200: { content: { 'application/json': { schema } } } } },
+        },
+      };
+    }
+
+    it.each(listResponseCases)('returns $expected for $description', ({ schema, expected }) => {
+      expect(isReadOnlyResource(resourceForSchema(schema))).toEqual(expected);
+    });
+
+    it('handles a cycle while detecting a list response in another branch', () => {
+      const schema = { readOnly: true, allOf: [] };
+      schema.allOf.push(schema, listResponseSchema);
+
+      expect(isReadOnlyResource(resourceForSchema(schema))).toEqual(false);
+    });
+
+    it('handles a read-only circular schema without list fields', () => {
+      const schema = { readOnly: true, allOf: [] };
+      schema.allOf.push(schema);
+
+      expect(isReadOnlyResource(resourceForSchema(schema))).toEqual(true);
+    });
+
     const testCases = [
       {
         description: 'read-only resource',
