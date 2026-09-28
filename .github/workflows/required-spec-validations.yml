@@ -18,11 +18,20 @@ jobs:
       steps:
         - name: Checkout repository
           uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        # The Go SDK validation step below runs atlas-sdk-go's tools
+        # (openapi-generation-tools), which constrain the runtime both ways:
+        # - they enforce npm >= 11.11.0 via engine-strict, but Node 22 bundles
+        #   npm 10.x, so npm must be upgraded explicitly;
+        # - simple-node-logger calls util.isDate, removed in Node 23+, so the
+        #   SDK pipeline crashes on Node 24. Stay on 22 until atlas-sdk-go
+        #   replaces that unmaintained dependency.
         - name: Setup Node
           uses: actions/setup-node@v7
           with:
-            node-version: '24.x'
+            node-version: '22.x'
             cache: 'npm'
+        - name: Upgrade npm
+          run: npm install -g npm@^11
         - name: Install npm dependencies
           run: npm ci
         - name: Download openapi-foas
