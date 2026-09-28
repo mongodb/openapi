@@ -711,7 +711,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       const schema = { type: 'object', readOnly: true };
       schema.additionalProperties = schema;
 
-      expect(allPropertiesAreReadOnly(schema)).toEqual(true);
+      expect(allPropertiesAreReadOnly({ properties: { metadata: schema } })).toEqual(true);
     });
 
     it('checks a shared schema independently in named and additional properties', () => {
@@ -755,7 +755,7 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
       const schema = { readOnly: true, allOf: [] };
       schema.allOf.push(schema);
 
-      expect(isReadOnlyResource(resourceForSchema(schema))).toEqual(true);
+      expect(isReadOnlyResource(resourceForSchema({ properties: { metadata: schema } }))).toEqual(true);
     });
 
     const testCases = [

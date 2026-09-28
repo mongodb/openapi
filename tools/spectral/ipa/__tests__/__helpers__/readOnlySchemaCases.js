@@ -20,9 +20,9 @@ export const readOnlySchemaCases = [
     expected: true,
   })),
   {
-    description: 'an explicitly read-only empty object',
+    description: 'an empty response object with a root read-only annotation',
     schema: { type: 'object', readOnly: true },
-    expected: true,
+    expected: false,
   },
   ...[true, {}, { type: 'string' }].flatMap((additionalProperties) => [
     {
@@ -31,19 +31,53 @@ export const readOnlySchemaCases = [
       expected: false,
     },
     {
-      description: `an explicitly read-only object with additionalProperties ${JSON.stringify(additionalProperties)}`,
+      description: `a response object with a root read-only annotation and additionalProperties ${JSON.stringify(additionalProperties)}`,
       schema: { ...readOnlyObject, readOnly: true, additionalProperties },
-      expected: true,
+      expected: false,
     },
   ]),
   {
-    description: 'an explicitly read-only object with writable named and additional fields',
+    description: 'a response object with a root read-only annotation and writable fields',
     schema: {
       type: 'object',
       readOnly: true,
       properties: { name: { type: 'string' } },
       additionalProperties: { type: 'string' },
     },
+    expected: false,
+  },
+  {
+    description: 'a response object with a root read-only annotation and a writable oneOf branch',
+    schema: {
+      type: 'object',
+      readOnly: true,
+      oneOf: [{ type: 'object', properties: { name: { type: 'string' } } }],
+    },
+    expected: false,
+  },
+  {
+    description: 'a response object with a root read-only annotation and only read-only fields',
+    schema: { ...readOnlyObject, readOnly: true },
+    expected: true,
+  },
+  {
+    description: 'an explicitly read-only object-valued property with writable named and additional fields',
+    schema: {
+      type: 'object',
+      properties: {
+        metadata: {
+          type: 'object',
+          readOnly: true,
+          properties: { name: { type: 'string' } },
+          additionalProperties: { type: 'string' },
+        },
+      },
+    },
+    expected: true,
+  },
+  {
+    description: 'an explicitly read-only empty object-valued property',
+    schema: { type: 'object', properties: { metadata: { type: 'object', readOnly: true } } },
     expected: true,
   },
   {

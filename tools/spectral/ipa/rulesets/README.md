@@ -891,8 +891,8 @@ Singleton resources should define the Update method. Validation for the presence
 ##### Implementation details
 Rule checks for the following conditions:
   - Applies only to singleton resources
-  - Excludes read-only singleton resources (where the GET response schema is marked as readOnly or contains only read-only fields)
-  - An explicit `readOnly: true` annotation covers the whole object, including additional properties
+  - Excludes read-only singleton resources (where the GET response schema contains only read-only fields)
+  - An explicit `readOnly: true` annotation on an object-valued property covers that property, including its additional properties; an annotation on the response schema itself does not establish a read-only resource
   - Otherwise, checks declared properties, array items, and explicit additionalProperties schemas recursively; writable dictionary entries prevent read-only inference
   - Omitted additionalProperties does not override read-only declared fields, but an empty or constraint-only schema alone does not prove read-only status
   - An explicitly closed empty object (`additionalProperties: false`) has no writable fields; use of that keyword is validated separately by IPA-118

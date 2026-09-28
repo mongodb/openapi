@@ -249,7 +249,7 @@ export function removePrefix(path) {
  * @returns {boolean} true if all properties are readOnly, false otherwise
  */
 export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
-  return getReadOnlyState(schema, visiting) === true;
+  return getReadOnlyState(schema, visiting, false) === true;
 }
 
 /**
@@ -257,12 +257,13 @@ export function allPropertiesAreReadOnly(schema, visiting = new Set()) {
  * constraints that do not define fields. A constraint-only schema cannot prove read-only
  * status on its own, but can accompany field definitions in a composition.
  */
-function getReadOnlyState(schema, visiting) {
+function getReadOnlyState(schema, visiting, isField) {
   if (!schema || typeof schema !== 'object') {
     return false;
   }
 
-  if (schema.readOnly === true) {
+  // OpenAPI readOnly applies to a field, not to an entire response component.
+  if (isField && schema.readOnly === true) {
     return true;
   }
 
@@ -279,14 +280,14 @@ function getReadOnlyState(schema, visiting) {
     let hasReadOnlyFields = false;
     if (schema.properties && schema.type !== 'array') {
       const properties = Object.values(schema.properties);
-      if (!properties.every((property) => allPropertiesAreReadOnly(property, visiting))) {
+      if (!properties.every((property) => getReadOnlyState(property, visiting, true) === true)) {
         return false;
       }
       hasReadOnlyFields = properties.length > 0;
     }
 
     if (schema.items && schema.type !== 'object') {
-      if (!allPropertiesAreReadOnly(schema.items, visiting)) {
+      if (getReadOnlyState(schema.items, visiting, true) !== true) {
         return false;
       }
       hasReadOnlyFields = true;
@@ -295,7 +296,10 @@ function getReadOnlyState(schema, visiting) {
     // Infer from declared fields, retaining the convention that omitted additionalProperties
     // does not override read-only named fields. Explicit dictionaries must be checked.
     if (schema.additionalProperties !== undefined && schema.type !== 'array') {
-      if (schema.additionalProperties !== false && !allPropertiesAreReadOnly(schema.additionalProperties, visiting)) {
+      if (
+        schema.additionalProperties !== false &&
+        getReadOnlyState(schema.additionalProperties, visiting, true) !== true
+      ) {
         return false;
       }
       hasReadOnlyFields = true;
@@ -306,7 +310,7 @@ function getReadOnlyState(schema, visiting) {
       if (!Array.isArray(branches)) {
         continue;
       }
-      const states = branches.map((subSchema) => getReadOnlyState(subSchema, visiting));
+      const states = branches.map((subSchema) => getReadOnlyState(subSchema, visiting, isField));
       if (states.length === 0 || states.includes(false)) {
         return false;
       }
