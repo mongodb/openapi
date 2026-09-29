@@ -5,6 +5,7 @@ functions:
   - IPA111OptionalFieldsNoDefault
   - IPA111EffectiveFieldsReadOnly
   - IPA111OptionalBooleanFieldsDefaultFalse
+  - IPA111BooleanFieldsNotNullable
 
 rules:
   xgen-IPA-111-optional-fields-no-default:
@@ -60,3 +61,21 @@ rules:
     then:
       field: '@key'
       function: 'IPA111OptionalBooleanFieldsDefaultFalse'
+  xgen-IPA-111-boolean-fields-not-nullable:
+    description: |
+      Boolean fields must not be nullable.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies only to properties with type 'boolean'
+        - Fails if the field is marked with nullable: true
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-111-boolean-fields-not-nullable'
+    severity: warn
+    resolved: false
+    given:
+      - '$.components.schemas..properties'
+      - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+      - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties'
+    then:
+      field: '@key'
+      function: 'IPA111BooleanFieldsNotNullable'
