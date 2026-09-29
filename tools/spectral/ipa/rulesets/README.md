@@ -813,6 +813,16 @@ Rule checks for the following conditions:
   - Applies to optional (non-required) boolean schema properties in request bodies only
   - Fails if the field does not define a default value of false
 
+#### xgen-IPA-111-boolean-fields-not-nullable
+
+ ![warn](https://img.shields.io/badge/warning-yellow) 
+Boolean fields must not be nullable.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies only to properties with type 'boolean'
+  - Fails if the field is marked with nullable: true
+
 
 
 ### IPA-112
