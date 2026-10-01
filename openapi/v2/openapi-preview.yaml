@@ -884,6 +884,7 @@ components:
                     description: Reason code that explains why the inference scope cannot be configured.
                     enum:
                         - UNSUPPORTED_QUERY_TIER
+                        - UNSUPPORTED_CLUSTER_TYPE
                     nullable: true
                     readOnly: true
                     type: string
@@ -899,6 +900,33 @@ components:
                 - effective
                 - mutable
                 - source
+            type: object
+        AutoEmbeddingInferenceScopeUpdateRequest:
+            properties:
+                configured:
+                    $ref: '#/components/schemas/AutoEmbeddingInferenceScopeUpdateRequestConfigured'
+            type: object
+        AutoEmbeddingInferenceScopeUpdateRequestConfigured:
+            description: Cloud and geographic dimensions to configure atomically.
+            properties:
+                cloud:
+                    description: Cloud provider scope.
+                    enum:
+                        - AUTO
+                        - ANY
+                        - AWS
+                    type: string
+                geography:
+                    description: Geographic scope.
+                    enum:
+                        - AUTO
+                        - ANY
+                        - EU
+                        - US
+                    type: string
+            required:
+                - cloud
+                - geography
             type: object
         AzureHardwareSpec20240805:
             properties:
@@ -1831,6 +1859,138 @@ components:
                 info:
                     $ref: '#/components/schemas/Info'
             type: object
+        OperationError:
+            description: Details about a failed operation.
+            properties:
+                code:
+                    description: Machine-readable error code.
+                    type: string
+                details:
+                    additionalProperties:
+                        description: Additional error details.
+                        type: object
+                    description: Additional error details.
+                    nullable: true
+                    type: object
+                message:
+                    description: Human-readable error message.
+                    type: string
+                retryStrategy:
+                    description: Recommended strategy for retrying the operation.
+                    enum:
+                        - IMMEDIATE
+                        - BACKOFF
+                        - NONE
+                    nullable: true
+                    type: string
+                retryable:
+                    description: Flag that indicates whether the operation can be retried.
+                    type: boolean
+            readOnly: true
+            required:
+                - code
+                - message
+                - retryable
+            type: object
+        OperationProgress:
+            description: Progress made by an active operation.
+            properties:
+                completed:
+                    description: Number of completed units.
+                    format: int32
+                    type: integer
+                total:
+                    description: Total number of units.
+                    format: int32
+                    type: integer
+                unit:
+                    description: Unit measured by completed and total.
+                    type: string
+            readOnly: true
+            type: object
+        OperationResponse:
+            description: Status of a long-running operation.
+            properties:
+                createdAt:
+                    description: Creation time in ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                customMethod:
+                    description: Name of a custom operation. Required for CUSTOM operations.
+                    nullable: true
+                    readOnly: true
+                    type: string
+                error:
+                    $ref: '#/components/schemas/OperationError'
+                estimatedCompletionTime:
+                    description: Estimated completion time in ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    nullable: true
+                    readOnly: true
+                    type: string
+                expiresAt:
+                    description: Expiration time in ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+                operationId:
+                    description: Unique identifier of the operation.
+                    readOnly: true
+                    type: string
+                operationType:
+                    description: Type of mutation performed by the operation.
+                    enum:
+                        - CREATE
+                        - UPDATE
+                        - DELETE
+                        - CUSTOM
+                    readOnly: true
+                    type: string
+                progress:
+                    $ref: '#/components/schemas/OperationProgress'
+                resultHref:
+                    description: URI of the affected resource. Required when status is SUCCEEDED.
+                    format: uri
+                    nullable: true
+                    readOnly: true
+                    type: string
+                retryAfterSeconds:
+                    description: Recommended polling delay. Required while the operation is active.
+                    format: int32
+                    minimum: 1
+                    nullable: true
+                    readOnly: true
+                    type: integer
+                status:
+                    description: State of the operation.
+                    enum:
+                        - PENDING
+                        - IN_PROGRESS
+                        - SUCCEEDED
+                        - FAILED
+                        - CANCELED
+                        - SUPERSEDED
+                    readOnly: true
+                    type: string
+                statusMessage:
+                    description: Human-readable operation status.
+                    nullable: true
+                    readOnly: true
+                    type: string
+                updatedAt:
+                    description: Last update time in ISO 8601 timestamp format in UTC.
+                    format: date-time
+                    readOnly: true
+                    type: string
+            required:
+                - createdAt
+                - expiresAt
+                - operationId
+                - operationType
+                - status
+                - updatedAt
+            type: object
         OrgLogIntegrationHeader:
             description: HTTP header with name and value.
             properties:
@@ -2058,6 +2218,33 @@ components:
             required:
                 - results
             type: object
+        PaginatedOperationResponse:
+            description: Paginated Auto-Embedding inference scope operations.
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/OperationResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedOrgLogIntegrationResponse:
             properties:
                 links:
@@ -2231,7 +2418,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 88400863a508b8b383001aa9e70cf63f35554254
+    x-xgen-sha: 1fe0c4d31bc19451b837872d9ce099117fbff0d8
 openapi: 3.0.1
 paths:
     /api/atlas/v2/defaultGroupLimits:
@@ -2750,6 +2937,352 @@ paths:
                 customMethod: false
                 verb: get
             x-xgen-operation-id-override: getAutoEmbeddingInference
+        patch:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Updates the explicit inference scope for Auto-Embedding indexes on the specified cluster.
+            operationId: updateGroupClusterAutoEmbeddingInference
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster for which to update the inference scope.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/AutoEmbeddingInferenceScopeUpdateRequest'
+                        x-xgen-preview:
+                            public: "true"
+                        x-xgen-version: preview
+                description: Auto-Embedding inference scope update.
+                required: true
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: Accepted
+                    headers:
+                        Location:
+                            description: URI of the Operation resource to poll.
+                            required: true
+                            schema:
+                                description: URI of the Operation resource to poll.
+                                format: uri
+                                type: string
+                            style: simple
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update the Auto-Embedding Inference Scope for One Cluster
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters updateAutoEmbeddingInference --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Search Index Editor
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupClusterAutoEmbeddingInference
+            x-xgen-method-verb-override:
+                customMethod: false
+                verb: update
+            x-xgen-operation-id-override: updateAutoEmbeddingInference
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference/operations:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns tracked Auto-Embedding inference scope operations for one cluster.
+            operationId: listGroupClusterAutoEmbeddingInferenceOperations
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster for which to return operations.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedOperationResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return Auto-Embedding Inference Scope Operations for One Cluster
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters listAutoEmbeddingOperations --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference/operations?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference/operations?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupClusterAutoEmbeddingInferenceOperations
+            x-xgen-method-verb-override:
+                customMethod: false
+                verb: list
+            x-xgen-operation-id-override: listAutoEmbeddingOperations
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference/operations/{operationId}:
+        get:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Returns one tracked Auto-Embedding inference scope operation.
+            operationId: getGroupClusterAutoEmbeddingInferenceOperation
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster for which to return an operation.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+                - description: Unique identifier of the operation.
+                  in: path
+                  name: operationId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/OperationResponse'
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Auto-Embedding Inference Scope Operation
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters getAutoEmbeddingOperation --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference/operations/{operationId}?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference/operations/{operationId}?pretty=true"
+            x-rolesRequirements:
+                - Project Read Only
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupClusterAutoEmbeddingInferenceOperation
+            x-xgen-method-verb-override:
+                customMethod: false
+                verb: get
+            x-xgen-operation-id-override: getAutoEmbeddingOperation
+    /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference:reset:
+        post:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Resets the explicit inference scope so that Atlas manages the Auto-Embedding scope.
+            operationId: resetGroupClusterAutoEmbeddingInference
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Name of the cluster for which to reset the inference scope.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
+                    type: string
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            x-xgen-preview:
+                                public: "true"
+                            x-xgen-version: preview
+                    description: Accepted
+                    headers:
+                        Location:
+                            description: URI of the Operation resource to poll.
+                            required: true
+                            schema:
+                                description: URI of the Operation resource to poll.
+                                format: uri
+                                type: string
+                            style: simple
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Reset the Auto-Embedding Inference Scope for One Cluster
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters resetAutoEmbeddingInference --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference:reset" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X POST "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/autoEmbeddingInference:reset" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Search Index Editor
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/resetGroupClusterAutoEmbeddingInference
+            x-xgen-method-verb-override:
+                customMethod: true
+                verb: reset
+            x-xgen-operation-id-override: resetAutoEmbeddingInference
     /api/atlas/v2/openapi/info:
         get:
             deprecated: true
