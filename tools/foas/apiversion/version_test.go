@@ -641,6 +641,86 @@ func TestFindLatestContentVersionMatched(t *testing.T) {
 	}
 }
 
+func TestValidateVersion(t *testing.T) {
+	testCases := []struct {
+		name    string
+		version string
+		wantErr bool
+	}{
+		{
+			name:    "valid stable version",
+			version: "2024-01-01",
+			wantErr: false,
+		},
+		{
+			name:    "valid upcoming version",
+			version: "2025-01-01.upcoming",
+			wantErr: false,
+		},
+		{
+			name:    "valid preview version",
+			version: "preview",
+			wantErr: false,
+		},
+		{
+			name:    "valid public-preview version",
+			version: "public-preview",
+			wantErr: false,
+		},
+		{
+			name:    "valid private-preview version",
+			version: "private-preview-custom-feature",
+			wantErr: false,
+		},
+		{
+			name:    "empty version",
+			version: "",
+			wantErr: true,
+		},
+		{
+			name:    "path traversal with upcoming bypass",
+			version: "../../pwned.upcoming",
+			wantErr: true,
+		},
+		{
+			name:    "path traversal with slash",
+			version: "path/to/version",
+			wantErr: true,
+		},
+		{
+			name:    "path traversal with backslash",
+			version: "path\\to\\version",
+			wantErr: true,
+		},
+		{
+			name:    "invalid format not a date",
+			version: "invalid-date",
+			wantErr: true,
+		},
+		{
+			name:    "invalid upcoming not a date",
+			version: "pwned.upcoming",
+			wantErr: true,
+		},
+		{
+			name:    "upcoming keyword alone is not a version",
+			version: "upcoming",
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ValidateVersion(tc.version)
+			if tc.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
 func oasOperationAllVersions() *openapi3.Operation {
 	responses := &openapi3.Responses{}
 	responses.Set("200", &openapi3.ResponseRef{

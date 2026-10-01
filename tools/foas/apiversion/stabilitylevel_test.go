@@ -19,10 +19,23 @@ func TestIsPreviewStabilityLevel(t *testing.T) {
 
 func TestIsPrivatePreviewStabilityLevel(t *testing.T) {
 	assert.True(t, IsPrivatePreviewStabilityLevel("private-preview"))
+	assert.True(t, IsPrivatePreviewStabilityLevel("private-preview-feature"))
+	assert.False(t, IsPrivatePreviewStabilityLevel("../../pwned.private-preview"))
 	assert.False(t, IsPrivatePreviewStabilityLevel("public-preview"))
 	assert.False(t, IsPrivatePreviewStabilityLevel("preview"))
 	assert.False(t, IsPrivatePreviewStabilityLevel("stable"))
 	assert.False(t, IsPrivatePreviewStabilityLevel("invalid"))
+}
+
+func TestIsUpcomingStabilityLevel(t *testing.T) {
+	assert.True(t, IsUpcomingStabilityLevel("upcoming"))
+	assert.True(t, IsUpcomingStabilityLevel("UPCOMING"))
+	assert.True(t, IsUpcomingStabilityLevel("2024-01-01.upcoming"))
+	assert.False(t, IsUpcomingStabilityLevel("../../pwned.upcoming"))
+	assert.False(t, IsUpcomingStabilityLevel("pwned.upcoming"))
+	assert.False(t, IsUpcomingStabilityLevel("upcoming-something"))
+	assert.False(t, IsUpcomingStabilityLevel("stable"))
+	assert.False(t, IsUpcomingStabilityLevel("preview"))
 }
 
 func TestIsPublicPreviewStabilityLevel(t *testing.T) {
@@ -46,5 +59,6 @@ func TestValidateStabilityLevel(t *testing.T) {
 	require.NoError(t, ValidateStabilityLevel("preview"))
 	require.NoError(t, ValidateStabilityLevel("private-preview"))
 	require.NoError(t, ValidateStabilityLevel("public-preview"))
+	require.NoError(t, ValidateStabilityLevel("upcoming"))
 	assert.Error(t, ValidateStabilityLevel("invalid"))
 }
