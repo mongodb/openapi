@@ -2863,6 +2863,41 @@
         ],
         "type": "object"
       },
+      "PaginatedStreamsWorkspacePrivateEndpointResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "ReplicationSpec20240805": {
         "description": "Details that explain how MongoDB Cloud replicates data on the specified MongoDB database.",
         "properties": {
@@ -2927,6 +2962,76 @@
             "minimum": 1,
             "nullable": true,
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "StreamsWorkspacePrivateEndpointRequest": {
+        "description": "Customer VPC endpoint to register for inbound private connectivity to Atlas Stream Processing.",
+        "properties": {
+          "customerDnsName": {
+            "description": "DNS name of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890-abc123.us-east-1.vpce.amazonaws.com",
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890",
+            "type": "string"
+          },
+          "region": {
+            "description": "Human-readable label identifying the region of the customer's VPC endpoint.",
+            "example": "US_EAST_1",
+            "type": "string"
+          }
+        },
+        "required": [
+          "customerDnsName",
+          "id",
+          "region"
+        ],
+        "type": "object"
+      },
+      "StreamsWorkspacePrivateEndpointResponse": {
+        "description": "Customer VPC endpoint registered for inbound private connectivity to Atlas Stream Processing.",
+        "properties": {
+          "customerDnsName": {
+            "description": "DNS name of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890-abc123.us-east-1.vpce.amazonaws.com",
+            "type": "string"
+          },
+          "endpointServiceName": {
+            "description": "Name of the Atlas endpoint service the customer's VPC endpoint connects to. Absent when no endpoint service is configured for the endpoint's region.",
+            "example": "com.amazonaws.vpce.us-east-1.vpce-svc-0123456789abcdef0",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Cloud provider hosting the customer's VPC endpoint.",
+            "example": "AWS",
+            "readOnly": true,
+            "type": "string"
+          },
+          "region": {
+            "description": "Human-readable label identifying the region of the customer's VPC endpoint.",
+            "example": "US_EAST_1",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the endpoint registration.",
+            "enum": [
+              "PENDING",
+              "OK",
+              "FAILED",
+              "DELETING"
+            ],
+            "readOnly": true,
+            "type": "string"
           }
         },
         "type": "object"
@@ -3021,7 +3126,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "cc735395b2b3ec911694669511d832782834c2ed"
+    "x-xgen-sha": "b184a99c164b51392a11b04d00ca17dcc8069646"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -4190,6 +4295,424 @@
         "x-xgen-operation-id-override": "resetAutoEmbeddingInference"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints": {
+      "get": {
+        "deprecated": true,
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns all private endpoints registered for Atlas Stream Processing in the specified project. Deprecated versions: v2-{2025-03-12}",
+        "operationId": "listGroupStreamsWorkspacePrivateEndpoints",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedStreamsWorkspacePrivateEndpointResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Workspace Private Endpoints for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams listWorkspacePrivateEndpoints --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-sunset": "2026-11-12",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listGroupStreamsWorkspacePrivateEndpoints",
+        "x-xgen-operation-id-override": "listWorkspacePrivateEndpoints"
+      },
+      "post": {
+        "deprecated": true,
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Registers one customer VPC endpoint for Atlas Stream Processing in the specified project. Deprecated versions: v2-{2025-03-12}",
+        "operationId": "createGroupStreamsWorkspacePrivateEndpoint",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointRequest"
+              },
+              "x-sunset": "2026-11-12",
+              "x-xgen-preview": {
+                "public": "true"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Customer VPC endpoint to register for Atlas Stream Processing.",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Accepted",
+            "headers": {
+              "Location": {
+                "description": "Relative URI of the registered workspace private endpoint, which reports the registration once it has been applied.",
+                "schema": {
+                  "description": "Relative URI of the workspace private endpoint.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Workspace Private Endpoint for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams createWorkspacePrivateEndpoint --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-sunset": "2026-11-12",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamsWorkspacePrivateEndpoint",
+        "x-xgen-long-running-operation": {
+          "legacy": false
+        },
+        "x-xgen-operation-id-override": "createWorkspacePrivateEndpoint"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}": {
+      "delete": {
+        "deprecated": true,
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Removes one private endpoint registered for Atlas Stream Processing in the specified project. Deprecated versions: v2-{2025-03-12}",
+        "operationId": "deleteGroupStreamsWorkspacePrivateEndpoint",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "example": "vpce-0abc123def4567890",
+              "pattern": "^vpce-[a-z0-9]{17}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove One Workspace Private Endpoint for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams deleteWorkspacePrivateEndpoint --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-sunset": "2026-11-12",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/deleteGroupStreamsWorkspacePrivateEndpoint",
+        "x-xgen-operation-id-override": "deleteWorkspacePrivateEndpoint"
+      },
+      "get": {
+        "deprecated": true,
+        "description": "This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.\n\n Returns one private endpoint registered for Atlas Stream Processing in the specified project. Deprecated versions: v2-{2025-03-12}",
+        "operationId": "getGroupStreamsWorkspacePrivateEndpoint",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "example": "vpce-0abc123def4567890",
+              "pattern": "^vpce-[a-z0-9]{17}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointResponse"
+                },
+                "x-xgen-preview": {
+                  "public": "true"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Workspace Private Endpoint for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-beta": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams getWorkspacePrivateEndpoint --help"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.preview+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-state": {
+          "label": "PREVIEW",
+          "color": "#B89D09"
+        },
+        "x-sunset": "2026-11-12",
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/getGroupStreamsWorkspacePrivateEndpoint",
+        "x-xgen-operation-id-override": "getWorkspacePrivateEndpoint"
+      }
+    },
     "/api/atlas/v2/openapi/info": {
       "get": {
         "deprecated": true,
@@ -4958,6 +5481,10 @@
     {
       "description": "You can continually export mongod, mongos, and audit logs to an AWS S3 bucket. The new `/logIntegrations` API provides 1-minute log export on a best-effort basis. The existing `/pushBasedLogExport` API provides 5-minute log export and will be deprecated in the future. The log export integrations are managed at the project level.",
       "name": "Push-Based Log Export"
+    },
+    {
+      "description": "Returns, adds, edits, and removes Streams Workspaces. This resource requires your project ID.",
+      "name": "Streams"
     }
   ],
   "x-externalLinks": [
