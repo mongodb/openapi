@@ -57,6 +57,25 @@ Triage new violations
  ** File a ticket for the owning team to address the violation, or add a new exception to the component if the violation has been approved by the APIx Platform team.
  * If the violations are false-positives:
  ** Create a ticket to fix the rule's implementation, correcting any bugs or adjusting the validation approach.
+
+h2. Instructions for automation
+
+Review the provided context, including the relevant OpenAPI specification and implementation evidence, to identify and validate team-level violations related to the CS implementation.
+Objectives
+* Identify every component mentioned in the OpenAPI specification and list its API owner or owning team. Cite the source for each ownership assignment.
+* Group the reported violations by team. For each distinct violation group, launch a separate subagent to independently validate the finding against the available context and implementation evidence.
+* Assess whether each validated issue requires a code fix, correction of an existing bug, or an adjustment to the validation approach. Do not assume a violation is valid until it has been checked.
+
+Jira notes
+
+* Write a dedicated Jira note for each validated team-level violation. Each note should be specific, evidence-based, and include as much of the following as the provided context supports:
+* Owning team and affected API/component
+* Violation description and validation outcome
+* Relevant implementation details and recommended correction, if supported
+* Git commit and/or pull request, with links or identifiers
+* Author(s), when available
+
+Do not invent missing owners, evidence, commit/PR details, authors, or Jira targets. Clearly mark unavailable information, distinguish confirmed findings from uncertain ones, and avoid creating duplicate notes for the same violation. If there is not enough information to identify the Jira target or safely create a note, report what is missing rather than guessing.
 "
 
 echo "Jira ticket does not exist. Creating..."
