@@ -68,7 +68,7 @@ Objectives
 
 Jira notes
 
-* Write a dedicated Jira note for each validated team-level violation. Each note should be specific, evidence-based, and include as much of the following as the provided context supports:
+Write a dedicated Jira note for each validated team-level violation. Each note should be specific, evidence-based, and include as much of the following as the provided context supports:
 * Owning team and affected API/component
 * Violation description and validation outcome
 * Relevant implementation details and recommended correction, if supported
