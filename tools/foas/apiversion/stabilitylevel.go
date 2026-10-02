@@ -17,6 +17,7 @@ package apiversion
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 const (
@@ -37,7 +38,11 @@ func IsPreviewStabilityLevel(value string) bool {
 
 // IsPrivatePreviewStabilityLevel checks if the version is a private preview version.
 func IsPrivatePreviewStabilityLevel(value string) bool {
-	return strings.Contains(strings.ToLower(value), PrivatePreviewStabilityLevel)
+	lowerCaseValue := strings.ToLower(value)
+	if strings.EqualFold(lowerCaseValue, PrivatePreviewStabilityLevel) {
+		return true
+	}
+	return strings.HasPrefix(lowerCaseValue, PrivatePreviewStabilityLevel+"-")
 }
 
 // IsPublicPreviewStabilityLevel checks if the version is a public preview version.
@@ -53,7 +58,16 @@ func IsStableStabilityLevel(value string) bool {
 
 // IsUpcomingStabilityLevel checks if the version is an "upcoming" version.
 func IsUpcomingStabilityLevel(value string) bool {
-	return strings.Contains(strings.ToLower(value), UpcomingStabilityLevel)
+	lowerCaseValue := strings.ToLower(value)
+	if strings.EqualFold(lowerCaseValue, UpcomingStabilityLevel) {
+		return true
+	}
+	if strings.HasSuffix(lowerCaseValue, "."+UpcomingStabilityLevel) {
+		datePart := strings.TrimSuffix(lowerCaseValue, "."+UpcomingStabilityLevel)
+		_, err := time.Parse("2006-01-02", datePart)
+		return err == nil
+	}
+	return false
 }
 
 // ValidateStabilityLevel checks if the version is a valid stability level.

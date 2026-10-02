@@ -74,6 +74,10 @@ func (v *APIVersion) newVersion(version string, date time.Time) {
 // WithVersion sets the version on the APIVersion.
 func WithVersion(version string) Option {
 	return func(v *APIVersion) error {
+		if err := ValidateVersion(version); err != nil {
+			return err
+		}
+
 		versionDate, err := DateFromVersion(version)
 		if err != nil {
 			return err
@@ -124,6 +128,30 @@ func WithFullContent(contentType string, contentValue *openapi3.MediaType) Optio
 		// version will be based on the name, either 'preview' or 'private-preview-<name>'
 		return WithVersion(name)(v)
 	}
+}
+
+// ValidateVersion checks whether the given version string is a valid format and does not contain path traversal characters.
+func ValidateVersion(version string) error {
+	if version == "" {
+		return errors.New("version cannot be empty")
+	}
+	if strings.Contains(version, "/") || strings.Contains(version, "\\") || strings.Contains(version, "..") {
+		return fmt.Errorf("invalid version %q: contains path traversal characters", version)
+	}
+	if IsPreviewStabilityLevel(version) {
+		return nil
+	}
+	if strings.HasSuffix(strings.ToLower(version), "."+UpcomingStabilityLevel) {
+		datePart := strings.TrimSuffix(strings.ToLower(version), "."+UpcomingStabilityLevel)
+		if _, err := time.Parse(dateFormat, datePart); err != nil {
+			return fmt.Errorf("invalid upcoming version format %q: %w", version, err)
+		}
+		return nil
+	}
+	if _, err := time.Parse(dateFormat, version); err != nil {
+		return fmt.Errorf("invalid version format %q: %w", version, err)
+	}
+	return nil
 }
 
 func DateFromVersion(version string) (time.Time, error) {

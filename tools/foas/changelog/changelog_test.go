@@ -15,6 +15,8 @@
 package changelog
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -912,6 +914,13 @@ func TestLatestVersionActiveOnDate(t *testing.T) {
 			expectedOutput: "",
 			expectedError:  assert.Error,
 		},
+		{
+			name:           "Path traversal version in list",
+			date:           "2023-12-11",
+			versions:       []string{"../../pwned.upcoming", "2023-06-01"},
+			expectedOutput: "",
+			expectedError:  assert.Error,
+		},
 	}
 
 	for _, tt := range tests {
@@ -921,4 +930,31 @@ func TestLatestVersionActiveOnDate(t *testing.T) {
 			assert.Equal(t, tt.expectedOutput, output)
 		})
 	}
+}
+
+func TestNewMetadataFromFile_ValidateVersions(t *testing.T) {
+	tempDir := t.TempDir()
+
+	validMetadata := `{
+		"runDate": "2024-01-01",
+		"activeVersion": "2024-01-01",
+		"versions": ["2024-01-01", "2024-06-01.upcoming", "preview"]
+	}`
+	require.NoError(t, os.WriteFile(filepath.Join(tempDir, "metadata.json"), []byte(validMetadata), 0o600))
+
+	meta, err := newMetadataFromFile(tempDir)
+	require.NoError(t, err)
+	assert.Equal(t, "2024-01-01", meta.ActiveVersion)
+	assert.Len(t, meta.Versions, 3)
+
+	traversalMetadata := `{
+		"runDate": "2024-01-01",
+		"activeVersion": "2024-01-01",
+		"versions": ["../../pwned.upcoming", "2024-01-01"]
+	}`
+	require.NoError(t, os.WriteFile(filepath.Join(tempDir, "metadata.json"), []byte(traversalMetadata), 0o600))
+
+	_, err = newMetadataFromFile(tempDir)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "path traversal")
 }

@@ -17,10 +17,13 @@ package changelog
 import (
 	"fmt"
 	"log"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/mongodb/openapi/tools/cli/internal/cli/flag"
 	"github.com/mongodb/openapi/tools/cli/internal/cli/usage"
+	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/foas/changelog"
 	"github.com/mongodb/openapi/tools/foas/openapi"
 	"github.com/spf13/afero"
@@ -93,8 +96,20 @@ func (o *Opts) Run() error {
 	}
 
 	for _, entry := range versionedEntries {
+		if err := apiversion.ValidateVersion(entry.FromVersion); err != nil {
+			return fmt.Errorf("invalid entry fromVersion: %w", err)
+		}
+		if err := apiversion.ValidateVersion(entry.ToVersion); err != nil {
+			return fmt.Errorf("invalid entry toVersion: %w", err)
+		}
+
+		targetPath := o.newOutputFilePath(fmt.Sprintf("%s/%s_%s", versionChangelogFolderName, entry.FromVersion, entry.ToVersion))
+		if err := o.validatePathWithinOutput(targetPath); err != nil {
+			return err
+		}
+
 		if errSaveFile := openapi.SaveToFile(
-			o.newOutputFilePath(fmt.Sprintf("%s/%s_%s", versionChangelogFolderName, entry.FromVersion, entry.ToVersion)),
+			targetPath,
 			openapi.JSON, entry.Paths, o.fs); errSaveFile != nil {
 			return errSaveFile
 		}
@@ -125,6 +140,24 @@ func (o *Opts) newOutputFilePath(fileName string) string {
 	}
 
 	return fileName
+}
+
+func (o *Opts) validatePathWithinOutput(targetPath string) error {
+	cleanTarget := filepath.Clean(targetPath)
+	cleanOutput := filepath.Clean(o.outputPath)
+	if cleanOutput == "." || cleanOutput == "" {
+		if strings.HasPrefix(cleanTarget, "..") || filepath.IsAbs(cleanTarget) {
+			return fmt.Errorf("file path %q escapes output directory", targetPath)
+		}
+		return nil
+	}
+
+	rel, err := filepath.Rel(cleanOutput, cleanTarget)
+	if err != nil || strings.HasPrefix(rel, "..") || filepath.IsAbs(rel) {
+		return fmt.Errorf("file path %q escapes output directory %q", targetPath, o.outputPath)
+	}
+
+	return nil
 }
 
 // CreateBuilder builds the merge command with the following signature:

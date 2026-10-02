@@ -484,6 +484,18 @@ func newMetadataFromFile(path string) (*Metadata, error) {
 		return nil, err
 	}
 
+	for _, v := range metadata.Versions {
+		if err := apiversion.ValidateVersion(v); err != nil {
+			return nil, fmt.Errorf("invalid version %q in metadata: %w", v, err)
+		}
+	}
+
+	if metadata.ActiveVersion != "" {
+		if err := apiversion.ValidateVersion(metadata.ActiveVersion); err != nil {
+			return nil, fmt.Errorf("invalid activeVersion %q in metadata: %w", metadata.ActiveVersion, err)
+		}
+	}
+
 	metadata.Path = path
 	return metadata, nil
 }
