@@ -26,6 +26,7 @@ const (
 	UpcomingStabilityLevel       = "upcoming"
 	PrivatePreviewStabilityLevel = "private-preview"
 	PublicPreviewStabilityLevel  = "public-preview"
+	Preview                      = "preview"
 )
 
 var supportedValues = []string{StableStabilityLevel, UpcomingStabilityLevel, PublicPreviewStabilityLevel, PrivatePreviewStabilityLevel}
@@ -33,7 +34,7 @@ var supportedValues = []string{StableStabilityLevel, UpcomingStabilityLevel, Pub
 // IsPreviewStabilityLevel checks if the version is a preview version, public or private.
 func IsPreviewStabilityLevel(value string) bool {
 	lowerCaseValue := strings.ToLower(value)
-	return IsPrivatePreviewStabilityLevel(lowerCaseValue) || IsPublicPreviewStabilityLevel(lowerCaseValue)
+	return IsPrivatePreviewStabilityLevel(lowerCaseValue) || IsPublicPreviewStabilityLevel(lowerCaseValue) || lowerCaseValue == Preview
 }
 
 // IsPrivatePreviewStabilityLevel checks if the version is a private preview version.
