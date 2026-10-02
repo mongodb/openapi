@@ -32,13 +32,13 @@ import (
 
 type ListOpts struct {
 	fs         afero.Fs
+	toDate     *time.Time
+	fromDate   *time.Time
 	basePath   string
 	outputPath string
 	format     string
 	from       string
 	to         string
-	toDate     *time.Time
-	fromDate   *time.Time
 }
 
 func (o *ListOpts) Run() error {
