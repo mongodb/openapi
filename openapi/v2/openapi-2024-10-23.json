@@ -44336,10 +44336,11 @@
               "SP2"
             ],
             "nullable": true,
-            "type": "string"
+            "type": "string",
+            "x-xgen-server-computed-when-client-omitted": true
           },
           "minTier": {
-            "description": "Tier floor for autoscaling (scale-down limit).\n\n- **Omitted:**\n  - On `CREATE`: falls back to the workspace default tier (there is no current bound to preserve).\n  - On `MODIFY` or `:startWith`: the current bound is preserved.\n- **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the workspace default tier.\n- **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.",
+            "description": "Tier floor for autoscaling (scale-down limit).\n\n- **Omitted:**\n  - On `CREATE`: defaults to the lower of the processor `tier` and the workspace default tier (there is no current bound to preserve).\n  - On `MODIFY` or `:startWith`: the current bound is preserved.\n- **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the lower of the processor `tier` and the workspace default tier.\n- **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.",
             "enum": [
               "SP50",
               "SP30",
@@ -44348,7 +44349,8 @@
               "SP2"
             ],
             "nullable": true,
-            "type": "string"
+            "type": "string",
+            "x-xgen-server-computed-when-client-omitted": true
           }
         },
         "type": "object"
@@ -45004,7 +45006,7 @@
             "type": "array"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Baseline processing tier requested by the user.",
             "enum": [
               "SP50",
               "SP30",
@@ -45012,7 +45014,6 @@
               "SP5",
               "SP2"
             ],
-            "title": "Stream Workspace Tier",
             "type": "string"
           }
         },
@@ -45200,7 +45201,7 @@
             "type": "string"
           },
           "effectiveTier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Tier the stream processor is currently running on. The server sets this value from `tier` on create and on every start or restart, may move it within [`minTier`, `maxTier`] while autoscaling is enabled, and restores it to `tier` when autoscaling is disabled. Patching `tier` does not change it directly; the new tier takes effect at the next start or restart.",
             "enum": [
               "SP50",
               "SP30",
@@ -45209,7 +45210,6 @@
               "SP2"
             ],
             "readOnly": true,
-            "title": "Stream Workspace Tier",
             "type": "string"
           },
           "failoverEnabled": {
@@ -45247,7 +45247,7 @@
             "type": "array"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Baseline tier of the stream processor. The processor starts or restarts on this tier; `effectiveTier` reports the tier it is currently running.",
             "enum": [
               "SP50",
               "SP30",
@@ -45255,12 +45255,55 @@
               "SP5",
               "SP2"
             ],
-            "title": "Stream Workspace Tier",
             "type": "string"
           }
         },
         "required": [
           "effectiveTier"
+        ],
+        "type": "object"
+      },
+      "StreamsProcessorRequest": {
+        "description": "Details to create a stream processor.",
+        "properties": {
+          "failoverEnabled": {
+            "description": "Flag that enables or disables failover for the stream processor.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "Human-readable name of the stream processor.",
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/StreamsOptions"
+          },
+          "pipeline": {
+            "description": "Stream aggregation pipeline you want to apply to your streaming data.",
+            "externalDocs": {
+              "description": "Supported Aggregation Pipeline Stages",
+              "url": "https://www.mongodb.com/docs/atlas/atlas-stream-processing/stream-aggregation/#std-label-stream-aggregation"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "tier": {
+            "description": "Baseline processing tier requested by the user.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "pipeline"
         ],
         "type": "object"
       },
@@ -45319,7 +45362,7 @@
             "type": "string"
           },
           "effectiveTier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Tier the stream processor is currently running on. The server sets this value from `tier` on create and on every start or restart, may move it within [`minTier`, `maxTier`] while autoscaling is enabled, and restores it to `tier` when autoscaling is disabled. Patching `tier` does not change it directly; the new tier takes effect at the next start or restart.",
             "enum": [
               "SP50",
               "SP30",
@@ -45328,7 +45371,6 @@
               "SP2"
             ],
             "readOnly": true,
-            "title": "Stream Workspace Tier",
             "type": "string"
           },
           "eligibleForFailover": {
@@ -45396,7 +45438,7 @@
             "type": "object"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Baseline tier of the stream processor. The processor starts or restarts on this tier; `effectiveTier` reports the tier it is currently running.",
             "enum": [
               "SP50",
               "SP30",
@@ -45404,7 +45446,6 @@
               "SP5",
               "SP2"
             ],
-            "title": "Stream Workspace Tier",
             "type": "string"
           }
         },
@@ -49807,7 +49848,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "6b4e48bdd82643b7a14ca9e4a4b509451d635243"
+    "x-xgen-sha": "270b5fbd0732599b91f0c544b61a60d36f764a12"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -83398,7 +83439,7 @@
           "content": {
             "application/vnd.atlas.2024-05-30+json": {
               "schema": {
-                "$ref": "#/components/schemas/StreamsProcessor"
+                "$ref": "#/components/schemas/StreamsProcessorRequest"
               }
             }
           },
