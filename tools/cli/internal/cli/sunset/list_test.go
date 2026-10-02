@@ -49,6 +49,41 @@ func TestList_Run(t *testing.T) {
 	}
 }
 
+func TestList_Run_ExcludesPreview(t *testing.T) {
+	for _, fixture := range []string{
+		"base_spec_with_public_preview.json",
+		"base_spec_with_private_preview.json",
+		"base_spec_with_multiple_private_and_public_previews.json",
+	} {
+		t.Run(fixture, func(t *testing.T) {
+			fs := afero.NewMemMapFs()
+			opts := &ListOpts{
+				basePath:   "../../../test/data/" + fixture,
+				outputPath: "foas.json",
+				fs:         fs,
+				format:     "json",
+				from:       "2024-09-22",
+				to:         "2026-09-22",
+			}
+
+			// The preview version of GET /groups sunsets on 2025-06-30, within this range.
+			require.NoError(t, opts.validate())
+			require.NoError(t, opts.Run())
+			b, err := afero.ReadFile(fs, opts.outputPath)
+			require.NoError(t, err)
+			var results []*sunset.Sunset
+			require.NoError(t, json.Unmarshal(b, &results))
+			assert.Contains(t, results, &sunset.Sunset{
+				Operation: "GET", Path: "/api/atlas/v2/groups", Version: "2023-01-01",
+				SunsetDate: "2026-05-30", Team: "IAM",
+			})
+			for _, result := range results {
+				assert.NotEqual(t, "preview", result.Version, "preview API included: %s %s", result.Operation, result.Path)
+			}
+		})
+	}
+}
+
 var expectedResults = []*sunset.Sunset{
 	{Operation: "GET", Path: "/api/atlas/v2/example/info", SunsetDate: "2025-06-01", Team: "APIx",
 		Version: "2023-01-01"},
