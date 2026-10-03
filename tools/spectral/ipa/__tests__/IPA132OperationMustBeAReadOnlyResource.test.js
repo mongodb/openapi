@@ -2,7 +2,7 @@ import testRule from './__helpers__/testRule';
 import { DiagnosticSeverity } from '@stoplight/types';
 
 const READ_ONLY_SCHEMA_ERROR_MESSAGE =
-  'The Operation resource must be read-only. All properties of the GET response schema must be marked as readOnly: true.';
+  'The Operation resource must be read-only. All properties of the GET response schema must be marked as readOnly: true or contain only read-only properties.';
 
 const readOnlyGet = {
   responses: {
