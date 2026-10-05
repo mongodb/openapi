@@ -1,6 +1,8 @@
 export const VERB_OVERRIDE_EXTENSION = 'x-xgen-method-verb-override';
 export const OPERATION_ID_OVERRIDE_EXTENSION = 'x-xgen-operation-id-override';
 export const SERVER_COMPUTED_WHEN_CLIENT_OMITTED_EXTENSION = 'x-xgen-server-computed-when-client-omitted';
+export const ARRAY_SEMANTIC_EXTENSION = 'x-xgen-array-semantic';
+export const SERVER_COMPUTED_IMMUTABLE_EXTENSION = 'x-xgen-server-computed-immutable';
 
 /**
  * Checks if the object has the extension "x-xgen-server-computed-when-client-omitted", marking a field
