@@ -1,15 +1,24 @@
-// Compares two snapshots written by scripts/ipa-snapshot.js and reports per-rule differences.
+// Compares the results of the IPA ruleset at two points and reports per-rule differences.
 //
-// Usage: node tools/spectral/ipa/scripts/ipa-snapshot-compare.js <base-dir> <head-dir> [--verbose]
+// Usage: node tools/spectral/ipa/scripts/ipa-snapshot-compare.js --spec <oas-file> --base <git-ref> [--head <git-ref>] [--verbose]
+//        node tools/spectral/ipa/scripts/ipa-snapshot-compare.js <base-dir> <head-dir> [--verbose]
+//
+// With --base, each side is linted with the ruleset of that git ref, checked out into a temporary worktree and removed
+// afterwards. Without --head, the head is this checkout as it is now, including uncommitted changes. This script and
+// the spec always come from this checkout, so the base ref does not need to contain them.
+//
+// With two directories, compares snapshots already written by scripts/ipa-snapshot.js.
 //
 // Prints, for the findings and for each collector entry type, which rules gained (+) or lost (-) entries, and with
-// --verbose the entries themselves. Exits 0 when the snapshots are identical and 1 otherwise, so it can be used to
+// --verbose the entries themselves. Exits 0 when the results are identical and 1 otherwise, so it can be used to
 // prove that a refactor is behavior-neutral.
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { DEFAULT_RULESET, checkoutWorktree, takeSnapshot } from './ipa-snapshot.js';
 
 /**
  * Computes the multiset difference between two lists of entries, grouped by rule. An entry that appears three times in
@@ -69,6 +78,40 @@ export function compareSnapshots(baseDir, headDir) {
   return { findings, collector };
 }
 
+/**
+ * Lints a spec with the ruleset at two git refs and compares the results. The temporary worktrees and snapshots are
+ * removed afterwards.
+ *
+ * @param {Object} params
+ * @param {string} params.spec the OpenAPI file, linted unchanged on both sides
+ * @param {string} params.base git ref for the base ruleset
+ * @param {string} [params.head] git ref for the head ruleset; this checkout, as it is now, when omitted
+ * @returns {{findings: Map, collector: Object<string, Map>}} see compareSnapshots
+ */
+export function compareRefs({ spec, base, head }) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'ipa-snapshot-compare-'));
+  const worktrees = [];
+  const snapshotOf = (name, ref) => {
+    let ruleset = DEFAULT_RULESET;
+    if (ref) {
+      const worktree = checkoutWorktree(ref);
+      worktrees.push(worktree);
+      ruleset = worktree.ruleset;
+    }
+    const out = path.join(tmp, name);
+    takeSnapshot({ spec, out, ruleset });
+    return out;
+  };
+  try {
+    const baseDir = snapshotOf('base', base);
+    const headDir = snapshotOf('head', head);
+    return compareSnapshots(baseDir, headDir);
+  } finally {
+    worktrees.forEach((worktree) => worktree.remove());
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 function sum(list) {
   return list.reduce((total, entry) => total + entry.count, 0);
 }
@@ -92,14 +135,24 @@ function printSection(title, diff, verbose, describe) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
-    options: { verbose: { type: 'boolean', short: 'v', default: false } },
+    options: {
+      verbose: { type: 'boolean', short: 'v', default: false },
+      spec: { type: 'string' },
+      base: { type: 'string' },
+      head: { type: 'string' },
+    },
   });
-  if (positionals.length !== 2) {
-    console.error('Usage: node ipa-snapshot-compare.js <base-dir> <head-dir> [--verbose]');
+  const byRef = Boolean(values.spec && values.base) && positionals.length === 0;
+  const byDir = positionals.length === 2 && !values.spec && !values.base && !values.head;
+  if (!byRef && !byDir) {
+    console.error(
+      'Usage: node ipa-snapshot-compare.js --spec <oas-file> --base <git-ref> [--head <git-ref>] [--verbose]'
+    );
+    console.error('       node ipa-snapshot-compare.js <base-dir> <head-dir> [--verbose]');
     process.exit(2);
   }
 
-  const { findings, collector } = compareSnapshots(positionals[0], positionals[1]);
+  const { findings, collector } = byRef ? compareRefs(values) : compareSnapshots(positionals[0], positionals[1]);
   printSection('Findings', findings, values.verbose, (f) => `${f.path}: ${f.message}`);
   for (const [type, diff] of Object.entries(collector)) {
     printSection(`Collector ${type}`, diff, values.verbose, (e) => e.componentId);

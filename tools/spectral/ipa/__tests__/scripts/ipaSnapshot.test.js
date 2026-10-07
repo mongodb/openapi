@@ -1,6 +1,9 @@
-import { describe, expect, it } from '@jest/globals';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { normalizeCollectorEntries, normalizeFindings } from '../../scripts/ipa-snapshot';
-import { diffEntries } from '../../scripts/ipa-snapshot-compare';
+import { compareRefs, diffEntries } from '../../scripts/ipa-snapshot-compare';
 
 describe('tools/spectral/ipa/scripts/ipa-snapshot.js', () => {
   it('sorts findings and drops the source file', () => {
@@ -50,4 +53,37 @@ describe('tools/spectral/ipa/scripts/ipa-snapshot-compare.js', () => {
     });
     expect(diff.get('s')).toEqual({ added: [{ ruleName: 's', componentId: 'new', count: 1 }], removed: [] });
   });
+});
+
+describe('tools/spectral/ipa/scripts/ipa-snapshot-compare.js compareRefs', () => {
+  const spec = path.join(os.tmpdir(), `ipa-snapshot-test-spec-${process.pid}.yaml`);
+
+  beforeAll(() => {
+    fs.writeFileSync(
+      spec,
+      [
+        'openapi: 3.0.1',
+        'info: { title: t, version: "1" }',
+        'paths:',
+        '  /api/atlas/v2/groups/{groupId}:',
+        '    get:',
+        '      operationId: getGroup',
+        '      responses:',
+        "        '200': { description: OK }",
+        'components: {}',
+      ].join('\n')
+    );
+  });
+
+  afterAll(() => {
+    fs.rmSync(spec, { force: true });
+  });
+
+  it('finds no difference between a ref and the same checkout, and leaves no worktree behind', () => {
+    const { findings, collector } = compareRefs({ spec, base: 'HEAD' });
+    expect(findings.size).toBe(0);
+    expect(Object.values(collector).every((diff) => diff.size === 0)).toBe(true);
+    const leftovers = fs.readdirSync(os.tmpdir()).filter((name) => /^ipa-(worktree|snapshot-compare)-/.test(name));
+    expect(leftovers).toEqual([]);
+  }, 60000);
 });

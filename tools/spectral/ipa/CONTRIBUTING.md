@@ -44,6 +44,18 @@ npm run test -- singletonHasNoId
 ```
 ---
 
+### Checking that a change does not alter results
+
+For a refactor of the ruleset, `ipa-snapshot-compare.js` lints a spec with the ruleset at a git ref and with this checkout, and reports per rule which findings and collector entries (violations, adoptions, exceptions) were gained or lost. It exits 1 on any difference.
+
+```
+node tools/spectral/ipa/scripts/ipa-snapshot-compare.js --spec openapi/v2.json --base origin/main
+```
+
+- The ref is checked out into a temporary worktree that is removed afterwards, so your working tree is not touched. Nothing needs building.
+- Without `--head`, the head is this checkout as it is now, including uncommitted changes. Pass `--head <git-ref>` to compare two refs.
+- Add `--verbose` to list the entries. A full run on `openapi/v2.json` takes about 15 seconds.
+
 ## Code Style
 
 - Use [Prettier](https://prettier.io/) for code formatting

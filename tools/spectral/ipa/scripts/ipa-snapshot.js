@@ -16,14 +16,17 @@
 //                    not line up one to one with the findings: adoptions and exceptions never appear in them.
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DEFAULT_RULESET = path.join(__dirname, '..', 'ipa-spectral.yaml');
-const SPECTRAL_BIN = path.join(__dirname, '..', '..', '..', '..', 'node_modules', '.bin', 'spectral');
+const IPA_DIR_IN_REPO = path.join('tools', 'spectral', 'ipa');
+const REPO_ROOT = path.join(__dirname, '..', '..', '..', '..');
+export const DEFAULT_RULESET = path.join(__dirname, '..', 'ipa-spectral.yaml');
+const SPECTRAL_BIN = path.join(REPO_ROOT, 'node_modules', '.bin', 'spectral');
 // Rulesets that predate IPA_COLLECTOR_FILE (e.g. an older ref checked out for comparison) write this file to the cwd
 const DEFAULT_COLLECTOR_FILE_NAME = 'ipa-collector-results-combined.log';
 
@@ -62,6 +65,24 @@ function compareByJson(a, b) {
   const x = JSON.stringify(a);
   const y = JSON.stringify(b);
   return x < y ? -1 : x > y ? 1 : 0;
+}
+
+/**
+ * Checks out a git ref into a temporary worktree that shares this checkout's node_modules, so the ruleset of that ref
+ * can be run without touching the working tree. Nothing needs building.
+ *
+ * @param {string} ref any git ref or commit
+ * @returns {{dir: string, ruleset: string, remove: () => void}} the ruleset file inside the worktree
+ */
+export function checkoutWorktree(ref) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ipa-worktree-'));
+  execFileSync('git', ['worktree', 'add', '--detach', dir, ref], { cwd: REPO_ROOT, stdio: 'ignore' });
+  fs.symlinkSync(path.join(REPO_ROOT, 'node_modules'), path.join(dir, 'node_modules'));
+  return {
+    dir,
+    ruleset: path.join(dir, IPA_DIR_IN_REPO, 'ipa-spectral.yaml'),
+    remove: () => execFileSync('git', ['worktree', 'remove', '--force', dir], { cwd: REPO_ROOT, stdio: 'ignore' }),
+  };
 }
 
 export function takeSnapshot({ spec, out, ruleset = DEFAULT_RULESET }) {
