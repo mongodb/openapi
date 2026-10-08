@@ -17,7 +17,7 @@ export default (input, opts, { path, documentInventory, rule }) => {
   const resourcePath = path[1];
   const resourcePathItems = getResourcePathItems(resourcePath, oas.paths);
 
-  if (!(isResourceCollectionIdentifier(resourcePath) && isSingletonResource(resourcePathItems))) {
+  if (!isResourceCollectionIdentifier(resourcePath) || !isSingletonResource(resourcePathItems)) {
     return;
   }
 
