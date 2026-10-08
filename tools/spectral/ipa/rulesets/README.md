@@ -92,9 +92,12 @@ APIs must provide a Get method for resources.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Only applies to resource collection identifiers
   - For singleton resources, verifies the resource has a GET method
   - For regular resources, verifies there is a single resource path with a GET method
+
+##### Applies to
+Each path, when:
+  - the path is a resource collection path ([`path.isCollection`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathiscollection))
 
 #### xgen-IPA-104-get-method-returns-single-resource
 
@@ -103,9 +106,15 @@ The purpose of the Get method is to return data from a single resource.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to 2xx responses of GET methods on single resources or singleton resources
   - Verifies the response is not an array or paginated result
   - Different error messages are provided for standard vs singleton resources
+
+##### Applies to
+Each media type of each Get response, when:
+  - the response is a 2xx response ([`response.is2xx`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#responseis2xx))
+  - the media type defines a schema ([`mediaType.hasSchema`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypehasschema))
+  - the media type is JSON ([`mediaType.isJson`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypeisjson))
+  - the path is a single resource path or a singleton resource ([`path.isGetTarget`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisgettarget))
 
 #### xgen-IPA-104-get-method-response-code-is-200
 
@@ -113,9 +122,12 @@ Rule checks for the following conditions:
 The Get method must return a 200 OK response.
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to GET methods on single resources or singleton resources
   - Verifies the 200 OK response code is present
   - Fails if the method lacks a 200 OK response or defines a different 2xx status code
+
+##### Applies to
+Each Get operation, when:
+  - the path is a single resource path or a singleton resource ([`path.isGetTarget`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisgettarget))
 
 #### xgen-IPA-104-get-method-returns-response-suffixed-object
 
@@ -123,9 +135,15 @@ Rule checks for the following conditions:
 The Get method of a resource should return a "Response" suffixed object.
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to 2xx responses of GET methods on single resources or singleton resources
   - Verifies the schema references a predefined schema (not inline)
   - Confirms the referenced schema name ends with "Response" suffix
+
+##### Applies to
+Each media type of each Get response, when:
+  - the response is a 2xx response ([`response.is2xx`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#responseis2xx))
+  - the media type defines a schema ([`mediaType.hasSchema`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypehasschema))
+  - the media type is JSON ([`mediaType.isJson`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypeisjson))
+  - the path is a single resource path or a singleton resource ([`path.isGetTarget`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisgettarget))
 
 #### xgen-IPA-104-get-method-response-has-no-input-fields
 
@@ -133,9 +151,15 @@ Rule checks for the following conditions:
 The Get method response object must not include writeOnly properties (fields that should be used only on creation or update, ie output fields).
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to 2xx responses of GET methods on single resources or singleton resources
   - Searches through the schema to find any properties marked with writeOnly attribute
   - Fails if any writeOnly properties are found in the response schema
+
+##### Applies to
+Each media type of each Get response, when:
+  - the response is a 2xx response ([`response.is2xx`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#responseis2xx))
+  - the media type defines a schema ([`mediaType.hasSchema`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypehasschema))
+  - the media type is JSON ([`mediaType.isJson`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypeisjson))
+  - the path is a single resource path or a singleton resource ([`path.isGetTarget`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisgettarget))
 
 #### xgen-IPA-104-get-method-no-request-body
 
@@ -143,8 +167,11 @@ Rule checks for the following conditions:
 The Get method request must not include a body.
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to GET methods on single resources or singleton resources
   - Verifies that the operation object does not contain a requestBody property
+
+##### Applies to
+Each Get operation, when:
+  - the path is a single resource path or a singleton resource ([`path.isGetTarget`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisgettarget))
 
 #### xgen-IPA-104-valid-operation-id
 
@@ -156,7 +183,6 @@ For a collection-scoped Operations resource, such as '/resources/operations/{ope
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to GET methods on single resources or singleton resources
   - Confirms that the existing OperationId is compliant with generated IPA Compliant OperationId
 
 ##### Configuration
@@ -164,6 +190,14 @@ This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
   - `maxLength`: The maximum number of words allowed in the operation ID override (default: 4)
+
+##### Applies to
+Each Get operation, when:
+  - any of: the path ends in a path parameter or is a singleton resource ([`path.isLegacyGetTarget`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathislegacygettarget)); the operation is declared the rule's method by `x-xgen-method-verb-override` ([`operation.hasRuleMethodVerbOverride`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#operationhasrulemethodverboverride))
+
+Except when:
+  - the operation is declared a custom method by `x-xgen-method-verb-override` ([`operation.hasCustomMethodOverride`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#operationhascustommethodoverride))
+  - the operation is declared a List method by `x-xgen-method-verb-override` ([`operation.hasListVerbOverride`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#operationhaslistverboverride))
 
 #### xgen-IPA-104-operation-id-length
 
@@ -173,7 +207,6 @@ add an 'x-xgen-operation-id-override' extension with a shorter operation ID.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to GET methods on single resources or singleton resources
   - Verifies that the operation ID is not longer than 4 words
   - If the operation ID is longer than 4 words, requires an 'x-xgen-operation-id-override' extension
   - Can be exempted using 'x-xgen-IPA-exception' for APIs where long operation IDs are intentional
@@ -183,6 +216,14 @@ This rule includes three configuration options:
   - `methodName`: The verb to be used in the OperationIds
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
   - `maxLength`: The maximum number of words allowed in the operation ID (default: 4)
+
+##### Applies to
+Each Get operation, when:
+  - any of: the path ends in a path parameter or is a singleton resource ([`path.isLegacyGetTarget`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathislegacygettarget)); the operation is declared the rule's method by `x-xgen-method-verb-override` ([`operation.hasRuleMethodVerbOverride`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#operationhasrulemethodverboverride))
+
+Except when:
+  - the operation is declared a custom method by `x-xgen-method-verb-override` ([`operation.hasCustomMethodOverride`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#operationhascustommethodoverride))
+  - the operation is declared a List method by `x-xgen-method-verb-override` ([`operation.hasListVerbOverride`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#operationhaslistverboverride))
 
 
 
@@ -877,11 +918,14 @@ Singleton resources must not have a user-provided or system-generated ID.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to singleton resources that are identified as resource collection identifiers
-  - Checks that the resource has a GET method defined
   - Examines all 2xx response schemas from the GET method
   - Verifies that no schema contains 'id' or '_id' properties in their object definitions
   - Fails if any response schema contains these identifier properties
+
+##### Applies to
+Each path item, when:
+  - the path is a singleton resource ([`resource.isSingleton`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceissingleton))
+  - the path defines a Get method ([`pathItem.hasGet`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathitemhasget))
 
 #### xgen-IPA-113-singleton-must-not-have-delete-method
 
@@ -890,8 +934,11 @@ Singleton resources must not define the Delete standard method.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to singleton resources
   - Checks that the resource does not have a DELETE method defined
+
+##### Applies to
+Each path item, when:
+  - the path is a singleton resource ([`resource.isSingleton`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceissingleton))
 
 #### xgen-IPA-113-singleton-should-have-update-method
 
@@ -900,9 +947,14 @@ Singleton resources should define the Update method. Validation for the presence
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to singleton resources
-  - Excludes read-only singleton resources (where all properties in the GET response schema are marked as readOnly; for List responses, all properties in the items schema must be readOnly)
   - Checks that the resource has the PUT and/or PATCH methods defined
+
+##### Applies to
+Each path item, when:
+  - the path is a singleton resource ([`resource.isSingleton`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceissingleton))
+
+Except when:
+  - the resource is read-only ([`resource.isReadOnly`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceisreadonly))
 
 #### xgen-IPA-113-reset-method-must-use-POST
 
@@ -911,10 +963,13 @@ The :reset custom method must use the POST HTTP method.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to paths ending with :reset
   - Verifies that only POST method is defined
   - Fails if GET or any other HTTP method is used
   - Fails if multiple HTTP methods are defined for the same :reset endpoint
+
+##### Applies to
+Each path item, when:
+  - the path is a `:reset` custom method ([`path.isResetMethod`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisresetmethod))
 
 #### xgen-IPA-113-reset-method-must-not-have-request-body
 
@@ -923,9 +978,12 @@ The :reset custom method must not have a request body.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on paths ending with :reset
   - Verifies that the operation object does not contain a requestBody property
   - Fails if any request body is defined
+
+##### Applies to
+Each POST operation, when:
+  - the path is a `:reset` custom method ([`path.isResetMethod`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisresetmethod))
 
 #### xgen-IPA-113-reset-method-must-return-200-OK
 
@@ -934,10 +992,13 @@ The :reset custom method must return a 200 OK response with the reset resource i
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on paths ending with :reset
   - Verifies that a 200 OK response code is present
   - Fails if the method lacks a 200 OK response or defines a different 2xx status code
   - Verifies that the 200 response has a response body with schema
+
+##### Applies to
+Each POST operation, when:
+  - the path is a `:reset` custom method ([`path.isResetMethod`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisresetmethod))
 
 #### xgen-IPA-113-reset-method-response-is-get-method-response
 
@@ -946,11 +1007,16 @@ The :reset custom method response must match the GET method response schema.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on paths ending with :reset
-  - Applies only to JSON response content types
   - Verifies that both :reset and GET methods have schema references
   - Confirms that the :reset method 200 response schema reference matches the GET method response schema reference
   - Ensures the reset resource returned is the same type as the singleton resource
+
+##### Applies to
+Each media type of each POST 200 response, when:
+  - the media type is JSON ([`mediaType.isJson`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypeisjson))
+  - the path is a `:reset` custom method ([`path.isResetMethod`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisresetmethod))
+  - the media type defines a schema ([`mediaType.hasSchema`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypehasschema))
+  - the custom method's resource has a Get response for the same media type ([`mediaType.baseGetHasMediaType`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#mediatypebasegethasmediatype))
 
 #### xgen-IPA-113-reset-method-only-on-singleton-resources
 
@@ -959,10 +1025,12 @@ The :reset custom method must only be defined on singleton resources.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to paths ending with :reset
-  - Verifies that the parent path (without :reset) is a singleton resource
-  - Uses existing isSingletonResource() helper function
+  - Verifies that the base resource (the path without :reset) is a singleton resource (see [`resource.isSingleton`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceissingleton))
   - Fails if :reset is defined on a non-singleton resource
+
+##### Applies to
+Each path item, when:
+  - the path is a `:reset` custom method ([`path.isResetMethod`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisresetmethod))
 
 #### xgen-IPA-113-reset-method-not-on-readonly-singleton
 
@@ -971,10 +1039,12 @@ Read-only singleton resources must not define a :reset custom method.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to paths ending with :reset
-  - Verifies that the parent singleton resource is not read-only
-  - Uses existing isReadOnlyResource() helper function
-  - Fails if the singleton resource has all properties marked as readOnly: true
+  - Verifies that the base resource (the path without :reset) is not read-only (see [`resource.isReadOnly`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#resourceisreadonly))
+  - Does not check that the base resource is a singleton; that is covered by xgen-IPA-113-reset-method-only-on-singleton-resources
+
+##### Applies to
+Each path item, when:
+  - the path is a `:reset` custom method ([`path.isResetMethod`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisresetmethod))
 
 #### xgen-IPA-113-reset-method-valid-operation-id
 
@@ -983,13 +1053,16 @@ The :reset custom method must have a valid operation ID.
 
 ##### Implementation details
 Rule checks for the following conditions:
-  - Applies only to POST methods on paths ending with :reset
   - Confirms that the operation ID follows the pattern: reset{ResourceName}
   - Uses existing operation ID validation infrastructure
 
 ##### Configuration
 This rule includes a configuration option:
   - `ignoreSingularizationList`: Words that are allowed to maintain their assumed plurality (e.g., "Fts")
+
+##### Applies to
+Each POST operation, when:
+  - the path is a `:reset` custom method ([`path.isResetMethod`](https://github.com/mongodb/openapi/blob/main/tools/spectral/ipa/rulesets/CONDITIONS.md#pathisresetmethod))
 
 
 
