@@ -12319,6 +12319,7 @@ components:
                             - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                             - ACTIVE_LEGACY_TLS_CONNECTIONS
                             - WEBHOOK_TEMPLATE_RENDER_FAILED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -12424,6 +12425,10 @@ components:
                             - ALERT_HOST_SSH_SESSION_STARTED
                             - PROFILER_CONFIGURED_TOO_WIDELY
                           title: Host Event Types
+                          type: string
+                        - enum:
+                            - PROACTIVE_REMEDIATION_NEEDED
+                          title: Proactive Remediation Event Types
                           type: string
                     type: object
                 groupId:
@@ -12579,6 +12584,7 @@ components:
                             - GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED
                             - ACTIVE_LEGACY_TLS_CONNECTIONS
                             - WEBHOOK_TEMPLATE_RENDER_FAILED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -12708,6 +12714,10 @@ components:
                             - ALERT_HOST_SSH_SESSION_STARTED
                             - PROFILER_CONFIGURED_TOO_WIDELY
                           title: Host Event Types
+                          type: string
+                        - enum:
+                            - PROACTIVE_REMEDIATION_NEEDED
+                          title: Proactive Remediation Event Types
                           type: string
                     readOnly: true
                     type: object
@@ -12971,6 +12981,8 @@ components:
                             - ACTIVE_LEGACY_TLS_CONNECTIONS
                             - NO_ACTIVE_LEGACY_TLS_CONNECTIONS
                             - WEBHOOK_TEMPLATE_RENDER_FAILED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_NO_LONGER_STALLED
+                            - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                           title: Group Event Types
                           type: string
                         - enum:
@@ -13125,6 +13137,10 @@ components:
                             - TENANT_RESTORE_REQUESTED_AUDIT
                             - TENANT_RESTORE_COMPLETED_AUDIT
                             - TENANT_SNAPSHOT_DOWNLOAD_REQUESTED_AUDIT
+                            - M0_BACKUP_SUBSCRIPTION_ENABLED
+                            - M0_BACKUP_SUBSCRIPTION_CANCELLED
+                            - M0_BACKUP_SUBSCRIPTION_PAUSED
+                            - M0_BACKUP_SUBSCRIPTION_RESUMED
                           title: Tenant Backup Event Types
                           type: string
                         - enum:
@@ -13167,6 +13183,10 @@ components:
                             - AI_MODELS_APIS_RATE_LIMIT_RESET
                             - AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE
                           title: AI Models APIs Event Types
+                          type: string
+                        - enum:
+                            - PROACTIVE_REMEDIATION_NEEDED
+                          title: Proactive Remediation Event Types
                           type: string
                     type: object
                 groupId:
@@ -15460,6 +15480,73 @@ components:
                 googleCloudKms:
                     $ref: '#/components/schemas/GoogleCloudKMS'
             type: object
+        EncryptionAtRestConfigUpdateStalledAlertConfigViewForNdsGroup:
+            description: Configures the duration after which MongoDB Cloud alerts users that an Encryption at Rest configuration update has stalled.
+            properties:
+                created:
+                    description: Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+                enabled:
+                    default: false
+                    description: Flag that indicates whether someone enabled this alert configuration for the specified project.
+                    type: boolean
+                eventTypeName:
+                    $ref: '#/components/schemas/GroupEventTypeViewForNdsGroupAlertableEncryptionAtRestConfigUpdateStalled'
+                groupId:
+                    description: Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies this alert configuration.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                matchers:
+                    description: Matching conditions for target resources.
+                    items:
+                        $ref: '#/components/schemas/AlertMatcher'
+                    type: array
+                notifications:
+                    description: List that contains the targets that MongoDB Cloud sends notifications.
+                    items:
+                        $ref: '#/components/schemas/AlertsNotificationRootForGroup'
+                    maxItems: 25
+                    minItems: 1
+                    type: array
+                severityOverride:
+                    $ref: '#/components/schemas/EventSeverity'
+                threshold:
+                    $ref: '#/components/schemas/GreaterThanTimeThreshold'
+                updated:
+                    description: Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
+                    externalDocs:
+                        description: ISO 8601
+                        url: https://en.wikipedia.org/wiki/ISO_8601
+                    format: date-time
+                    readOnly: true
+                    type: string
+            required:
+                - eventTypeName
+                - notifications
+            title: Encryption at Rest Update Stalled Alert Configuration
+            type: object
         EncryptionKeyAlertConfigViewForNdsGroup:
             description: Encryption key alert configuration allows to select thresholds  which trigger alerts and how users are notified.
             properties:
@@ -15876,6 +15963,8 @@ components:
                     - ACTIVE_LEGACY_TLS_CONNECTIONS
                     - NO_ACTIVE_LEGACY_TLS_CONNECTIONS
                     - WEBHOOK_TEMPLATE_RENDER_FAILED
+                    - ENCRYPTION_AT_REST_CONFIG_UPDATE_NO_LONGER_STALLED
+                    - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
                   title: Group Event Types
                   type: string
                 - enum:
@@ -16197,6 +16286,8 @@ components:
                     - STREAM_TENANT_OPERATIONAL_LOGS
                     - STREAM_TENANT_AUDIT_LOGS
                     - STREAM_TENANT_AUDIT_LOGS_DELETED
+                    - STREAM_WORKSPACE_PRIVATE_ENDPOINT_CREATED
+                    - STREAM_WORKSPACE_PRIVATE_ENDPOINT_DELETED
                     - QUEUED_ADMIN_ACTION_CREATED
                     - QUEUED_ADMIN_ACTION_COMPLETED
                     - QUEUED_ADMIN_ACTION_CANCELLED
@@ -16249,6 +16340,7 @@ components:
                     - VOLUME_IMPAIRED_RESOLVED
                     - SQL_INTERFACE_ENABLED
                     - SQL_INTERFACE_DISABLED
+                    - AUTO_EMBEDDING_INFERENCE_SCOPE_UPDATED
                     - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED
                     - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED
                     - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START
@@ -16462,6 +16554,10 @@ components:
                     - TENANT_RESTORE_REQUESTED_AUDIT
                     - TENANT_RESTORE_COMPLETED_AUDIT
                     - TENANT_SNAPSHOT_DOWNLOAD_REQUESTED_AUDIT
+                    - M0_BACKUP_SUBSCRIPTION_ENABLED
+                    - M0_BACKUP_SUBSCRIPTION_CANCELLED
+                    - M0_BACKUP_SUBSCRIPTION_PAUSED
+                    - M0_BACKUP_SUBSCRIPTION_RESUMED
                   title: Tenant Backup Event Types
                   type: string
                 - enum:
@@ -16529,6 +16625,10 @@ components:
                     - AI_MODELS_APIS_RATE_LIMIT_RESET
                     - AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE
                   title: AI Models APIs Event Types
+                  type: string
+                - enum:
+                    - PROACTIVE_REMEDIATION_NEEDED
+                  title: Proactive Remediation Event Types
                   type: string
             type: object
         EventTypeForOrg:
@@ -16720,6 +16820,7 @@ components:
                     - SHADOW_CLUSTER_ORG_OPT_IN
                     - SHADOW_CLUSTER_ORG_OPT_OUT
                     - ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN
+                    - ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_AUTO_CLOSED
                     - MAINTENANCE_WAVE_ASSIGNMENT_ADDED
                     - MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED
                     - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
@@ -19600,6 +19701,7 @@ components:
                 - $ref: '#/components/schemas/BillingThresholdAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/ClusterAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/CpsBackupThresholdAlertConfigViewForNdsGroup'
+                - $ref: '#/components/schemas/EncryptionAtRestConfigUpdateStalledAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/EncryptionKeyAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/HostAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/HostMetricAlertConfigViewForNdsGroup'
@@ -19613,6 +19715,16 @@ components:
                 - $ref: '#/components/schemas/StreamProcessorAlertConfigViewForNdsGroup'
                 - $ref: '#/components/schemas/StreamProcessorMetricAlertConfigViewForNdsGroup'
             type: object
+        GroupEventTypeViewForNdsGroupAlertableEncryptionAtRestConfigUpdateStalled:
+            description: Event type that triggers an alert.
+            enum:
+                - ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
+            example: ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED
+            externalDocs:
+                description: Atlas Alert Event Types
+                url: https://www.mongodb.com/docs/atlas/reference/atlas-alert-event-types/
+            title: Group Event Types
+            type: string
         GroupIPAddresses:
             description: List of IP addresses in a project.
             properties:
@@ -25120,6 +25232,8 @@ components:
                 - STREAM_TENANT_OPERATIONAL_LOGS
                 - STREAM_TENANT_AUDIT_LOGS
                 - STREAM_TENANT_AUDIT_LOGS_DELETED
+                - STREAM_WORKSPACE_PRIVATE_ENDPOINT_CREATED
+                - STREAM_WORKSPACE_PRIVATE_ENDPOINT_DELETED
                 - QUEUED_ADMIN_ACTION_CREATED
                 - QUEUED_ADMIN_ACTION_COMPLETED
                 - QUEUED_ADMIN_ACTION_CANCELLED
@@ -25172,6 +25286,7 @@ components:
                 - VOLUME_IMPAIRED_RESOLVED
                 - SQL_INTERFACE_ENABLED
                 - SQL_INTERFACE_DISABLED
+                - AUTO_EMBEDDING_INFERENCE_SCOPE_UPDATED
                 - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED
                 - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED
                 - CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START
@@ -25187,6 +25302,7 @@ components:
                 - SHADOW_CLUSTER_ORG_OPT_IN
                 - SHADOW_CLUSTER_ORG_OPT_OUT
                 - ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN
+                - ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_AUTO_CLOSED
                 - MAINTENANCE_WAVE_ASSIGNMENT_ADDED
                 - MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED
                 - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
@@ -27569,7 +27685,6 @@ components:
                 withoutInitialSecret:
                     default: false
                     description: 'If true, creates the Service Account without generating an initial secret. `secretExpiresAfterHours` must not be set when this is true. Defaults to false, which preserves existing behavior: a secret is generated and returned in the response. Use the `CreateOrgServiceAccountSecret` endpoint to add a secret later.'
-                    nullable: true
                     type: boolean
             required:
                 - description
@@ -33852,14 +33967,15 @@ components:
                         - SP2
                     nullable: true
                     type: string
+                    x-xgen-server-computed-when-client-omitted: true
                 minTier:
                     description: |-
                         Tier floor for autoscaling (scale-down limit).
 
                         - **Omitted:**
-                          - On `CREATE`: falls back to the workspace default tier (there is no current bound to preserve).
+                          - On `CREATE`: defaults to the lower of the processor `tier` and the workspace default tier (there is no current bound to preserve).
                           - On `MODIFY` or `:startWith`: the current bound is preserved.
-                        - **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the workspace default tier.
+                        - **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the lower of the processor `tier` and the workspace default tier.
                         - **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.
                     enum:
                         - SP50
@@ -33869,6 +33985,7 @@ components:
                         - SP2
                     nullable: true
                     type: string
+                    x-xgen-server-computed-when-client-omitted: true
             type: object
         StreamsAzureBlobStorageConnection:
             allOf:
@@ -34335,14 +34452,13 @@ components:
                         $ref: '#/components/schemas/Document'
                     type: array
                 tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
+                    description: Baseline processing tier requested by the user.
                     enum:
                         - SP50
                         - SP30
                         - SP10
                         - SP5
                         - SP2
-                    title: Stream Workspace Tier
                     type: string
             type: object
         StreamsModifyStreamProcessorOptions:
@@ -34504,7 +34620,7 @@ components:
                     readOnly: true
                     type: string
                 effectiveTier:
-                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
+                    description: Tier the stream processor is currently running on. The server sets this value from `tier` on create and on every start or restart, may move it within [`minTier`, `maxTier`] while autoscaling is enabled, and restores it to `tier` when autoscaling is disabled. Patching `tier` does not change it directly; the new tier takes effect at the next start or restart.
                     enum:
                         - SP50
                         - SP30
@@ -34512,7 +34628,6 @@ components:
                         - SP5
                         - SP2
                     readOnly: true
-                    title: Stream Workspace Tier
                     type: string
                 failoverEnabled:
                     description: Flag that enables or disables failover for the stream processor.
@@ -34540,17 +34655,49 @@ components:
                         $ref: '#/components/schemas/Document'
                     type: array
                 tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
+                    description: Baseline tier of the stream processor. The processor starts or restarts on this tier; `effectiveTier` reports the tier it is currently running.
                     enum:
                         - SP50
                         - SP30
                         - SP10
                         - SP5
                         - SP2
-                    title: Stream Workspace Tier
                     type: string
             required:
                 - effectiveTier
+            type: object
+        StreamsProcessorRequest:
+            description: Details to create a stream processor.
+            properties:
+                failoverEnabled:
+                    description: Flag that enables or disables failover for the stream processor.
+                    type: boolean
+                name:
+                    description: Human-readable name of the stream processor.
+                    type: string
+                options:
+                    $ref: '#/components/schemas/StreamsOptions'
+                pipeline:
+                    description: Stream aggregation pipeline you want to apply to your streaming data.
+                    externalDocs:
+                        description: Supported Aggregation Pipeline Stages
+                        url: https://www.mongodb.com/docs/atlas/atlas-stream-processing/stream-aggregation/#std-label-stream-aggregation
+                    items:
+                        $ref: '#/components/schemas/Document'
+                    minItems: 1
+                    type: array
+                tier:
+                    description: Baseline processing tier requested by the user.
+                    enum:
+                        - SP50
+                        - SP30
+                        - SP10
+                        - SP5
+                        - SP2
+                    type: string
+            required:
+                - name
+                - pipeline
             type: object
         StreamsProcessorStatus:
             description: Desired status change to apply to a tenant's stream processors.
@@ -34595,7 +34742,7 @@ components:
                     readOnly: true
                     type: string
                 effectiveTier:
-                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
+                    description: Tier the stream processor is currently running on. The server sets this value from `tier` on create and on every start or restart, may move it within [`minTier`, `maxTier`] while autoscaling is enabled, and restores it to `tier` when autoscaling is disabled. Patching `tier` does not change it directly; the new tier takes effect at the next start or restart.
                     enum:
                         - SP50
                         - SP30
@@ -34603,7 +34750,6 @@ components:
                         - SP5
                         - SP2
                     readOnly: true
-                    title: Stream Workspace Tier
                     type: string
                 eligibleForFailover:
                     description: Flag that indicates whether the stream processor is eligible for failover.
@@ -34655,14 +34801,13 @@ components:
                     readOnly: true
                     type: object
                 tier:
-                    description: Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.
+                    description: Baseline tier of the stream processor. The processor starts or restarts on this tier; `effectiveTier` reports the tier it is currently running.
                     enum:
                         - SP50
                         - SP30
                         - SP10
                         - SP5
                         - SP2
-                    title: Stream Workspace Tier
                     type: string
             required:
                 - _id
@@ -38076,7 +38221,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3570f055c4129039980bec84ddf221c0e40a8b6f
+    x-xgen-sha: 274fd1652023e93a316d72471ca5c07a6e5f2b2c
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -48660,6 +48805,7 @@ paths:
             x-xgen-changelog:
                 "2025-05-08": Corrects an issue where the endpoint would allow a rolling index build to be initiated while there was already an index build in progress. The endpoint now returns 400 if an index build is already in progress.
                 "2026-04-06": Corrects an issue where index creation was throwing a 500 error instead of a 409 error when there was an existing index with the same name.
+                "2026-09-29": Indexes created with a collation and no explicit name now receive a default name with a collation-derived suffix, so that indexes over the same keys with different collations do not conflict.
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rolling-Index/operation/createGroupClusterIndexRollingIndex
             x-xgen-long-running-operation:
                 legacy: true
@@ -64003,7 +64149,7 @@ paths:
                             - OPLOG_MASTER_TIME
                             - OPLOG_RATE_GB_PER_HOUR
                             - OPLOG_SLAVE_LAG_MASTER_TIME
-                            - OPLOG_REPLICATION_LAG
+                            - OPLOG_REPLICATION_LAG_TIME
                             - PROCESS_CPU_CHILDREN_KERNEL
                             - PROCESS_CPU_CHILDREN_USER
                             - PROCESS_CPU_KERNEL
@@ -66826,7 +66972,7 @@ paths:
                 content:
                     application/vnd.atlas.2024-05-30+json:
                         schema:
-                            $ref: '#/components/schemas/StreamsProcessor'
+                            $ref: '#/components/schemas/StreamsProcessorRequest'
                 description: Details to create an Atlas Streams Processor.
                 required: true
             responses:

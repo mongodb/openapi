@@ -5732,7 +5732,7 @@
             "type": "string"
           },
           "adaptiveCapacity": {
-            "description": "Governs adaptive capacity behavior of Azure nodes in single-cloud Azure clusters or multi-cloud clusters that include Azure nodes. Adaptive capacity enables fallback hardware selection when the primary instance family is unavailable. ``ENABLED`` means the cluster explicitly opts in to adaptive capacity. ``DISABLED`` means the cluster explicitly opts out; the cluster receives capacity errors instead of being placed on fallback hardware. ``null`` means the field is unset; Azure clusters use adaptive capacity by default when the feature is enabled at the group level. Setting this field for single-cloud AWS or GCP clusters is a no-op.",
+            "description": "Governs adaptive capacity behavior of nodes in clusters on providers that support fallback hardware, including those providers' nodes in multi-cloud clusters. Adaptive capacity enables fallback hardware selection when the primary instance family is unavailable. ``ENABLED`` means the cluster explicitly opts in to adaptive capacity. ``DISABLED`` means the cluster explicitly opts out; the cluster receives capacity errors instead of being placed on fallback hardware. ``null`` means the field is unset; clusters use adaptive capacity by default on a provider that supports it.",
             "enum": [
               "ENABLED",
               "DISABLED"
@@ -5744,11 +5744,10 @@
             "$ref": "#/components/schemas/ApiAtlasClusterAdvancedConfigurationView"
           },
           "backupEnabled": {
-            "default": false,
-            "description": "Flag that indicates whether the cluster can perform backups. If set to `true`, the cluster can perform backups. You must set this value to `true` for NVMe clusters. Backup uses Cloud Backups for dedicated clusters and [Shared Cluster Backups](https://docs.atlas.mongodb.com/backup/shared-tier/overview/) for tenant clusters. If set to `false`, the cluster doesn't use backups. For Atlas Infinite clusters (`databaseEdition: INFINITE`), this flag means Additional Backup Retention rather than whether backups run: backups always run and include a 24-hour continuous window. Set this flag to `true` to retain snapshots beyond that window with a policy you control. Set this flag to `false` to keep only the included window under an Atlas-managed retention policy that you can't edit. This flag defaults to `true` for Atlas Infinite clusters when omitted. A cluster covered by a Data Protection policy has this set to `true` regardless of the requested value.",
+            "description": "Flag that indicates whether Atlas backs up the cluster.\n\nOn Atlas Core clusters, dedicated clusters use [Cloud Backups](https://www.mongodb.com/docs/atlas/backup/cloud-backup/overview/) and Flex clusters use [Flex Cluster Backups](https://www.mongodb.com/docs/atlas/backup/cloud-backup/flex-cluster-backup/). Default value is `false`. For clusters that use local [NVMe SSDs](https://www.mongodb.com/docs/atlas/manage-clusters/#nvme-storage) for storage, you can't disable backup, so you must set `backupEnabled` to `true`.\n\nOn Atlas Infinite clusters, the `backupEnabled` flag controls Additional Backup Retention, not whether backups run. To retain snapshots beyond the 24-hour window, set `backupEnabled` to `true`. For Atlas Infinite clusters, continuous cloud backups are enabled by default, always run, and include a 24-hour window in which you can restore to any point in time. Atlas then applies your snapshot retention policies. To keep only the included window under an Atlas-managed retention policy that you can't edit, set `backupEnabled` to `false`. A cluster covered by a Data Protection policy has this flag set to `true` regardless of the requested value. Default value is `true`.",
             "externalDocs": {
               "description": "Cloud Backups",
-              "url": "https://docs.atlas.mongodb.com/backup/cloud-backup/overview/"
+              "url": "https://www.mongodb.com/docs/atlas/backup/cloud-backup/overview/"
             },
             "type": "boolean"
           },
@@ -5945,10 +5944,10 @@
             "type": "boolean"
           },
           "pitEnabled": {
-            "description": "Flag that indicates whether the cluster uses continuous cloud backups. Atlas Infinite clusters always use continuous cloud backups. Atlas sets this flag to `true` on create and update for Atlas Infinite clusters and ignores a requested value of `false`.",
+            "description": "Flag that indicates whether the cluster uses continuous cloud backups.\n\nFor Atlas Infinite clusters, continuous cloud backups always run. Omit this field or set it to `true`. Setting it to `false` returns an invalid attribute error.",
             "externalDocs": {
               "description": "Continuous Cloud Backups",
-              "url": "https://docs.atlas.mongodb.com/backup/cloud-backup/overview/"
+              "url": "https://www.mongodb.com/docs/atlas/backup/cloud-backup/overview/"
             },
             "type": "boolean"
           },
@@ -11669,6 +11668,31 @@
         "title": "Automatic Cluster Scaling Settings",
         "type": "object"
       },
+      "ClusterBackupSubscriptionResponse": {
+        "description": "Paid-backup subscription state for a free (M0) cluster.",
+        "properties": {
+          "enabled": {
+            "description": "Flag that indicates whether paid backups are enabled for the free (M0) cluster.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "Cluster Backup Subscription Response",
+        "type": "object"
+      },
+      "ClusterBackupSubscriptionUpdateRequest": {
+        "description": "Paid-backup subscription state to apply to a free (M0) cluster. Omit enabled to leave the subscription unchanged.",
+        "properties": {
+          "enabled": {
+            "description": "Flag that indicates whether paid backups are enabled for the free (M0) cluster. Omit this field to leave the subscription unchanged.",
+            "type": "boolean"
+          }
+        },
+        "title": "Cluster Backup Subscription Update Request",
+        "type": "object"
+      },
       "ClusterCloudProviderInstanceSize": {
         "properties": {
           "availableRegions": {
@@ -11808,7 +11832,7 @@
             "type": "string"
           },
           "adaptiveCapacity": {
-            "description": "Governs adaptive capacity behavior of Azure nodes in single-cloud Azure clusters or multi-cloud clusters that include Azure nodes. Adaptive capacity enables fallback hardware selection when the primary instance family is unavailable. ``ENABLED`` means the cluster explicitly opts in to adaptive capacity. ``DISABLED`` means the cluster explicitly opts out; the cluster receives capacity errors instead of being placed on fallback hardware. ``null`` means the field is unset; Azure clusters use adaptive capacity by default when the feature is enabled at the group level. Setting this field for single-cloud AWS or GCP clusters is a no-op.",
+            "description": "Governs adaptive capacity behavior of nodes in clusters on providers that support fallback hardware, including those providers' nodes in multi-cloud clusters. Adaptive capacity enables fallback hardware selection when the primary instance family is unavailable. ``ENABLED`` means the cluster explicitly opts in to adaptive capacity. ``DISABLED`` means the cluster explicitly opts out; the cluster receives capacity errors instead of being placed on fallback hardware. ``null`` means the field is unset; clusters use adaptive capacity by default on a provider that supports it.",
             "enum": [
               "ENABLED",
               "DISABLED"
@@ -11820,11 +11844,10 @@
             "$ref": "#/components/schemas/ApiAtlasClusterAdvancedConfigurationView"
           },
           "backupEnabled": {
-            "default": false,
-            "description": "Flag that indicates whether the cluster can perform backups. If set to `true`, the cluster can perform backups. You must set this value to `true` for NVMe clusters. Backup uses Cloud Backups for dedicated clusters and [Shared Cluster Backups](https://docs.atlas.mongodb.com/backup/shared-tier/overview/) for tenant clusters. If set to `false`, the cluster doesn't use backups. For Atlas Infinite clusters (`databaseEdition: INFINITE`), this flag means Additional Backup Retention rather than whether backups run: backups always run and include a 24-hour continuous window. Set this flag to `true` to retain snapshots beyond that window with a policy you control. Set this flag to `false` to keep only the included window under an Atlas-managed retention policy that you can't edit. This flag defaults to `true` for Atlas Infinite clusters when omitted. A cluster covered by a Data Protection policy has this set to `true` regardless of the requested value.",
+            "description": "Flag that indicates whether Atlas backs up the cluster.\n\nOn Atlas Core clusters, dedicated clusters use [Cloud Backups](https://www.mongodb.com/docs/atlas/backup/cloud-backup/overview/) and Flex clusters use [Flex Cluster Backups](https://www.mongodb.com/docs/atlas/backup/cloud-backup/flex-cluster-backup/). Default value is `false`. For clusters that use local [NVMe SSDs](https://www.mongodb.com/docs/atlas/manage-clusters/#nvme-storage) for storage, you can't disable backup, so you must set `backupEnabled` to `true`.\n\nOn Atlas Infinite clusters, the `backupEnabled` flag controls Additional Backup Retention, not whether backups run. To retain snapshots beyond the 24-hour window, set `backupEnabled` to `true`. For Atlas Infinite clusters, continuous cloud backups are enabled by default, always run, and include a 24-hour window in which you can restore to any point in time. Atlas then applies your snapshot retention policies. To keep only the included window under an Atlas-managed retention policy that you can't edit, set `backupEnabled` to `false`. A cluster covered by a Data Protection policy has this flag set to `true` regardless of the requested value. Default value is `true`.",
             "externalDocs": {
               "description": "Cloud Backups",
-              "url": "https://docs.atlas.mongodb.com/backup/cloud-backup/overview/"
+              "url": "https://www.mongodb.com/docs/atlas/backup/cloud-backup/overview/"
             },
             "type": "boolean"
           },
@@ -12021,10 +12044,10 @@
             "type": "boolean"
           },
           "pitEnabled": {
-            "description": "Flag that indicates whether the cluster uses continuous cloud backups. Atlas Infinite clusters always use continuous cloud backups. Atlas sets this flag to `true` on create and update for Atlas Infinite clusters and ignores a requested value of `false`.",
+            "description": "Flag that indicates whether the cluster uses continuous cloud backups.\n\nFor Atlas Infinite clusters, continuous cloud backups always run. Omit this field or set it to `true`. Setting it to `false` returns an invalid attribute error.",
             "externalDocs": {
               "description": "Continuous Cloud Backups",
-              "url": "https://docs.atlas.mongodb.com/backup/cloud-backup/overview/"
+              "url": "https://www.mongodb.com/docs/atlas/backup/cloud-backup/overview/"
             },
             "type": "boolean"
           },
@@ -12831,6 +12854,66 @@
           }
         },
         "title": "Serverless Backup Options",
+        "type": "object"
+      },
+      "ClusterShardMeasurementsResponse": {
+        "description": "Measurement time series for every shard of one sharded cluster over the requested window, one series per shard and measurement.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the cluster.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "end": {
+            "description": "Date and time at which the window ends. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "granularity": {
+            "description": "Interval between consecutive data points, in ISO 8601 duration format. Either the requested `granularity` or, when none was requested, the resolution MongoDB Cloud chose for the width of the window.",
+            "enum": [
+              "PT30S",
+              "PT1M",
+              "PT3M",
+              "PT15M",
+              "PT1H",
+              "PT3H"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "measurements": {
+            "description": "One time series per requested measurement on each shard of the cluster, ordered by measurement and then by `replicaSetName`. A shard that MongoDB Cloud has no readings for is still listed, with `null` data point values.",
+            "items": {
+              "$ref": "#/components/schemas/ShardMeasurement"
+            },
+            "maxItems": 11000,
+            "readOnly": true,
+            "type": "array"
+          },
+          "start": {
+            "description": "Date and time of the first data point. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "clusterName",
+          "end",
+          "granularity",
+          "groupId",
+          "measurements",
+          "start"
+        ],
         "type": "object"
       },
       "ClusterStatus": {
@@ -17117,7 +17200,8 @@
                   "GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRING",
                   "GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED",
                   "ACTIVE_LEGACY_TLS_CONNECTIONS",
-                  "WEBHOOK_TEMPLATE_RENDER_FAILED"
+                  "WEBHOOK_TEMPLATE_RENDER_FAILED",
+                  "ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED"
                 ],
                 "title": "Group Event Types",
                 "type": "string"
@@ -17254,6 +17338,13 @@
                   "PROFILER_CONFIGURED_TOO_WIDELY"
                 ],
                 "title": "Host Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "PROACTIVE_REMEDIATION_NEEDED"
+                ],
+                "title": "Proactive Remediation Event Types",
                 "type": "string"
               }
             ],
@@ -17441,7 +17532,8 @@
                   "GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRING",
                   "GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED",
                   "ACTIVE_LEGACY_TLS_CONNECTIONS",
-                  "WEBHOOK_TEMPLATE_RENDER_FAILED"
+                  "WEBHOOK_TEMPLATE_RENDER_FAILED",
+                  "ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED"
                 ],
                 "title": "Group Event Types",
                 "type": "string"
@@ -17614,6 +17706,13 @@
                   "PROFILER_CONFIGURED_TOO_WIDELY"
                 ],
                 "title": "Host Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "PROACTIVE_REMEDIATION_NEEDED"
+                ],
+                "title": "Proactive Remediation Event Types",
                 "type": "string"
               }
             ],
@@ -17937,7 +18036,9 @@
                   "GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED",
                   "ACTIVE_LEGACY_TLS_CONNECTIONS",
                   "NO_ACTIVE_LEGACY_TLS_CONNECTIONS",
-                  "WEBHOOK_TEMPLATE_RENDER_FAILED"
+                  "WEBHOOK_TEMPLATE_RENDER_FAILED",
+                  "ENCRYPTION_AT_REST_CONFIG_UPDATE_NO_LONGER_STALLED",
+                  "ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED"
                 ],
                 "title": "Group Event Types",
                 "type": "string"
@@ -18154,7 +18255,11 @@
                   "TENANT_SNAPSHOT_DELETED_AUDIT",
                   "TENANT_RESTORE_REQUESTED_AUDIT",
                   "TENANT_RESTORE_COMPLETED_AUDIT",
-                  "TENANT_SNAPSHOT_DOWNLOAD_REQUESTED_AUDIT"
+                  "TENANT_SNAPSHOT_DOWNLOAD_REQUESTED_AUDIT",
+                  "M0_BACKUP_SUBSCRIPTION_ENABLED",
+                  "M0_BACKUP_SUBSCRIPTION_CANCELLED",
+                  "M0_BACKUP_SUBSCRIPTION_PAUSED",
+                  "M0_BACKUP_SUBSCRIPTION_RESUMED"
                 ],
                 "title": "Tenant Backup Event Types",
                 "type": "string"
@@ -18216,6 +18321,13 @@
                   "AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE"
                 ],
                 "title": "AI Models APIs Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "PROACTIVE_REMEDIATION_NEEDED"
+                ],
+                "title": "Proactive Remediation Event Types",
                 "type": "string"
               }
             ],
@@ -21309,6 +21421,93 @@
         },
         "type": "object"
       },
+      "EncryptionAtRestConfigUpdateStalledAlertConfigViewForNdsGroup": {
+        "description": "Configures the duration after which MongoDB Cloud alerts users that an Encryption at Rest configuration update has stalled.",
+        "properties": {
+          "created": {
+            "description": "Date and time when MongoDB Cloud created the alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "description": "Flag that indicates whether someone enabled this alert configuration for the specified project.",
+            "type": "boolean"
+          },
+          "eventTypeName": {
+            "$ref": "#/components/schemas/GroupEventTypeViewForNdsGroupAlertableEncryptionAtRestConfigUpdateStalled"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project that owns this alert configuration.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies this alert configuration.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "matchers": {
+            "description": "Matching conditions for target resources.",
+            "items": {
+              "$ref": "#/components/schemas/AlertMatcher"
+            },
+            "type": "array"
+          },
+          "notifications": {
+            "description": "List that contains the targets that MongoDB Cloud sends notifications.",
+            "items": {
+              "$ref": "#/components/schemas/AlertsNotificationRootForGroup"
+            },
+            "maxItems": 25,
+            "minItems": 1,
+            "type": "array"
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/EventSeverity"
+          },
+          "threshold": {
+            "$ref": "#/components/schemas/GreaterThanTimeThreshold"
+          },
+          "updated": {
+            "description": "Date and time when someone last updated this alert configuration. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "externalDocs": {
+              "description": "ISO 8601",
+              "url": "https://en.wikipedia.org/wiki/ISO_8601"
+            },
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventTypeName",
+          "notifications"
+        ],
+        "title": "Encryption at Rest Update Stalled Alert Configuration",
+        "type": "object"
+      },
       "EncryptionKeyAlertConfigViewForNdsGroup": {
         "description": "Encryption key alert configuration allows to select thresholds  which trigger alerts and how users are notified.",
         "properties": {
@@ -21959,7 +22158,9 @@
               "GROUP_SERVICE_ACCOUNT_SECRETS_EXPIRED",
               "ACTIVE_LEGACY_TLS_CONNECTIONS",
               "NO_ACTIVE_LEGACY_TLS_CONNECTIONS",
-              "WEBHOOK_TEMPLATE_RENDER_FAILED"
+              "WEBHOOK_TEMPLATE_RENDER_FAILED",
+              "ENCRYPTION_AT_REST_CONFIG_UPDATE_NO_LONGER_STALLED",
+              "ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED"
             ],
             "title": "Group Event Types",
             "type": "string"
@@ -22299,6 +22500,8 @@
               "STREAM_TENANT_OPERATIONAL_LOGS",
               "STREAM_TENANT_AUDIT_LOGS",
               "STREAM_TENANT_AUDIT_LOGS_DELETED",
+              "STREAM_WORKSPACE_PRIVATE_ENDPOINT_CREATED",
+              "STREAM_WORKSPACE_PRIVATE_ENDPOINT_DELETED",
               "QUEUED_ADMIN_ACTION_CREATED",
               "QUEUED_ADMIN_ACTION_COMPLETED",
               "QUEUED_ADMIN_ACTION_CANCELLED",
@@ -22351,6 +22554,7 @@
               "VOLUME_IMPAIRED_RESOLVED",
               "SQL_INTERFACE_ENABLED",
               "SQL_INTERFACE_DISABLED",
+              "AUTO_EMBEDDING_INFERENCE_SCOPE_UPDATED",
               "CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED",
               "CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED",
               "CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START",
@@ -22635,7 +22839,11 @@
               "TENANT_SNAPSHOT_DELETED_AUDIT",
               "TENANT_RESTORE_REQUESTED_AUDIT",
               "TENANT_RESTORE_COMPLETED_AUDIT",
-              "TENANT_SNAPSHOT_DOWNLOAD_REQUESTED_AUDIT"
+              "TENANT_SNAPSHOT_DOWNLOAD_REQUESTED_AUDIT",
+              "M0_BACKUP_SUBSCRIPTION_ENABLED",
+              "M0_BACKUP_SUBSCRIPTION_CANCELLED",
+              "M0_BACKUP_SUBSCRIPTION_PAUSED",
+              "M0_BACKUP_SUBSCRIPTION_RESUMED"
             ],
             "title": "Tenant Backup Event Types",
             "type": "string"
@@ -22731,6 +22939,13 @@
               "AI_MODELS_APIS_RATE_LIMIT_ADMIN_OVERRIDE"
             ],
             "title": "AI Models APIs Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
+              "PROACTIVE_REMEDIATION_NEEDED"
+            ],
+            "title": "Proactive Remediation Event Types",
             "type": "string"
           }
         ],
@@ -22950,6 +23165,7 @@
               "SHADOW_CLUSTER_ORG_OPT_IN",
               "SHADOW_CLUSTER_ORG_OPT_OUT",
               "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN",
+              "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_AUTO_CLOSED",
               "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
               "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
               "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED"
@@ -27604,6 +27820,9 @@
             "$ref": "#/components/schemas/CpsBackupThresholdAlertConfigViewForNdsGroup"
           },
           {
+            "$ref": "#/components/schemas/EncryptionAtRestConfigUpdateStalledAlertConfigViewForNdsGroup"
+          },
+          {
             "$ref": "#/components/schemas/EncryptionKeyAlertConfigViewForNdsGroup"
           },
           {
@@ -27641,6 +27860,19 @@
           }
         ],
         "type": "object"
+      },
+      "GroupEventTypeViewForNdsGroupAlertableEncryptionAtRestConfigUpdateStalled": {
+        "description": "Event type that triggers an alert.",
+        "enum": [
+          "ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED"
+        ],
+        "example": "ENCRYPTION_AT_REST_CONFIG_UPDATE_STALLED",
+        "externalDocs": {
+          "description": "Atlas Alert Event Types",
+          "url": "https://www.mongodb.com/docs/atlas/reference/atlas-alert-event-types/"
+        },
+        "title": "Group Event Types",
+        "type": "string"
       },
       "GroupIPAddresses": {
         "description": "List of IP addresses in a project.",
@@ -28227,7 +28459,6 @@
           "withoutInitialSecret": {
             "default": false,
             "description": "If true, creates the Service Account without generating an initial secret. `secretExpiresAfterHours` must not be set when this is true. Defaults to false, which preserves existing behavior: a secret is generated and returned in the response. Use the `CreateGroupServiceAccountSecret` endpoint to add a secret later.",
-            "nullable": true,
             "type": "boolean"
           }
         },
@@ -35564,6 +35795,8 @@
           "STREAM_TENANT_OPERATIONAL_LOGS",
           "STREAM_TENANT_AUDIT_LOGS",
           "STREAM_TENANT_AUDIT_LOGS_DELETED",
+          "STREAM_WORKSPACE_PRIVATE_ENDPOINT_CREATED",
+          "STREAM_WORKSPACE_PRIVATE_ENDPOINT_DELETED",
           "QUEUED_ADMIN_ACTION_CREATED",
           "QUEUED_ADMIN_ACTION_COMPLETED",
           "QUEUED_ADMIN_ACTION_CANCELLED",
@@ -35616,6 +35849,7 @@
           "VOLUME_IMPAIRED_RESOLVED",
           "SQL_INTERFACE_ENABLED",
           "SQL_INTERFACE_DISABLED",
+          "AUTO_EMBEDDING_INFERENCE_SCOPE_UPDATED",
           "CLUSTER_OVERLOAD_PROTECTION_SIMULATION_REQUESTED",
           "CLUSTER_OVERLOAD_PROTECTION_SIMULATION_STARTED",
           "CLUSTER_OVERLOAD_PROTECTION_SIMULATION_FAILED_TO_START",
@@ -35633,6 +35867,7 @@
           "SHADOW_CLUSTER_ORG_OPT_IN",
           "SHADOW_CLUSTER_ORG_OPT_OUT",
           "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_CLOSED_BY_ADMIN",
+          "ATLAS_MAINTENANCE_FLEET_ACTIVE_WAVE_AUTO_CLOSED",
           "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
           "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
           "MAINTENANCE_WAVE_ASSIGNMENT_REMOVED"
@@ -39592,7 +39827,6 @@
           "withoutInitialSecret": {
             "default": false,
             "description": "If true, creates the Service Account without generating an initial secret. `secretExpiresAfterHours` must not be set when this is true. Defaults to false, which preserves existing behavior: a secret is generated and returned in the response. Use the `CreateOrgServiceAccountSecret` endpoint to add a secret later.",
-            "nullable": true,
             "type": "boolean"
           }
         },
@@ -42877,6 +43111,111 @@
         ],
         "type": "object"
       },
+      "PaginatedShardKeyAnalysisOperationResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ShardKeyAnalysisOperationResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedShardKeyAnalysisResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ShardKeyAnalysisResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedShardMetricsResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/ShardMetricsResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
       "PaginatedSnapshotView": {
         "properties": {
           "links": {
@@ -42895,6 +43234,41 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/BackupSnapshot"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedStreamsWorkspacePrivateEndpointResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -44294,8 +44668,13 @@
       "QueryStatsSummary": {
         "description": "A summary of execution statistics for a given query shape.",
         "properties": {
+          "avgTimeToResponseMicros": {
+            "description": "Average time in microseconds from the beginning of query processing to the first server response, per execution of queries with the given query shape. Calculated as `totalTimeToResponseMicros` divided by `execCount` over the requested time range. As a duration it can be longer or shorter than `avgWorkingMillis` (reported in milliseconds, so convert before comparing): longer when executions spent time blocked on locks or flow control rather than working, shorter when they kept working after the first batch to return later `getMore` batches.",
+            "format": "double",
+            "type": "number"
+          },
           "avgWorkingMillis": {
-            "description": "Average total time in milliseconds spent running queries with the given query shape. If the query resulted in `getMore` commands, this metric includes the time spent processing the `getMore` requests. This metric does not include time spent waiting for the client.",
+            "description": "Average active execution time in milliseconds per execution of queries with the given query shape, calculated as `totalWorkingMillis` divided by `execCount` over the requested time range. Excludes intentional pauses such as time waiting on locks or flow control.",
             "format": "double",
             "type": "number"
           },
@@ -44435,12 +44814,12 @@
             "type": "boolean"
           },
           "totalTimeToResponseMicros": {
-            "description": "Time in microseconds spent from the beginning of query processing to the first server response.",
+            "description": "Total time in microseconds from the beginning of query processing to the first server response, summed across executions of queries with the given query shape. Includes time spent waiting on locks or flow control. Stops at the first batch of results, so time spent serving later `getMore` batches is not counted.",
             "format": "double",
             "type": "number"
           },
           "totalWorkingMillis": {
-            "description": "Total time in milliseconds spent running queries with the given query shape. If the query resulted in `getMore` commands, this metric includes the time spent processing the `getMore` requests. This metric does not include time spent waiting for the client.",
+            "description": "Total time in milliseconds that queries with the given query shape spent actively executing, summed across executions, including time spent processing `getMore` requests. Excludes intentional pauses such as time waiting on locks or flow control, and time spent waiting for the client.",
             "format": "double",
             "type": "number"
           }
@@ -49014,6 +49393,76 @@
         ],
         "type": "object"
       },
+      "ShardAlert": {
+        "description": "Open alert on one of the shard's nodes.",
+        "properties": {
+          "message": {
+            "description": "Human-readable description of the condition that triggered this alert.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "severity": {
+            "description": "Severity that MongoDB Cloud assigned to this alert.",
+            "enum": [
+              "INFO",
+              "WARNING",
+              "ERROR",
+              "CRITICAL"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "severity"
+        ],
+        "type": "object"
+      },
+      "ShardCacheThroughput": {
+        "description": "Bytes per second that the shard moved in and out of the cache over the last hour.",
+        "properties": {
+          "readIntoBytesPerSecond": {
+            "description": "Average bytes per second read into the cache, across the shard's nodes over the last hour.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "writtenFromBytesPerSecond": {
+            "description": "Average bytes per second written from the cache, across the shard's nodes over the last hour.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "readIntoBytesPerSecond",
+          "writtenFromBytesPerSecond"
+        ],
+        "type": "object"
+      },
+      "ShardCpuUtilization": {
+        "description": "CPU utilization of the shard's nodes over the last hour, as a percentage.",
+        "properties": {
+          "averagePercent": {
+            "description": "Average CPU utilization across the shard's nodes over the last hour.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "maximumPercent": {
+            "description": "Highest CPU utilization that any one of the shard's nodes reached over the last hour.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "averagePercent",
+          "maximumPercent"
+        ],
+        "type": "object"
+      },
       "ShardEntry": {
         "description": "Sharding configuration for a collection to be sharded on the destination cluster.",
         "properties": {
@@ -49038,6 +49487,460 @@
         ],
         "type": "object"
       },
+      "ShardKeyAnalysisError": {
+        "description": "Details of the failure that ended the shard key analysis operation.",
+        "properties": {
+          "code": {
+            "description": "Reason that the shard key analysis failed. MongoDB Cloud may report additional values in the future without a new resource version, so treat a value this description does not list as a generic failure.",
+            "enum": [
+              "NAMESPACE_NOT_FOUND",
+              "SHARD_KEY_MISSING_SUPPORTING_INDEX",
+              "INSUFFICIENT_CARDINALITY_FOR_DISTRIBUTION",
+              "SHARD_KEY_CONTAINS_ARRAY_FIELD",
+              "SUPPORTING_INDEX_NOT_ASCENDING",
+              "SUPPORTING_INDEX_AMBIGUOUS",
+              "SHARD_KEY_ANALYSIS_TIMED_OUT",
+              "SHARD_KEY_ANALYSIS_FAILED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable explanation of the failure. This message describes the classified failure and is not the raw error text from the cluster.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "retryStrategy": {
+            "description": "How to retry a failed shard key analysis. `BACKOFF` indicates that resubmitting the same request after a delay may succeed. `NONE` indicates that the failure describes the collection or the candidate shard key and that resubmitting the same request will fail the same way.",
+            "enum": [
+              "BACKOFF",
+              "NONE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "retryable": {
+            "description": "Flag that indicates whether submitting the same request again may succeed. This flag is `false` when the failure describes the collection or the candidate shard key, because the same request then fails the same way.",
+            "readOnly": true,
+            "type": "boolean"
+          }
+        },
+        "readOnly": true,
+        "required": [
+          "code",
+          "message",
+          "retryable"
+        ],
+        "type": "object"
+      },
+      "ShardKeyAnalysisOperationResponse": {
+        "description": "Progress of one shard key analysis. Poll this resource until `status` reaches a terminal value, then follow `resultHref` to read the analysis.",
+        "properties": {
+          "createdAt": {
+            "description": "Date and time when MongoDB Cloud accepted this operation (ISO 8601 format in UTC).",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ShardKeyAnalysisError"
+          },
+          "expiresAt": {
+            "description": "Date and time when MongoDB Cloud stops returning this operation (ISO 8601 format in UTC). Reads after this time return an HTTP 404 status. This value derives from `updatedAt`, so it advances with each state change while the operation is running and settles only once the operation is terminal.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "operationId": {
+            "description": "Unique 24-hexadecimal digit string that identifies this operation. When the operation succeeds, the analysis it created carries the same identifier.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "operationType": {
+            "description": "Kind of change the operation makes. Submitting a shard key analysis creates an analysis resource, so the operation type is always `CREATE`.",
+            "enum": [
+              "CREATE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "resultHref": {
+            "description": "URI of the analysis this operation created. MongoDB Cloud returns this parameter only when `status` is `SUCCEEDED`.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "retryAfterSeconds": {
+            "description": "Number of seconds to wait before polling this operation again. MongoDB Cloud returns this parameter only while `status` is not terminal.",
+            "format": "int32",
+            "minimum": 1,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "status": {
+            "description": "State of the shard key analysis operation. `PENDING` and `IN_PROGRESS` are non-terminal; `SUCCEEDED`, `FAILED`, `CANCELED` and `SUPERSEDED` are terminal. MongoDB Cloud currently reports only `PENDING`, `SUCCEEDED` and `FAILED`. The remaining values are reserved and may be reported in the future without a new resource version.",
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "SUCCEEDED",
+              "FAILED",
+              "CANCELED",
+              "SUPERSEDED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "Date and time when this operation last changed state (ISO 8601 format in UTC). Once the operation is terminal, this is when it finished.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "expiresAt",
+          "operationId",
+          "operationType",
+          "status",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "ShardKeyAnalysisRequest": {
+        "description": "Shard key to analyze for one collection.",
+        "properties": {
+          "includeKeyCharacteristics": {
+            "default": true,
+            "description": "Flag that indicates whether to return the cardinality, frequency and monotonicity of the candidate shard key.",
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "includeReadWriteDistribution": {
+            "default": false,
+            "description": "Flag that indicates whether to return how reads and writes would be routed across shards under the candidate shard key. This requires query sampling to have collected operations for the namespace.",
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "namespace": {
+            "description": "Combination of the database and collection to analyze, written as `<database>.<collection>`.",
+            "example": "sales.orders",
+            "type": "string"
+          },
+          "shardKey": {
+            "description": "Candidate shard key, given as one object per shard key field in the order the fields form the key. Field order is significant: `[{\"a\": \"1\"}, {\"b\": \"1\"}]` and `[{\"b\": \"1\"}, {\"a\": \"1\"}]` are different shard keys. At most one field may be `hashed`.",
+            "items": {
+              "additionalProperties": {
+                "description": "Key-value pair that sets one shard key field as the key and how to index it as its value. Use `1` for an ascending range-based field and `hashed` for a hashed field. MongoDB rejects any other value.",
+                "maxProperties": 1,
+                "minProperties": 1,
+                "type": "string"
+              },
+              "description": "Key-value pair that sets one shard key field as the key and how to index it as its value. Use `1` for an ascending range-based field and `hashed` for a hashed field. MongoDB rejects any other value.",
+              "maxProperties": 1,
+              "minProperties": 1,
+              "type": "object"
+            },
+            "maxItems": 32,
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "namespace",
+          "shardKey"
+        ],
+        "type": "object"
+      },
+      "ShardKeyAnalysisResponse": {
+        "description": "Completed analysis of one candidate shard key, describing how well the key would distribute the collection's documents and operations across shards.",
+        "properties": {
+          "avgDocSizeBytes": {
+            "description": "Average size of one document in the collection, in bytes.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "correlationCoefficient": {
+            "description": "Correlation between the candidate shard key and the order in which documents were inserted, from `-1` to `1`. Values near `1` or `-1` indicate a monotonically changing key, which directs all inserts to one shard. This parameter is absent when the shard key has no supporting index or the collection is clustered, in which case MongoDB Cloud does not compute it.",
+            "format": "double",
+            "maximum": 1,
+            "minimum": -1,
+            "readOnly": true,
+            "type": "number"
+          },
+          "createdAt": {
+            "description": "Date and time when this shard key analysis was requested (ISO 8601 format in UTC). This is when the analysis was submitted, not when it completed; the completion time is the `updatedAt` of the operation that produced it.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expiresAt": {
+            "description": "Date and time when MongoDB Cloud stops returning this shard key analysis (ISO 8601 format in UTC). Reads after this time return an HTTP 404 status.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies this shard key analysis. This is the same identifier as the `operationId` of the operation that produced it.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "isUnique": {
+            "description": "Flag that indicates whether the index supporting the candidate shard key enforces a uniqueness constraint.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "monotonicity": {
+            "description": "Whether the shard key value increases or decreases with the order in which documents were inserted. A monotonically changing shard key directs all inserts to one shard. `UNKNOWN` indicates that MongoDB Cloud could not determine monotonicity, which happens when the shard key has no supporting index or the collection is clustered.",
+            "enum": [
+              "MONOTONIC",
+              "NOT_MONOTONIC",
+              "UNKNOWN"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "mostCommonValues": {
+            "description": "Shard key values that occur most frequently in the sampled documents, with how often each occurs. MongoDB Cloud returns this parameter only to callers that can read the collection's data, because it carries values out of the collection rather than statistics about them.",
+            "items": {
+              "$ref": "#/components/schemas/ShardKeyMostCommonValue"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array"
+          },
+          "namespace": {
+            "description": "Combination of the database and collection that was analyzed, written as `<database>.<collection>`.",
+            "type": "string"
+          },
+          "note": {
+            "description": "Guidance from MongoDB on how to interpret the metrics in this analysis. This parameter is absent when the analysis carries no guidance.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "numDistinctValues": {
+            "description": "Number of distinct values that the candidate shard key takes across the sampled documents. A value close to `numDocsSampled` indicates high cardinality, which distributes documents well.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "numDocsSampled": {
+            "description": "Number of documents that MongoDB Cloud sampled to compute these metrics.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "numDocsTotal": {
+            "description": "Number of documents in the collection.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "numOrphanDocs": {
+            "description": "Number of orphaned documents in the collection. This parameter is absent for collections that have none.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "percentageOfMultiShardReads": {
+            "description": "Percentage of sampled reads that the candidate shard key would route to more than one shard but not to every shard.",
+            "format": "double",
+            "maximum": 100,
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "percentageOfMultiShardWrites": {
+            "description": "Percentage of sampled writes that the candidate shard key would route to more than one shard but not to every shard.",
+            "format": "double",
+            "maximum": 100,
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "percentageOfScatterGatherReads": {
+            "description": "Percentage of sampled reads that the candidate shard key would broadcast to every shard. Lower is better.",
+            "format": "double",
+            "maximum": 100,
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "percentageOfScatterGatherWrites": {
+            "description": "Percentage of sampled writes that the candidate shard key would broadcast to every shard. Lower is better.",
+            "format": "double",
+            "maximum": 100,
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "percentageOfSingleShardReads": {
+            "description": "Percentage of sampled reads that the candidate shard key would route to exactly one shard. Higher is better.",
+            "format": "double",
+            "maximum": 100,
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "percentageOfSingleShardWrites": {
+            "description": "Percentage of sampled writes that the candidate shard key would route to exactly one shard. Higher is better.",
+            "format": "double",
+            "maximum": 100,
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "rawOutput": {
+            "description": "Unmodified result of the `analyzeShardKey` command, as a JSON string. Its content tracks the MongoDB server version of the analyzed cluster rather than the version of this resource, so members outside the parameters above may appear or change without a new resource version. Do not parse it as a stable contract. `mostCommonValues` is removed from it for callers that cannot read the collection's data. This parameter is absent if MongoDB Cloud could not serialize the command result, which costs the raw view but not the analysis.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "readSampleSize": {
+            "$ref": "#/components/schemas/ShardKeyReadSampleSize"
+          },
+          "shardKey": {
+            "description": "Candidate shard key that was analyzed, given as one object per shard key field in the order the fields form the key. This parameter is absent when MongoDB Cloud has no shard key recorded for the analysis.",
+            "items": {
+              "additionalProperties": {
+                "description": "Key-value pair that sets one shard key field as the key and how it was indexed as its value: `1` for an ascending range-based field, `hashed` for a hashed field.",
+                "maxProperties": 1,
+                "minProperties": 1,
+                "type": "string"
+              },
+              "description": "Key-value pair that sets one shard key field as the key and how it was indexed as its value: `1` for an ascending range-based field, `hashed` for a hashed field.",
+              "maxProperties": 1,
+              "minProperties": 1,
+              "type": "object"
+            },
+            "maxItems": 32,
+            "type": "array"
+          },
+          "writeSampleSize": {
+            "$ref": "#/components/schemas/ShardKeyWriteSampleSize"
+          }
+        },
+        "required": [
+          "createdAt",
+          "expiresAt",
+          "id",
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "ShardKeyMostCommonValue": {
+        "description": "Shard key value that occurs frequently in the sampled documents, with the number of sampled documents that carry it.",
+        "properties": {
+          "frequency": {
+            "description": "Number of sampled documents that carry this shard key value.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "truncated": {
+            "description": "Flag that indicates whether MongoDB Cloud omitted `value` because it was too large to return. When this flag is `true`, `frequency` still describes a real shard key value even though the value itself is absent.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "value": {
+            "additionalProperties": {
+              "description": "Shard key value, given as one field-value pair per shard key field. This parameter is absent when `truncated` is `true`.",
+              "readOnly": true,
+              "type": "object"
+            },
+            "description": "Shard key value, given as one field-value pair per shard key field. This parameter is absent when `truncated` is `true`.",
+            "readOnly": true,
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "ShardKeyReadSampleSize": {
+        "description": "Number of sampled read operations that MongoDB Cloud used to compute the read distribution, broken down by the command that issued them.",
+        "properties": {
+          "aggregate": {
+            "description": "Number of sampled `aggregate` operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "count": {
+            "description": "Number of sampled `count` operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "distinct": {
+            "description": "Number of sampled `distinct` operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "find": {
+            "description": "Number of sampled `find` operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "total": {
+            "description": "Total number of sampled read operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
+      "ShardKeyWriteSampleSize": {
+        "description": "Number of sampled write operations that MongoDB Cloud used to compute the write distribution, broken down by the command that issued them.",
+        "properties": {
+          "delete": {
+            "description": "Number of sampled `delete` operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "findAndModify": {
+            "description": "Number of sampled `findAndModify` operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "total": {
+            "description": "Total number of sampled write operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "update": {
+            "description": "Number of sampled `update` operations.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
       "ShardKeys": {
         "description": "Document that configures the shard key on the destination cluster.",
         "properties": {
@@ -49059,6 +49962,317 @@
         ],
         "type": "object",
         "writeOnly": true
+      },
+      "ShardMeasurement": {
+        "description": "Time series of one measurement on one shard of the cluster.",
+        "properties": {
+          "dataPoints": {
+            "description": "Data points of the measurement at `granularity` intervals, starting at `start` and not passing `end`, in ascending time order.",
+            "items": {
+              "$ref": "#/components/schemas/ShardMeasurementDataPoint"
+            },
+            "maxItems": 1000,
+            "readOnly": true,
+            "type": "array"
+          },
+          "name": {
+            "description": "Measurement that the data points quantify.",
+            "enum": [
+              "SYSTEM_CPU",
+              "SYSTEM_MEMORY",
+              "SYSTEM_NETWORK",
+              "DISK_IOPS",
+              "DISK_LATENCY",
+              "DISK_THROUGHPUT",
+              "DISK_SPACE",
+              "CONNECTIONS",
+              "OPCOUNTERS",
+              "QUEUES",
+              "REPLICATION_LAG"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "replicaSetName": {
+            "description": "Human-readable label that identifies the shard, as the replica set name of its members.",
+            "example": "atlas-12vorz-shard-0",
+            "readOnly": true,
+            "type": "string"
+          },
+          "units": {
+            "description": "Unit in which the data points express the measurement.",
+            "enum": [
+              "BYTES",
+              "BYTES_PER_SECOND",
+              "GIGABYTES",
+              "GIGABYTES_PER_HOUR",
+              "MEGABYTES_PER_SECOND",
+              "MICROSECONDS",
+              "MILLISECONDS",
+              "PERCENT",
+              "SCALAR",
+              "SCALAR_PER_SECOND"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataPoints",
+          "name",
+          "replicaSetName",
+          "units"
+        ],
+        "type": "object"
+      },
+      "ShardMeasurementDataPoint": {
+        "description": "Value of one measurement at one moment in time. The `value` is `null` when no reading exists for that moment.",
+        "properties": {
+          "timestamp": {
+            "description": "Date and time of the data point. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "value": {
+            "description": "Value of the measurement at this moment, in the `units` of the measurement. `null` when no reading exists for this moment, including the period after a cluster or shard is created before MongoDB Cloud starts collecting its metrics.",
+            "format": "double",
+            "nullable": true,
+            "readOnly": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "timestamp",
+          "value"
+        ],
+        "type": "object"
+      },
+      "ShardMeasurementSeries": {
+        "description": "Time series of one measurement on the shard named by the enclosing response.",
+        "properties": {
+          "dataPoints": {
+            "description": "Data points of the measurement at `granularity` intervals, starting at `start` and not passing `end`, in ascending time order.",
+            "items": {
+              "$ref": "#/components/schemas/ShardMeasurementDataPoint"
+            },
+            "maxItems": 1000,
+            "readOnly": true,
+            "type": "array"
+          },
+          "name": {
+            "description": "Measurement that the data points quantify.",
+            "enum": [
+              "SYSTEM_CPU",
+              "SYSTEM_MEMORY",
+              "SYSTEM_NETWORK",
+              "DISK_IOPS",
+              "DISK_LATENCY",
+              "DISK_THROUGHPUT",
+              "DISK_SPACE",
+              "CONNECTIONS",
+              "OPCOUNTERS",
+              "QUEUES",
+              "REPLICATION_LAG"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "units": {
+            "description": "Unit in which the data points express the measurement.",
+            "enum": [
+              "BYTES",
+              "BYTES_PER_SECOND",
+              "GIGABYTES",
+              "GIGABYTES_PER_HOUR",
+              "MEGABYTES_PER_SECOND",
+              "MICROSECONDS",
+              "MILLISECONDS",
+              "PERCENT",
+              "SCALAR",
+              "SCALAR_PER_SECOND"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataPoints",
+          "name",
+          "units"
+        ],
+        "type": "object"
+      },
+      "ShardMeasurementsResponse": {
+        "description": "Measurement time series of one shard over the requested window.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the cluster.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "end": {
+            "description": "Date and time at which the window ends. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "granularity": {
+            "description": "Interval between consecutive data points, in ISO 8601 duration format. Either the requested `granularity` or, when none was requested, the resolution MongoDB Cloud chose for the width of the window.",
+            "enum": [
+              "PT30S",
+              "PT1M",
+              "PT3M",
+              "PT15M",
+              "PT1H",
+              "PT3H"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "measurements": {
+            "description": "One time series per requested measurement, in the order of the measurement names. A measurement MongoDB Cloud has no readings for is still listed, with `null` data point values.",
+            "items": {
+              "$ref": "#/components/schemas/ShardMeasurementSeries"
+            },
+            "maxItems": 11,
+            "readOnly": true,
+            "type": "array"
+          },
+          "replicaSetName": {
+            "description": "Human-readable label that identifies the shard, as the replica set name of its members.",
+            "example": "atlas-12vorz-shard-0",
+            "readOnly": true,
+            "type": "string"
+          },
+          "start": {
+            "description": "Date and time of the first data point. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "clusterName",
+          "end",
+          "granularity",
+          "groupId",
+          "measurements",
+          "replicaSetName",
+          "start"
+        ],
+        "type": "object"
+      },
+      "ShardMetricsResponse": {
+        "description": "Metrics for one shard of a sharded cluster, covering its size, its load, and any alerts open on its nodes.",
+        "properties": {
+          "alerts": {
+            "description": "Alerts open on this shard's nodes, sorted by creation date with the most recently created first. MongoDB Cloud returns this property when you request a single shard, and returns at most 100 alerts.",
+            "items": {
+              "$ref": "#/components/schemas/ShardAlert"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array"
+          },
+          "cacheThroughput": {
+            "$ref": "#/components/schemas/ShardCacheThroughput"
+          },
+          "cpuUtilization": {
+            "$ref": "#/components/schemas/ShardCpuUtilization"
+          },
+          "dataSizeBytes": {
+            "description": "Total size of the user data stored on this shard. The resource expresses this value in bytes.",
+            "format": "int64",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "rangeDeleterTasks": {
+            "description": "Average number of range deletion tasks queued across the shard's nodes, measured at the time of the request.",
+            "format": "double",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "readLatencyMicroseconds": {
+            "description": "Average latency of the read operations this shard served over the last hour, in microseconds.",
+            "format": "double",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "number"
+          },
+          "readOperationsPerSecond": {
+            "$ref": "#/components/schemas/ShardOperations"
+          },
+          "replicaSetName": {
+            "description": "Name of the shard's replica set. This is the name that identifies the same shard on the processes, alerts, events, and backup resources.",
+            "example": "atlas-abcdef-shard-0",
+            "readOnly": true,
+            "type": "string"
+          },
+          "shardedCollections": {
+            "description": "Number of sharded collections with data on this shard.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          },
+          "warnings": {
+            "description": "Conditions that MongoDB Cloud observed on this shard relative to the rest of the cluster. `HOTSPOT` means this shard's average CPU utilization is more than twice the average across all shards of the cluster. This is a cluster-scoped comparison, so its value depends on how loaded the other shards are and not only on this shard.",
+            "items": {
+              "enum": [
+                "HOTSPOT"
+              ],
+              "type": "string"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array"
+          },
+          "writeOperationsPerSecond": {
+            "$ref": "#/components/schemas/ShardOperations"
+          }
+        },
+        "required": [
+          "cpuUtilization",
+          "dataSizeBytes",
+          "readOperationsPerSecond",
+          "replicaSetName",
+          "shardedCollections",
+          "warnings",
+          "writeOperationsPerSecond"
+        ],
+        "type": "object"
+      },
+      "ShardOperations": {
+        "description": "Operations per second that the shard served over the last hour.",
+        "properties": {
+          "average": {
+            "description": "Average operations per second across the shard's nodes over the last hour.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          },
+          "maximum": {
+            "description": "Highest operations per second that any one of the shard's nodes reached over the last hour.",
+            "format": "double",
+            "readOnly": true,
+            "type": "number"
+          }
+        },
+        "required": [
+          "average",
+          "maximum"
+        ],
+        "type": "object"
       },
       "ShardingInsightsBalancingWindow": {
         "description": "Balancing window configured on the sharded cluster. When configured, the balancer moves data only during the daily interval between `startTime` and `endTime`.",
@@ -50595,10 +51809,11 @@
               "SP2"
             ],
             "nullable": true,
-            "type": "string"
+            "type": "string",
+            "x-xgen-server-computed-when-client-omitted": true
           },
           "minTier": {
-            "description": "Tier floor for autoscaling (scale-down limit).\n\n- **Omitted:**\n  - On `CREATE`: falls back to the workspace default tier (there is no current bound to preserve).\n  - On `MODIFY` or `:startWith`: the current bound is preserved.\n- **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the workspace default tier.\n- **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.",
+            "description": "Tier floor for autoscaling (scale-down limit).\n\n- **Omitted:**\n  - On `CREATE`: defaults to the lower of the processor `tier` and the workspace default tier (there is no current bound to preserve).\n  - On `MODIFY` or `:startWith`: the current bound is preserved.\n- **`null`** on `CREATE`, `MODIFY`, or `:startWith`: resets the bound to the lower of the processor `tier` and the workspace default tier.\n- **A tier value** on `CREATE`, `MODIFY`, or `:startWith`: sets the bound to that tier.",
             "enum": [
               "SP50",
               "SP30",
@@ -50607,7 +51822,8 @@
               "SP2"
             ],
             "nullable": true,
-            "type": "string"
+            "type": "string",
+            "x-xgen-server-computed-when-client-omitted": true
           }
         },
         "type": "object"
@@ -51392,7 +52608,7 @@
             "type": "array"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Baseline processing tier requested by the user.",
             "enum": [
               "SP50",
               "SP30",
@@ -51400,7 +52616,6 @@
               "SP5",
               "SP2"
             ],
-            "title": "Stream Workspace Tier",
             "type": "string"
           }
         },
@@ -51598,7 +52813,7 @@
             "type": "string"
           },
           "effectiveTier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Tier the stream processor is currently running on. The server sets this value from `tier` on create and on every start or restart, may move it within [`minTier`, `maxTier`] while autoscaling is enabled, and restores it to `tier` when autoscaling is disabled. Patching `tier` does not change it directly; the new tier takes effect at the next start or restart.",
             "enum": [
               "SP50",
               "SP30",
@@ -51607,7 +52822,6 @@
               "SP2"
             ],
             "readOnly": true,
-            "title": "Stream Workspace Tier",
             "type": "string"
           },
           "failoverEnabled": {
@@ -51645,7 +52859,7 @@
             "type": "array"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Baseline tier of the stream processor. The processor starts or restarts on this tier; `effectiveTier` reports the tier it is currently running.",
             "enum": [
               "SP50",
               "SP30",
@@ -51653,12 +52867,55 @@
               "SP5",
               "SP2"
             ],
-            "title": "Stream Workspace Tier",
             "type": "string"
           }
         },
         "required": [
           "effectiveTier"
+        ],
+        "type": "object"
+      },
+      "StreamsProcessorRequest": {
+        "description": "Details to create a stream processor.",
+        "properties": {
+          "failoverEnabled": {
+            "description": "Flag that enables or disables failover for the stream processor.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "Human-readable name of the stream processor.",
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/StreamsOptions"
+          },
+          "pipeline": {
+            "description": "Stream aggregation pipeline you want to apply to your streaming data.",
+            "externalDocs": {
+              "description": "Supported Aggregation Pipeline Stages",
+              "url": "https://www.mongodb.com/docs/atlas/atlas-stream-processing/stream-aggregation/#std-label-stream-aggregation"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "tier": {
+            "description": "Baseline processing tier requested by the user.",
+            "enum": [
+              "SP50",
+              "SP30",
+              "SP10",
+              "SP5",
+              "SP2"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "pipeline"
         ],
         "type": "object"
       },
@@ -51717,7 +52974,7 @@
             "type": "string"
           },
           "effectiveTier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Tier the stream processor is currently running on. The server sets this value from `tier` on create and on every start or restart, may move it within [`minTier`, `maxTier`] while autoscaling is enabled, and restores it to `tier` when autoscaling is disabled. Patching `tier` does not change it directly; the new tier takes effect at the next start or restart.",
             "enum": [
               "SP50",
               "SP30",
@@ -51726,7 +52983,6 @@
               "SP2"
             ],
             "readOnly": true,
-            "title": "Stream Workspace Tier",
             "type": "string"
           },
           "eligibleForFailover": {
@@ -51794,7 +53050,7 @@
             "type": "object"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Baseline tier of the stream processor. The processor starts or restarts on this tier; `effectiveTier` reports the tier it is currently running.",
             "enum": [
               "SP50",
               "SP30",
@@ -51802,7 +53058,6 @@
               "SP5",
               "SP2"
             ],
-            "title": "Stream Workspace Tier",
             "type": "string"
           }
         },
@@ -52025,7 +53280,7 @@
             "type": "string"
           },
           "tier": {
-            "description": "Selected tier for the Stream Workspace. Configures Memory or VCPU allowances.",
+            "description": "Baseline processing tier requested by the user.",
             "enum": [
               "SP50",
               "SP30",
@@ -52033,7 +53288,6 @@
               "SP5",
               "SP2"
             ],
-            "title": "Stream Workspace Tier",
             "type": "string"
           }
         },
@@ -52151,6 +53405,76 @@
           },
           "streamConfig": {
             "$ref": "#/components/schemas/StreamConfig"
+          }
+        },
+        "type": "object"
+      },
+      "StreamsWorkspacePrivateEndpointRequest": {
+        "description": "Customer VPC endpoint to register for inbound private connectivity to Atlas Stream Processing.",
+        "properties": {
+          "customerDnsName": {
+            "description": "DNS name of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890-abc123.us-east-1.vpce.amazonaws.com",
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890",
+            "type": "string"
+          },
+          "region": {
+            "description": "Human-readable label identifying the region of the customer's VPC endpoint.",
+            "example": "US_EAST_1",
+            "type": "string"
+          }
+        },
+        "required": [
+          "customerDnsName",
+          "id",
+          "region"
+        ],
+        "type": "object"
+      },
+      "StreamsWorkspacePrivateEndpointResponse": {
+        "description": "Customer VPC endpoint registered for inbound private connectivity to Atlas Stream Processing.",
+        "properties": {
+          "customerDnsName": {
+            "description": "DNS name of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890-abc123.us-east-1.vpce.amazonaws.com",
+            "type": "string"
+          },
+          "endpointServiceName": {
+            "description": "Name of the Atlas endpoint service the customer's VPC endpoint connects to. Absent when no endpoint service is configured for the endpoint's region.",
+            "example": "com.amazonaws.vpce.us-east-1.vpce-svc-0123456789abcdef0",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "example": "vpce-0abc123def4567890",
+            "type": "string"
+          },
+          "provider": {
+            "description": "Cloud provider hosting the customer's VPC endpoint.",
+            "example": "AWS",
+            "readOnly": true,
+            "type": "string"
+          },
+          "region": {
+            "description": "Human-readable label identifying the region of the customer's VPC endpoint.",
+            "example": "US_EAST_1",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the endpoint registration.",
+            "enum": [
+              "PENDING",
+              "OK",
+              "FAILED",
+              "DELETING"
+            ],
+            "readOnly": true,
+            "type": "string"
           }
         },
         "type": "object"
@@ -56284,7 +57608,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "3570f055c4129039980bec84ddf221c0e40a8b6f"
+    "x-xgen-sha": "274fd1652023e93a316d72471ca5c07a6e5f2b2c"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -68508,6 +69832,214 @@
         "x-xgen-operation-id-override": "getClusterBackupCheckpoint"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription": {
+      "get": {
+        "description": "Returns whether the free (M0) cluster has an active paid-backups subscription.",
+        "operationId": "getGroupClusterBackupSubscription",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClusterBackupSubscriptionResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Cluster Backup Subscription",
+        "tags": [
+          "Cloud Backups"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api cloudBackups getClusterBackupSubscription --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupClusterBackupSubscriptionApiParams{}\n\tsdkResp, httpResp, err := client.CloudBackupsApi.\n\t\tGetGroupClusterBackupSubscriptionWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/getGroupClusterBackupSubscription",
+        "x-xgen-operation-id-override": "getClusterBackupSubscription"
+      },
+      "patch": {
+        "description": "Enables or disables the paid-backup subscription for a free (M0) cluster. Set enabled to update the backup state on the cluster. Omit enabled to leave the subscription unchanged.",
+        "operationId": "updateGroupClusterBackupSubscription",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClusterBackupSubscriptionUpdateRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Paid-backup subscription state to apply to the free (M0) cluster. An empty body is a no-op."
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClusterBackupSubscriptionResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "402": {
+            "$ref": "#/components/responses/paymentRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update One Cluster Backup Subscription",
+        "tags": [
+          "Cloud Backups"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api cloudBackups updateClusterBackupSubscription --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.UpdateGroupClusterBackupSubscriptionApiParams{}\n\tsdkResp, httpResp, err := client.CloudBackupsApi.\n\t\tUpdateGroupClusterBackupSubscriptionWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/backupSubscription\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Cluster Manager",
+          "Project Cluster Resilience Tester",
+          "Project Replica Set Manager"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/updateGroupClusterBackupSubscription",
+        "x-xgen-operation-id-override": "updateClusterBackupSubscription"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/collStats/pinned": {
       "get": {
         "description": "Returns a list of given cluster's pinned namespaces, a set of namespaces manually selected by users to collect query latency metrics on.",
@@ -71121,7 +72653,8 @@
         ],
         "x-xgen-changelog": {
           "2025-05-08": "Corrects an issue where the endpoint would allow a rolling index build to be initiated while there was already an index build in progress. The endpoint now returns 400 if an index build is already in progress.",
-          "2026-04-06": "Corrects an issue where index creation was throwing a 500 error instead of a 409 error when there was an existing index with the same name."
+          "2026-04-06": "Corrects an issue where index creation was throwing a 500 error instead of a 409 error when there was an existing index with the same name.",
+          "2026-09-29": "Indexes created with a collation and no explicit name now receive a default name with a collation-derived suffix, so that indexes over the same keys with different collations do not conflict."
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rolling-Index/operation/createGroupClusterIndexRollingIndex",
         "x-xgen-long-running-operation": {
@@ -73588,6 +75121,7 @@
                   "DOCS_EXAMINED",
                   "DOCS_RETURNED",
                   "TOTAL_TIME_TO_RESPONSE",
+                  "AVG_TIME_TO_RESPONSE",
                   "BYTES_READ",
                   "CPU_TIME",
                   "KEYS_EXAMINED_RETURNED",
@@ -73606,7 +75140,7 @@
                 ],
                 "type": "string"
               },
-              "maxItems": 22,
+              "maxItems": 23,
               "type": "array",
               "uniqueItems": true
             },
@@ -76152,6 +77686,1121 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Atlas-Search/operation/updateGroupClusterSearchIndex",
         "x-xgen-operation-id-override": "updateClusterSearchIndex"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses": {
+      "get": {
+        "description": "Returns all completed shard key analyses for the specified cluster, newest first. An analysis appears here only once the operation that produced it has succeeded, so attempts that failed or are still running are absent; read the operations sub-resource to see those. MongoDB Cloud retains an analysis for 30 days.",
+        "operationId": "listGroupClusterShardKeyAnalyses",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster with the shard key analyses you want to return.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedShardKeyAnalysisResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Shard Key Analyses for One Cluster",
+        "tags": [
+          "Shard Key Analyzer"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardKeyAnalyzer listShardKeyAnalyses --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupClusterShardKeyAnalysesApiParams{}\n\tsdkResp, httpResp, err := client.ShardKeyAnalyzerApi.\n\t\tListGroupClusterShardKeyAnalysesWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Data Access Admin",
+          "Project Data Access Read Only",
+          "Project Data Access Read Write",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shard-Key-Analyzer/operation/listGroupClusterShardKeyAnalyses",
+        "x-xgen-operation-id-override": "listShardKeyAnalyses"
+      },
+      "post": {
+        "description": "Analyzes how well one candidate shard key would distribute one collection across the shards of the specified cluster. This endpoint accepts the request and returns immediately: the `Location` header carries the URI of the operation that tracks the analysis. Poll that operation until its `status` is terminal, then follow its `resultHref` to read the analysis. MongoDB Cloud validates and authorizes the request before accepting it, so a rejected submission returns a `4xx` status and never an operation in a failed state. A namespace that is well formed but absent cannot be detected before the analysis runs and surfaces as a failed operation.",
+        "operationId": "createGroupClusterShardKeyAnalysis",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster that contains the collection to analyze.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShardKeyAnalysisRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Shard key to analyze, and which metrics to compute for it.",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Accepted",
+            "headers": {
+              "Location": {
+                "description": "URI of the operation that tracks this analysis. Absent when the request sets `envelope=true`, which returns the URI in the envelope's `locations` parameter instead.",
+                "schema": {
+                  "description": "URI of the operation that tracks this analysis.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Shard Key Analysis for One Cluster",
+        "tags": [
+          "Shard Key Analyzer"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardKeyAnalyzer createShardKeyAnalysis --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupClusterShardKeyAnalysisApiParams{}\n\tsdkResp, httpResp, err := client.ShardKeyAnalyzerApi.\n\t\tCreateGroupClusterShardKeyAnalysisWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Data Access Admin",
+          "Project Data Access Read Only",
+          "Project Data Access Read Write",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shard-Key-Analyzer/operation/createGroupClusterShardKeyAnalysis",
+        "x-xgen-long-running-operation": {
+          "legacy": false
+        },
+        "x-xgen-operation-id-override": "createShardKeyAnalysis"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/operations": {
+      "get": {
+        "description": "Returns every shard key analysis attempt for the specified cluster, newest first, including attempts that are still running and attempts that failed. Neither of those produces an analysis, so this sub-resource is the only place they appear. MongoDB Cloud retains an operation for 30 days past its terminal state.",
+        "operationId": "listGroupClusterShardKeyAnalysisOperations",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster with the shard key analysis operations you want to return.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedShardKeyAnalysisOperationResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Shard Key Analysis Operations for One Cluster",
+        "tags": [
+          "Shard Key Analyzer"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardKeyAnalyzer listAnalysisOperations --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupClusterShardKeyAnalysisOperationsApiParams{}\n\tsdkResp, httpResp, err := client.ShardKeyAnalyzerApi.\n\t\tListGroupClusterShardKeyAnalysisOperationsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/operations?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/operations?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Data Access Admin",
+          "Project Data Access Read Only",
+          "Project Data Access Read Write",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shard-Key-Analyzer/operation/listGroupClusterShardKeyAnalysisOperations",
+        "x-xgen-operation-id-override": "listAnalysisOperations"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/operations/{operationId}": {
+      "get": {
+        "description": "Returns the progress of one shard key analysis for the specified cluster. Poll this resource until `status` reaches a terminal value. On success it carries `resultHref`, the URI of the analysis it created; on failure it carries `error`. While the status is not terminal it carries `retryAfterSeconds`, how long to wait before polling again. MongoDB Cloud retains an operation for 30 days past its terminal state.",
+        "operationId": "getGroupClusterShardKeyAnalysisOperation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster with the shard key analysis operation you want to return.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the shard key analysis operation to return.",
+            "in": "path",
+            "name": "operationId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShardKeyAnalysisOperationResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Shard Key Analysis Operation for One Cluster",
+        "tags": [
+          "Shard Key Analyzer"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardKeyAnalyzer getAnalysisOperation --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupClusterShardKeyAnalysisOperationApiParams{}\n\tsdkResp, httpResp, err := client.ShardKeyAnalyzerApi.\n\t\tGetGroupClusterShardKeyAnalysisOperationWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/operations/{operationId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/operations/{operationId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Data Access Admin",
+          "Project Data Access Read Only",
+          "Project Data Access Read Write",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shard-Key-Analyzer/operation/getGroupClusterShardKeyAnalysisOperation",
+        "x-xgen-operation-id-override": "getAnalysisOperation"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/{analysisId}": {
+      "get": {
+        "description": "Returns one completed shard key analysis for the specified cluster. This resource exists only once the operation that produced it has succeeded and reports no operation status of its own. MongoDB Cloud retains an analysis for 30 days.",
+        "operationId": "getGroupClusterShardKeyAnalysis",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster with the shard key analysis you want to return.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the shard key analysis to return.",
+            "in": "path",
+            "name": "analysisId",
+            "required": true,
+            "schema": {
+              "pattern": "^([a-f0-9]{24})$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShardKeyAnalysisResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Shard Key Analysis for One Cluster",
+        "tags": [
+          "Shard Key Analyzer"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardKeyAnalyzer getShardKeyAnalysis --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupClusterShardKeyAnalysisApiParams{}\n\tsdkResp, httpResp, err := client.ShardKeyAnalyzerApi.\n\t\tGetGroupClusterShardKeyAnalysisWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/{analysisId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardKeyAnalyses/{analysisId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Data Access Admin",
+          "Project Data Access Read Only",
+          "Project Data Access Read Write",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Shard-Key-Analyzer/operation/getGroupClusterShardKeyAnalysis",
+        "x-xgen-operation-id-override": "getShardKeyAnalysis"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics": {
+      "get": {
+        "description": "Returns the size and load of every shard in one sharded cluster. Each shard reports the data it stores, the CPU utilization of its nodes, the read and write operations it served, and any conditions that MongoDB Cloud observed relative to the rest of the cluster. To retrieve more details about a shard such as the latency, cache throughput and open alerts, request with an exact replica set name.",
+        "operationId": "listGroupClusterShardMetrics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedShardMetricsResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Shards in One Cluster",
+        "tags": [
+          "Sharding Insights"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardingInsights listClusterShardMetrics --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupClusterShardMetricsApiParams{}\n\tsdkResp, httpResp, err := client.ShardingInsightsApi.\n\t\tListGroupClusterShardMetricsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sharding-Insights/operation/listGroupClusterShardMetrics",
+        "x-xgen-operation-id-override": "listClusterShardMetrics"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}": {
+      "get": {
+        "description": "Returns the size, load and open alerts of one shard in one sharded cluster. Returns everything the list method returns for this shard, plus its read latency, its WiredTiger cache throughput, its queued range deletion tasks, and the alerts open on its nodes.",
+        "operationId": "getGroupClusterShardMetric",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Name of the replica set that identifies the shard.",
+            "in": "path",
+            "name": "replicaSetName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShardMetricsResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Shard in One Cluster",
+        "tags": [
+          "Sharding Insights"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardingInsights getClusterShardMetric --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupClusterShardMetricApiParams{}\n\tsdkResp, httpResp, err := client.ShardingInsightsApi.\n\t\tGetGroupClusterShardMetricWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sharding-Insights/operation/getGroupClusterShardMetric",
+        "x-xgen-operation-id-override": "getClusterShardMetric"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}/measurements": {
+      "get": {
+        "description": "Returns time series of the requested measurements for one shard of the specified sharded cluster. The series average the readings of the shard's member processes selected by `nodeType`. Responds with a 404 only when no shard with the given `replicaSetName` exists in the cluster; a shard that exists but has no readings yet returns series of `null` data points. Each series carries one data point per `granularity` interval, starting at `start` and not passing `end`. A data point's `value` is `null` when MongoDB Cloud has no reading for that interval; this includes the first minutes after a cluster or shard is created, before its metrics are collected, so `null` must not be read as zero load. Set `period`, or set both `start` and `end`; when neither is set, the response covers the last hour. A request whose window and `granularity` would produce more than 1000 data points per series is rejected.",
+        "operationId": "getGroupClusterShardMetricMeasurements",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Human-readable label that identifies the shard, as the replica set name of its members.",
+            "in": "path",
+            "name": "replicaSetName",
+            "required": true,
+            "schema": {
+              "example": "atlas-12vorz-shard-0",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "One or more measurements to return. If omitted, the resource returns all measurements. To specify multiple values for `m`, repeat the `m` parameter for each value.",
+            "in": "query",
+            "name": "m",
+            "schema": {
+              "items": {
+                "description": "One measurement to return.",
+                "enum": [
+                  "SYSTEM_CPU",
+                  "SYSTEM_MEMORY",
+                  "SYSTEM_NETWORK",
+                  "DISK_IOPS",
+                  "DISK_LATENCY",
+                  "DISK_THROUGHPUT",
+                  "DISK_SPACE",
+                  "CONNECTIONS",
+                  "OPCOUNTERS",
+                  "QUEUES",
+                  "REPLICATION_LAG"
+                ],
+                "type": "string"
+              },
+              "maxItems": 20,
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "style": "form"
+          },
+          {
+            "description": "Interval between consecutive data points, in ISO 8601 duration format. If omitted, MongoDB Cloud chooses the resolution from the width of the window.",
+            "in": "query",
+            "name": "granularity",
+            "schema": {
+              "enum": [
+                "PT30S",
+                "PT1M",
+                "PT3M",
+                "PT15M",
+                "PT1H",
+                "PT3H"
+              ],
+              "example": "PT1M",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/period"
+          },
+          {
+            "$ref": "#/components/parameters/start"
+          },
+          {
+            "$ref": "#/components/parameters/end"
+          },
+          {
+            "description": "Members of the shard whose readings are averaged into the shard's series.",
+            "in": "query",
+            "name": "nodeType",
+            "schema": {
+              "default": "ALL",
+              "enum": [
+                "ALL",
+                "PRIMARIES",
+                "SECONDARIES"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShardMeasurementsResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Measurements for One Shard",
+        "tags": [
+          "Sharding Insights"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardingInsights getShardMetricMeasurements --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupClusterShardMetricMeasurementsApiParams{}\n\tsdkResp, httpResp, err := client.ShardingInsightsApi.\n\t\tGetGroupClusterShardMetricMeasurementsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}/measurements?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics/{replicaSetName}/measurements?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sharding-Insights/operation/getGroupClusterShardMetricMeasurements",
+        "x-xgen-operation-id-override": "getShardMetricMeasurements"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics:listMeasurements": {
+      "get": {
+        "description": "Returns time series of the requested measurements for every shard of the specified sharded cluster, one series per shard and measurement. Each shard's series averages the readings of its member processes selected by `nodeType`. Each series carries one data point per `granularity` interval, starting at `start` and not passing `end`. A data point's `value` is `null` when MongoDB Cloud has no reading for that interval; this includes the first minutes after a cluster or shard is created, before its metrics are collected, so `null` must not be read as zero load. Set `period`, or set both `start` and `end`; when neither is set, the response covers the last hour. A request whose window and `granularity` would produce more than 1000 data points per series is rejected.",
+        "operationId": "listGroupClusterShardMetricMeasurements",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "description": "Human-readable label that identifies the cluster.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "One or more measurements to return. If omitted, the resource returns all measurements. To specify multiple values for `m`, repeat the `m` parameter for each value.",
+            "in": "query",
+            "name": "m",
+            "schema": {
+              "items": {
+                "description": "One measurement to return.",
+                "enum": [
+                  "SYSTEM_CPU",
+                  "SYSTEM_MEMORY",
+                  "SYSTEM_NETWORK",
+                  "DISK_IOPS",
+                  "DISK_LATENCY",
+                  "DISK_THROUGHPUT",
+                  "DISK_SPACE",
+                  "CONNECTIONS",
+                  "OPCOUNTERS",
+                  "QUEUES",
+                  "REPLICATION_LAG"
+                ],
+                "type": "string"
+              },
+              "maxItems": 20,
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "style": "form"
+          },
+          {
+            "description": "Interval between consecutive data points, in ISO 8601 duration format. If omitted, MongoDB Cloud chooses the resolution from the width of the window.",
+            "in": "query",
+            "name": "granularity",
+            "schema": {
+              "enum": [
+                "PT30S",
+                "PT1M",
+                "PT3M",
+                "PT15M",
+                "PT1H",
+                "PT3H"
+              ],
+              "example": "PT1M",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/period"
+          },
+          {
+            "$ref": "#/components/parameters/start"
+          },
+          {
+            "$ref": "#/components/parameters/end"
+          },
+          {
+            "description": "Members of each shard whose readings are averaged into the shard's series.",
+            "in": "query",
+            "name": "nodeType",
+            "schema": {
+              "default": "ALL",
+              "enum": [
+                "ALL",
+                "PRIMARIES",
+                "SECONDARIES"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClusterShardMeasurementsResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Measurements for All Shards of One Cluster",
+        "tags": [
+          "Sharding Insights"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api shardingInsights listShardMetricMeasurements --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupClusterShardMetricMeasurementsApiParams{}\n\tsdkResp, httpResp, err := client.ShardingInsightsApi.\n\t\tListGroupClusterShardMetricMeasurementsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics:listMeasurements?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardMetrics:listMeasurements?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Sharding-Insights/operation/listGroupClusterShardMetricMeasurements",
+        "x-xgen-operation-id-override": "listShardMetricMeasurements"
       }
     },
     "/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardingInsights": {
@@ -92712,7 +95361,7 @@
                   "OPLOG_MASTER_TIME",
                   "OPLOG_RATE_GB_PER_HOUR",
                   "OPLOG_SLAVE_LAG_MASTER_TIME",
-                  "OPLOG_REPLICATION_LAG",
+                  "OPLOG_REPLICATION_LAG_TIME",
                   "PROCESS_CPU_CHILDREN_KERNEL",
                   "PROCESS_CPU_CHILDREN_USER",
                   "PROCESS_CPU_KERNEL",
@@ -98642,7 +101291,7 @@
           "content": {
             "application/vnd.atlas.2024-05-30+json": {
               "schema": {
-                "$ref": "#/components/schemas/StreamsProcessor"
+                "$ref": "#/components/schemas/StreamsProcessorRequest"
               }
             }
           },
@@ -99699,6 +102348,400 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/withGroupStreamSampleConnections",
         "x-xgen-operation-id-override": "withStreamSampleConnections"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints": {
+      "get": {
+        "description": "Returns all private endpoints registered for Atlas Stream Processing in the specified project.",
+        "operationId": "listGroupStreamsWorkspacePrivateEndpoints",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedStreamsWorkspacePrivateEndpointResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Workspace Private Endpoints for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams listWorkspacePrivateEndpoints --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListGroupStreamsWorkspacePrivateEndpointsApiParams{}\n\tsdkResp, httpResp, err := client.StreamsApi.\n\t\tListGroupStreamsWorkspacePrivateEndpointsWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/listGroupStreamsWorkspacePrivateEndpoints",
+        "x-xgen-operation-id-override": "listWorkspacePrivateEndpoints"
+      },
+      "post": {
+        "description": "Registers one customer VPC endpoint for Atlas Stream Processing in the specified project.",
+        "operationId": "createGroupStreamsWorkspacePrivateEndpoint",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.2025-03-12+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointRequest"
+              },
+              "x-xgen-version": "2025-03-12"
+            }
+          },
+          "description": "Customer VPC endpoint to register for Atlas Stream Processing.",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "Accepted",
+            "headers": {
+              "Location": {
+                "description": "Relative URI of the registered workspace private endpoint, which reports the registration once it has been applied.",
+                "schema": {
+                  "description": "Relative URI of the workspace private endpoint.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Create One Workspace Private Endpoint for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams createWorkspacePrivateEndpoint --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.CreateGroupStreamsWorkspacePrivateEndpointApiParams{}\n\tsdkResp, httpResp, err := client.StreamsApi.\n\t\tCreateGroupStreamsWorkspacePrivateEndpointWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints\" \\\n  -d '{ <Payload> }'"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints\" \\\n  -d '{ <Payload> }'"
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamsWorkspacePrivateEndpoint",
+        "x-xgen-long-running-operation": {
+          "legacy": false
+        },
+        "x-xgen-operation-id-override": "createWorkspacePrivateEndpoint"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}": {
+      "delete": {
+        "description": "Removes one private endpoint registered for Atlas Stream Processing in the specified project.",
+        "operationId": "deleteGroupStreamsWorkspacePrivateEndpoint",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "example": "vpce-0abc123def4567890",
+              "pattern": "^vpce-[a-z0-9]{17}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove One Workspace Private Endpoint for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams deleteWorkspacePrivateEndpoint --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.DeleteGroupStreamsWorkspacePrivateEndpointApiParams{}\n\thttpResp, err := client.StreamsApi.\n\t\tDeleteGroupStreamsWorkspacePrivateEndpointWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/deleteGroupStreamsWorkspacePrivateEndpoint",
+        "x-xgen-operation-id-override": "deleteWorkspacePrivateEndpoint"
+      },
+      "get": {
+        "description": "Returns one private endpoint registered for Atlas Stream Processing in the specified project.",
+        "operationId": "getGroupStreamsWorkspacePrivateEndpoint",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "description": "Unique identifier of the customer's VPC endpoint.",
+            "in": "path",
+            "name": "endpointId",
+            "required": true,
+            "schema": {
+              "example": "vpce-0abc123def4567890",
+              "pattern": "^vpce-[a-z0-9]{17}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamsWorkspacePrivateEndpointResponse"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Workspace Private Endpoint for Atlas Stream Processing",
+        "tags": [
+          "Streams"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api streams getWorkspacePrivateEndpoint --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.GetGroupStreamsWorkspacePrivateEndpointApiParams{}\n\tsdkResp, httpResp, err := client.StreamsApi.\n\t\tGetGroupStreamsWorkspacePrivateEndpointWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/streamsWorkspacePrivateEndpoints/{endpointId}?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Stream Processing Admin",
+          "Project Stream Processing Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/getGroupStreamsWorkspacePrivateEndpoint",
+        "x-xgen-operation-id-override": "getWorkspacePrivateEndpoint"
       }
     },
     "/api/atlas/v2/groups/{groupId}/teams": {
@@ -113073,6 +116116,10 @@
         "url": "https://www.mongodb.com/docs/atlas/configure-api-access/"
       },
       "name": "Service Accounts"
+    },
+    {
+      "description": "Analyzes how well a candidate shard key would distribute a collection across the shards of a cluster. Analyzing a shard key samples documents on a live cluster and does not finish within one request, so it is submitted as a long-running operation: the request returns an operation to poll, and the completed analysis is a separate resource that the operation links to. To receive the most common shard key values, you must have the Project Data Access Read Only role or higher. Otherwise, MongoDB Cloud omits those values, because they come from the collection's data rather than from statistics about it.",
+      "name": "Shard Key Analyzer"
     },
     {
       "description": "Returns the cluster-level sharding state of one sharded cluster, including the balancer state, config server availability, and the configured balancing window.",
