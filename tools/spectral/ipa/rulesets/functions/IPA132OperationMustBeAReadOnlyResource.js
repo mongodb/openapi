@@ -5,7 +5,7 @@ import { isOperationsPath, isSingleOperationPath } from './utils/longRunningOper
 const VALID_METHOD = 'get';
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 const READ_ONLY_SCHEMA_ERROR_MESSAGE =
-  'The Operation resource must be read-only. All properties of the GET response schema must be marked as readOnly: true.';
+  'The Operation resource must be read-only. All properties of the GET response schema must be marked as readOnly: true or contain only read-only properties.';
 
 /**
  * Checks that an Operations endpoint defined by IPA-132 is a read-only resource: its path items
