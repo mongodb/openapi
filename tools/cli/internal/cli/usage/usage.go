@@ -16,6 +16,7 @@ package usage
 
 const (
 	Base                = "Base OAS. The command will merge other OASes into it."
+	Revision            = "Revision OAS to compare against the base OAS."
 	External            = "OASes that will be merged into the base OAS."
 	Output              = "File name or path where the command will store the output."
 	Format              = "Output format. Supported values are 'json', 'yaml' or 'all' which will generate one file for each supported format."
