@@ -84,9 +84,16 @@ describe('tools/spectral/ipa/rulesets/functions/utils/exceptions.js', () => {
         error: [
           {
             path: [...path, 'x-xgen-IPA-exception', TEST_RULE_NAME_100],
-            message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+            message:
+              'This component is covered by an exception on its containing schema and does not need its own exception. Please remove the exception.',
           },
         ],
+      });
+    });
+    it('returns the schema if the property is undefined and the parent schema has an exception', () => {
+      const path = ['components', 'schemas', 'SchemaWithException', 'properties', 'field'];
+      expect(findExceptionInParentSchema(oas, undefined, path, TEST_RULE_NAME_100)).toEqual({
+        schema: oas.components.schemas.SchemaWithException,
       });
     });
     it('returns null if the parent schema does not have an exception', () => {

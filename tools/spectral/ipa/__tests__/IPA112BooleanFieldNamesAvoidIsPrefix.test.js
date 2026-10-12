@@ -269,13 +269,49 @@ testRule('xgen-IPA-112-boolean-field-names-avoid-is-prefix', [
     errors: [
       {
         code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
-        message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+        message:
+          'This component is covered by an exception on its containing schema and does not need its own exception. Please remove the exception.',
         path: [
           'components',
           'schemas',
           'SchemaName',
           'properties',
           'isEnabled',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'schema with unnecessary schema-level exception - no violating fields',
+    document: {
+      components: {
+        schemas: {
+          SchemaName: {
+            type: 'object',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-112-boolean-field-names-avoid-is-prefix': 'Reason',
+            },
+            properties: {
+              enabled: { type: 'boolean' },
+              active: { type: 'boolean' },
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message:
+          'This component does not need an exception because none of its fields violate the rule. Please remove the exception.',
+        path: [
+          'components',
+          'schemas',
+          'SchemaName',
           'x-xgen-IPA-exception',
           'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
         ],

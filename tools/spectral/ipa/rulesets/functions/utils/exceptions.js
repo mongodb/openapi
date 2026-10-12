@@ -26,6 +26,42 @@ export function getUnnecessaryExceptionError(objectPath, ruleName) {
 }
 
 /**
+ * Creates an error for an exception on an object that is already covered by an exception
+ * on its containing schema. The object does not need its own exception, regardless of whether
+ * it violates or adopts the rule.
+ *
+ * @param {Array<string>} objectPath the JSON path to the object with the unnecessary exception
+ * @param {string} ruleName the name of the rule
+ * @returns {Array<{path: Array<string>, message: string}>} an array with the unnecessary exception error
+ */
+export function getUnnecessaryInheritedExceptionError(objectPath, ruleName) {
+  return [
+    {
+      path: [...objectPath, EXCEPTION_EXTENSION, ruleName],
+      message:
+        'This component is covered by an exception on its containing schema and does not need its own exception. Please remove the exception.',
+    },
+  ];
+}
+
+/**
+ * Creates an error for a schema-level exception that is not needed by any field of the schema.
+ *
+ * @param {Array<string>} schemaPath the JSON path to the schema with the unnecessary exception
+ * @param {string} ruleName the name of the rule
+ * @returns {Array<{path: Array<string>, message: string}>} an array with the unnecessary exception error
+ */
+export function getUnnecessarySchemaExceptionError(schemaPath, ruleName) {
+  return [
+    {
+      path: [...schemaPath, EXCEPTION_EXTENSION, ruleName],
+      message:
+        'This component does not need an exception because none of its fields violate the rule. Please remove the exception.',
+    },
+  ];
+}
+
+/**
  * Finds an exception for a specified rule name in the current path or its parent paths within the given OpenAPI Specification (OAS) object.
  *
  * @param {Object} oas - The OpenAPI Specification object containing path definitions.
@@ -77,8 +113,8 @@ export function findExceptionInParentSchema(oas, property, propertyPath, ruleNam
     return null;
   }
 
-  if (hasException(property, ruleName)) {
-    return { error: getUnnecessaryExceptionError(propertyPath, ruleName) };
+  if (property && hasException(property, ruleName)) {
+    return { error: getUnnecessaryInheritedExceptionError(propertyPath, ruleName) };
   }
   return { schema: schema };
 }

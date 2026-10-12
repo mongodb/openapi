@@ -4,7 +4,7 @@ import {
   handleInternalError,
 } from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
-import { findExceptionInParentSchema } from './utils/exceptions.js';
+import { findExceptionInParentSchema, getUnnecessarySchemaExceptionError } from './utils/exceptions.js';
 
 const IS_PREFIX_REGEX = /^is[A-Z]/;
 
@@ -35,10 +35,34 @@ export default (input, options, { path, documentInventory, rule }) => {
 
   const errors = checkViolationsAndReturnErrors(input, path, ruleName);
   if (result) {
-    return evaluateAndCollectAdoptionStatusWithInheritedException(errors, ruleName, result.schema, path);
+    const inheritedResult = evaluateAndCollectAdoptionStatusWithInheritedException(
+      errors,
+      ruleName,
+      result.schema,
+      path
+    );
+    if (errors.length === 0 && !schemaNeedsException(result.schema)) {
+      // No field of the schema needs the schema-level exception. Every field of the schema
+      // reports the same error, which Spectral deduplicates into a single result.
+      return getUnnecessarySchemaExceptionError(path.slice(0, -2), ruleName);
+    }
+    return inheritedResult;
   }
   return evaluateAndCollectAdoptionStatus(errors, ruleName, property, path);
 };
+
+/**
+ * Checks whether the schema-level exception is needed by at least one field defined directly on the schema.
+ * A field needs the exception if it is a boolean field using the "is" prefix.
+ *
+ * @param {object} schema - The schema containing the exception
+ * @returns {boolean} true if at least one field of the schema violates the rule, false otherwise
+ */
+function schemaNeedsException(schema) {
+  return Object.entries(schema.properties ?? {}).some(
+    ([fieldName, fieldSchema]) => fieldSchema?.type === 'boolean' && IS_PREFIX_REGEX.test(fieldName)
+  );
+}
 
 function checkViolationsAndReturnErrors(input, path, ruleName) {
   try {

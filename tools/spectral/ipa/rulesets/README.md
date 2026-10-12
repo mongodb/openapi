@@ -863,7 +863,8 @@ Rule checks for the following conditions:
   - Applies only to properties with type 'boolean'
   - Identifies property names that start with "is" followed by an uppercase letter
   - Suggests using the direct adjective form instead (e.g., "disabled" instead of "isDisabled")
-  - Exceptions can be set on the field or on the schema containing the field. An exception on the schema applies to all of its fields
+  - Exceptions can be set on the field or on the schema containing the field. An exception on the schema applies to all fields defined directly on that schema
+  - Fields in nested inline schemas or in allOf, anyOf or oneOf composition need their own exception
 
 
 
