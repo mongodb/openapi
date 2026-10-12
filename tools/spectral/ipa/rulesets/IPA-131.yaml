@@ -1,0 +1,69 @@
+# IPA-131: Declarative Tooling Extensions
+# https://mongodb.github.io/ipa/131
+
+functions:
+  - IPA131ArraySemantic
+  - IPA131ServerComputedWhenClientOmitted
+  - IPA131ServerComputedImmutable
+
+aliases:
+  SchemaProperties:
+    - '$.components.schemas..properties'
+    - '$.paths..requestBody.content[?(@property.match(/json$/i))].schema..properties'
+    - '$.paths..responses..content[?(@property.match(/json$/i))].schema..properties'
+
+rules:
+  xgen-IPA-131-array-semantic:
+    description: |
+      The `x-xgen-array-semantic` extension must be well-formed.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only fires when the `x-xgen-array-semantic` extension is explicitly declared on a property
+        - The carrying property must be `type: array`
+        - The extension value must be `list` or `set`
+        - Properties with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-131-array-semantic'
+    severity: error
+    resolved: false
+    given:
+      - '#SchemaProperties'
+    then:
+      field: '@key'
+      function: 'IPA131ArraySemantic'
+  xgen-IPA-131-server-computed-when-client-omitted:
+    description: |
+      The `x-xgen-server-computed-when-client-omitted` extension must be well-formed.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only fires when the `x-xgen-server-computed-when-client-omitted` extension is explicitly declared on a property
+        - The extension value must be a boolean
+        - The carrying property must not appear in the schema's `required` list
+        - Properties with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-131-server-computed-when-client-omitted'
+    severity: error
+    resolved: false
+    given:
+      - '#SchemaProperties'
+    then:
+      field: '@key'
+      function: 'IPA131ServerComputedWhenClientOmitted'
+  xgen-IPA-131-server-computed-immutable:
+    description: |
+      The `x-xgen-server-computed-immutable` extension must be well-formed.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Only fires when the `x-xgen-server-computed-immutable` extension is explicitly declared on a property
+        - The extension value must be a boolean
+        - The carrying property must also be marked as `readOnly: true`
+        - Properties with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-131-server-computed-immutable'
+    severity: error
+    resolved: false
+    given:
+      - '#SchemaProperties'
+    then:
+      field: '@key'
+      function: 'IPA131ServerComputedImmutable'
