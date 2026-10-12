@@ -507,4 +507,29 @@ testRule('xgen-IPA-112-boolean-field-names-avoid-is-prefix', [
       },
     ],
   },
+  {
+    name: 'non-boolean field with its own exception and a schema-level exception',
+    document: {
+      components: {
+        schemas: {
+          SchemaName: {
+            type: 'object',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-112-boolean-field-names-avoid-is-prefix': 'Reason',
+            },
+            properties: {
+              isEnabled: { type: 'boolean' },
+              name: {
+                type: 'string',
+                'x-xgen-IPA-exception': {
+                  'xgen-IPA-112-boolean-field-names-avoid-is-prefix': 'Reason',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
 ]);

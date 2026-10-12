@@ -29,15 +29,18 @@ export default (input, options, { path, documentInventory, rule }) => {
 
   const result = findExceptionInParentSchema(oas, property, path, ruleName);
 
-  // Skip schema references ($ref) and non-boolean fields:
-  // Referenced schemas are validated separately to prevent duplicate violations
+  // A schema-level exception is unnecessary if no field defined directly on the schema needs it.
+  // Every field of the schema reports the same error, which Spectral deduplicates into a single result.
+  const unnecessarySchemaException =
+    result?.schema && !schemaNeedsException(result.schema)
+      ? getUnnecessarySchemaExceptionError(path.slice(0, -2), ruleName)
+      : undefined;
+
+  // Skip schema references ($ref) and non-boolean fields: referenced schemas are validated
+  // separately to prevent duplicate violations. The schema-level exception is still checked
+  // for non-boolean fields, since it applies to the whole schema.
   if (property.type !== 'boolean') {
-    // The rule only validates boolean fields, but the schema-level exception is still
-    // reported as unnecessary if none of the fields of the schema need it.
-    if (result && !schemaNeedsException(result.schema)) {
-      return getUnnecessarySchemaExceptionError(path.slice(0, -2), ruleName);
-    }
-    return;
+    return unnecessarySchemaException;
   }
 
   if (result?.error) {
@@ -45,21 +48,12 @@ export default (input, options, { path, documentInventory, rule }) => {
   }
 
   const errors = checkViolationsAndReturnErrors(input, path, ruleName);
-  if (result) {
-    const inheritedResult = evaluateAndCollectAdoptionStatusWithInheritedException(
-      errors,
-      ruleName,
-      result.schema,
-      path
-    );
-    if (errors.length === 0 && !schemaNeedsException(result.schema)) {
-      // No field of the schema needs the schema-level exception. Every field of the schema
-      // reports the same error, which Spectral deduplicates into a single result.
-      return getUnnecessarySchemaExceptionError(path.slice(0, -2), ruleName);
-    }
-    return inheritedResult;
+  if (!result) {
+    return evaluateAndCollectAdoptionStatus(errors, ruleName, property, path);
   }
-  return evaluateAndCollectAdoptionStatus(errors, ruleName, property, path);
+
+  const inheritedResult = evaluateAndCollectAdoptionStatusWithInheritedException(errors, ruleName, result.schema, path);
+  return unnecessarySchemaException ?? inheritedResult;
 };
 
 /**

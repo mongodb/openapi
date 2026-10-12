@@ -28,11 +28,9 @@ export function evaluateAndCollectAdoptionStatus(validationErrors, ruleName, obj
 }
 
 /**
- * Evaluates and collects adoptions and exceptions for an object inheriting an exception from a parent object,
- * for example a schema property inheriting an exception from its schema.
- * If the object is violating the rule, the validation error is ignored and the inherited exception is collected.
- * If the object is adopting the rule, it is counted as adopting the rule. The inherited exception is not reported as
- * unnecessary, since it may still be needed by other objects inheriting it.
+ * Evaluates and collects the adoption or the inherited exception for an object whose exception lives on a parent
+ * object, for example a schema property inheriting an exception from its schema. The inherited exception is not
+ * reported as unnecessary, since it may still be needed by other objects inheriting it.
  *
  * @param {Array<{path: Array<string>, message: string}>} validationErrors the error results from the rule
  * @param {string} ruleName the name of the rule
