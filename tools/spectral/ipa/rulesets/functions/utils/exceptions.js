@@ -1,3 +1,5 @@
+import { resolveObject } from './componentUtils.js';
+
 export const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
 
 /**
@@ -52,4 +54,31 @@ export function findExceptionInPathHierarchy(oas, currentPath, ruleName, jsonPat
   }
 
   return null;
+}
+
+/**
+ * Finds an exception for a specified rule name in the schema containing the given property.
+ * An exception on the schema applies to all of its properties.
+ *
+ * @param {Object} oas - The OpenAPI Specification object.
+ * @param {Object} property - The property object being checked.
+ * @param {Array<string>} propertyPath - The JSON path to the property, ending with ['properties', propertyName].
+ * @param {string} ruleName - The name of the rule to check for exceptions.
+ * @return {null|Object} An object with the schema containing the rule exception if found, an object with an error
+ * if both the property and the schema have the exception, or null if the schema has no exception.
+ */
+export function findExceptionInParentSchema(oas, property, propertyPath, ruleName) {
+  if (propertyPath.length < 2 || propertyPath[propertyPath.length - 2] !== 'properties') {
+    return null;
+  }
+
+  const schema = resolveObject(oas, propertyPath.slice(0, -2));
+  if (!schema || !hasException(schema, ruleName)) {
+    return null;
+  }
+
+  if (hasException(property, ruleName)) {
+    return { error: getUnnecessaryExceptionError(propertyPath, ruleName) };
+  }
+  return { schema: schema };
 }

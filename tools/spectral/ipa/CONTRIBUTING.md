@@ -24,6 +24,9 @@ Instead of using the [Spectral overrides approach](https://docs.stoplight.io/doc
     "xgen-IPA-104-resource-has-GET": "Legacy API, not used by infrastructure-as-code tooling",
 }
 ```
+
+Some rules allow an exception to be inherited from a parent component. For example, an exception for `xgen-IPA-112-boolean-field-names-avoid-is-prefix` can be set on a schema instead of on each of its fields, and applies to all fields of that schema. Inherited exceptions are still counted in the IPA metrics. See the rule's implementation details in the [rulesets README](https://github.com/mongodb/openapi/tree/main/tools/spectral/ipa/rulesets/README.md) to check whether it supports inherited exceptions.
+
 ---
 ## Testing
 

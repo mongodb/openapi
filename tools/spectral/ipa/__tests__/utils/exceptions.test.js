@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { hasException } from '../../rulesets/functions/utils/exceptions';
+import { findExceptionInParentSchema, hasException } from '../../rulesets/functions/utils/exceptions';
 
 const TEST_RULE_NAME_100 = 'xgen-IPA-100';
 
@@ -50,6 +50,52 @@ describe('tools/spectral/ipa/rulesets/functions/utils/exceptions.js', () => {
     });
     it('returns false if object has nested exception matching the rule name', () => {
       expect(hasException(objectWithNestedIpa100Exception, TEST_RULE_NAME_100)).toBe(false);
+    });
+  });
+  describe('findExceptionInParentSchema', () => {
+    const oas = {
+      components: {
+        schemas: {
+          SchemaWithException: {
+            ...objectWithIpa100Exception,
+            properties: {
+              field: {},
+              fieldWithException: { ...objectWithIpa100Exception },
+            },
+          },
+          SchemaWithoutException: {
+            properties: {
+              field: {},
+            },
+          },
+        },
+      },
+    };
+
+    it('returns the schema if the parent schema has an exception', () => {
+      const path = ['components', 'schemas', 'SchemaWithException', 'properties', 'field'];
+      expect(findExceptionInParentSchema(oas, {}, path, TEST_RULE_NAME_100)).toEqual({
+        schema: oas.components.schemas.SchemaWithException,
+      });
+    });
+    it('returns an error if both the property and the parent schema have an exception', () => {
+      const path = ['components', 'schemas', 'SchemaWithException', 'properties', 'fieldWithException'];
+      expect(findExceptionInParentSchema(oas, objectWithIpa100Exception, path, TEST_RULE_NAME_100)).toEqual({
+        error: [
+          {
+            path: [...path, 'x-xgen-IPA-exception', TEST_RULE_NAME_100],
+            message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
+          },
+        ],
+      });
+    });
+    it('returns null if the parent schema does not have an exception', () => {
+      const path = ['components', 'schemas', 'SchemaWithoutException', 'properties', 'field'];
+      expect(findExceptionInParentSchema(oas, {}, path, TEST_RULE_NAME_100)).toBeNull();
+      expect(findExceptionInParentSchema(oas, {}, path, 'xgen-IPA-101')).toBeNull();
+    });
+    it('returns null if the path does not point to a schema property', () => {
+      expect(findExceptionInParentSchema(oas, {}, ['components', 'schemas'], TEST_RULE_NAME_100)).toBeNull();
     });
   });
 });

@@ -1,8 +1,22 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+import {
+  evaluateAndCollectAdoptionStatus,
+  evaluateAndCollectAdoptionStatusWithInheritedException,
+  handleInternalError,
+} from './utils/collectionUtils.js';
 import { resolveObject } from './utils/componentUtils.js';
+import { findExceptionInParentSchema } from './utils/exceptions.js';
 
 const IS_PREFIX_REGEX = /^is[A-Z]/;
 
+/**
+ * Checks that boolean field names do not use the "is" prefix
+ *
+ * The exception can be set on the field or on the schema containing the field. An exception on the schema applies to all of its fields.
+ *
+ * @param {string} input - The field name
+ * @param {object} options - Rule configuration options
+ * @param {object} context - The context object containing the path and documentInventory
+ */
 export default (input, options, { path, documentInventory, rule }) => {
   const ruleName = rule.name;
   const oas = documentInventory.unresolved;
@@ -14,7 +28,15 @@ export default (input, options, { path, documentInventory, rule }) => {
     return;
   }
 
+  const result = findExceptionInParentSchema(oas, property, path, ruleName);
+  if (result?.error) {
+    return result.error;
+  }
+
   const errors = checkViolationsAndReturnErrors(input, path, ruleName);
+  if (result) {
+    return evaluateAndCollectAdoptionStatusWithInheritedException(errors, ruleName, result.schema, path);
+  }
   return evaluateAndCollectAdoptionStatus(errors, ruleName, property, path);
 };
 

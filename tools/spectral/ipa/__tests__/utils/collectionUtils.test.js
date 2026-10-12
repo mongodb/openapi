@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import {
   evaluateAndCollectAdoptionStatus,
+  evaluateAndCollectAdoptionStatusWithInheritedException,
   evaluateAndCollectAdoptionStatusWithoutExceptions,
 } from '../../rulesets/functions/utils/collectionUtils.js';
 import collector from '../../metrics/collector.js';
@@ -156,6 +157,54 @@ describe('tools/spectral/ipa/rulesets/functions/utils/collectionUtils.js', () =>
       const testNoErrors = [];
 
       const result = evaluateAndCollectAdoptionStatusWithoutExceptions(testNoErrors, testRuleName, testPath);
+
+      expect(result).toEqual(undefined);
+      expect(collector.add).toHaveBeenCalledTimes(1);
+      expect(collector.add).toHaveBeenCalledWith(TEST_ENTRY_TYPE.ADOPTION, testPath, testRuleName);
+    });
+  });
+
+  describe('evaluateAndCollectAdoptionStatusWithInheritedException', () => {
+    const testRuleName = 'xgen-IPA-XXX-rule';
+    const testPath = ['components', 'schemas', 'Schema', 'properties', 'field'];
+    const testParentObject = {
+      properties: { field: {} },
+      'x-xgen-IPA-exception': {
+        'xgen-IPA-XXX-rule': 'reason',
+      },
+    };
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns empty and collects exceptions for the object when there are errors', () => {
+      const testErrors = [
+        {
+          path: testPath,
+          message: TEST_ERROR_MESSAGE,
+        },
+      ];
+
+      const result = evaluateAndCollectAdoptionStatusWithInheritedException(
+        testErrors,
+        testRuleName,
+        testParentObject,
+        testPath
+      );
+
+      expect(result).toEqual(undefined);
+      expect(collector.add).toHaveBeenCalledTimes(1);
+      expect(collector.add).toHaveBeenCalledWith(TEST_ENTRY_TYPE.EXCEPTION, testPath, testRuleName, 'reason');
+    });
+
+    it('returns empty and collects adoptions when there are no errors', () => {
+      const result = evaluateAndCollectAdoptionStatusWithInheritedException(
+        [],
+        testRuleName,
+        testParentObject,
+        testPath
+      );
 
       expect(result).toEqual(undefined);
       expect(collector.add).toHaveBeenCalledTimes(1);
