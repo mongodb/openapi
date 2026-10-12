@@ -11,7 +11,8 @@ const IS_PREFIX_REGEX = /^is[A-Z]/;
 /**
  * Checks that boolean field names do not use the "is" prefix
  *
- * The exception can be set on the field or on the schema containing the field. An exception on the schema applies to all of its fields.
+ * The exception can be set on the field or on the schema containing the field. An exception on the schema
+ * applies to all fields defined directly on that schema and is reported as unnecessary when no field needs it.
  *
  * @param {string} input - The field name
  * @param {object} options - Rule configuration options
@@ -22,13 +23,23 @@ export default (input, options, { path, documentInventory, rule }) => {
   const oas = documentInventory.unresolved;
   const property = resolveObject(oas, path);
 
-  // Skip schema references ($ref) and non-boolean fields:
-  // Referenced schemas are validated separately to prevent duplicate violations
-  if (!property || property.type !== 'boolean') {
+  if (!property) {
     return;
   }
 
   const result = findExceptionInParentSchema(oas, property, path, ruleName);
+
+  // Skip schema references ($ref) and non-boolean fields:
+  // Referenced schemas are validated separately to prevent duplicate violations
+  if (property.type !== 'boolean') {
+    // The rule only validates boolean fields, but the schema-level exception is still
+    // reported as unnecessary if none of the fields of the schema need it.
+    if (result && !schemaNeedsException(result.schema)) {
+      return getUnnecessarySchemaExceptionError(path.slice(0, -2), ruleName);
+    }
+    return;
+  }
+
   if (result?.error) {
     return result.error;
   }

@@ -320,6 +320,51 @@ testRule('xgen-IPA-112-boolean-field-names-avoid-is-prefix', [
     ],
   },
   {
+    name: 'schema with schema-level exception whose only violating field is nested - exception is unnecessary',
+    document: {
+      components: {
+        schemas: {
+          SchemaName: {
+            type: 'object',
+            'x-xgen-IPA-exception': {
+              'xgen-IPA-112-boolean-field-names-avoid-is-prefix': 'Reason',
+            },
+            properties: {
+              name: { type: 'string' },
+              nested: {
+                type: 'object',
+                properties: {
+                  isNested: { type: 'boolean' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message:
+          'This component does not need an exception because none of its fields violate the rule. Please remove the exception.',
+        path: [
+          'components',
+          'schemas',
+          'SchemaName',
+          'x-xgen-IPA-exception',
+          'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        ],
+        severity: DiagnosticSeverity.Error,
+      },
+      {
+        code: 'xgen-IPA-112-boolean-field-names-avoid-is-prefix',
+        message: 'Boolean field "isNested" should not use the "is" prefix. Use "nested" instead.',
+        path: ['components', 'schemas', 'SchemaName', 'properties', 'nested', 'properties', 'isNested'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
     name: 'schema with referenced property types',
     document: {
       components: {
