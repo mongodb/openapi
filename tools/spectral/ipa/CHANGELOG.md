@@ -2,7 +2,19 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [11.2.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.1.0...11.2.0)
+#### [11.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.2.0...11.3.0)
+
+- feat(ipa): allow schema-level IPA-112 is-prefix exceptions [`#1548`](https://github.com/mongodb/openapi/pull/1548)
+- refactor(ipa): simplyfy bool expression using DeMorgan's law [`#1547`](https://github.com/mongodb/openapi/pull/1547)
+- chore(ipa): bump @stoplight/spectral-core from 1.23.1 to 1.24.0 in /tools/spectral/ipa [`#1533`](https://github.com/mongodb/openapi/pull/1533)
+- chore(ipa): bump @stoplight/spectral-functions from 1.10.5 to 1.11.0 in /tools/spectral/ipa [`#1532`](https://github.com/mongodb/openapi/pull/1532)
+- chore(ipa): bump @stoplight/spectral-cli from 6.16.3 to 6.17.0 in /tools/spectral/ipa [`#1531`](https://github.com/mongodb/openapi/pull/1531)
+- chore(ipa): bump auto-changelog from 2.6.1 to 2.7.0 in /tools/spectral/ipa [`#1518`](https://github.com/mongodb/openapi/pull/1518)
+- feat(ipa): CLOUDP-397829: Disallow nullable booleans [`#1517`](https://github.com/mongodb/openapi/pull/1517)
+
+#### [ipa-validation-ruleset-v11.2.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.1.0...ipa-validation-ruleset-v11.2.0)
+
+> 22 September 2026
 
 - feat(ipa): Add IPA-111 validation rules [`#1460`](https://github.com/mongodb/openapi/pull/1460)
 - chore(ipa): bump auto-changelog from 2.6.0 to 2.6.1 in /tools/spectral/ipa [`#1479`](https://github.com/mongodb/openapi/pull/1479)
