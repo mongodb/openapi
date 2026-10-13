@@ -1,3 +1,5 @@
+import { resolveObject } from './componentUtils.js';
+
 export const EXCEPTION_EXTENSION = 'x-xgen-IPA-exception';
 
 /**
@@ -14,13 +16,27 @@ export function hasException(object, ruleName) {
   return false;
 }
 
+const UNNECESSARY_EXCEPTION_MESSAGE =
+  'This component adopts the rule and does not need an exception. Please remove the exception.';
+const UNNECESSARY_INHERITED_EXCEPTION_MESSAGE =
+  'This component is covered by an exception on its containing schema and does not need its own exception. Please remove the exception.';
+const UNNECESSARY_SCHEMA_EXCEPTION_MESSAGE =
+  'This component does not need an exception because none of its fields violate the rule. Please remove the exception.';
+
+function unnecessaryExceptionError(objectPath, ruleName, message) {
+  return [{ path: [...objectPath, EXCEPTION_EXTENSION, ruleName], message }];
+}
+
 export function getUnnecessaryExceptionError(objectPath, ruleName) {
-  return [
-    {
-      path: [...objectPath, EXCEPTION_EXTENSION, ruleName],
-      message: 'This component adopts the rule and does not need an exception. Please remove the exception.',
-    },
-  ];
+  return unnecessaryExceptionError(objectPath, ruleName, UNNECESSARY_EXCEPTION_MESSAGE);
+}
+
+export function getUnnecessaryInheritedExceptionError(objectPath, ruleName) {
+  return unnecessaryExceptionError(objectPath, ruleName, UNNECESSARY_INHERITED_EXCEPTION_MESSAGE);
+}
+
+export function getUnnecessarySchemaExceptionError(objectPath, ruleName) {
+  return unnecessaryExceptionError(objectPath, ruleName, UNNECESSARY_SCHEMA_EXCEPTION_MESSAGE);
 }
 
 /**
@@ -52,4 +68,30 @@ export function findExceptionInPathHierarchy(oas, currentPath, ruleName, jsonPat
   }
 
   return null;
+}
+
+/**
+ * Finds an exception for a specified rule name in the schema directly containing the given property.
+ * The exception applies to all fields defined directly on that schema.
+ *
+ * @param {Object} oas - The OpenAPI Specification object.
+ * @param {Object} property - The property object being checked.
+ * @param {Array<string>} propertyPath - The JSON path to the property, ending with ['properties', propertyName].
+ * @param {string} ruleName - The name of the rule to check for exceptions.
+ * @return {null|Object} the schema with the exception, an error if both the property and the schema have one, or null
+ */
+export function findExceptionInParentSchema(oas, property, propertyPath, ruleName) {
+  if (propertyPath.length < 2 || propertyPath[propertyPath.length - 2] !== 'properties') {
+    return null;
+  }
+
+  const schema = resolveObject(oas, propertyPath.slice(0, -2));
+  if (!schema || !hasException(schema, ruleName)) {
+    return null;
+  }
+
+  if (property && hasException(property, ruleName)) {
+    return { error: getUnnecessaryInheritedExceptionError(propertyPath, ruleName) };
+  }
+  return { schema: schema };
 }
