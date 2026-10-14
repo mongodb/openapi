@@ -9,6 +9,8 @@ on:
     secrets: # all secrets are passed explicitly in this workflow
       api_bot_pat:
         required: true
+      slack_bearer_token:
+        required: true
 permissions:
   contents: write
 
@@ -74,3 +76,26 @@ jobs:
             pushd atlas-sdk-go
             make -e openapi-pipeline
             popd
+        # Notify the APIx DevOps Integrations on-call so an SDK validation
+        # failure is routed quickly. Keyed to the go-sdk-validation step
+        # outcome: an earlier setup failure (Node, npm, artifact download,
+        # Spectral, Go, SDK checkout) leaves this step without a failure
+        # outcome, so it does not notify.
+        - name: Notify the Go SDK validation failure
+          # Notify once per incident. The release retry handler requests a
+          # rerun of failed jobs while github.run_attempt < 3, so attempt 3 is
+          # the first attempt after the automatic retries are exhausted.
+          # Attempts beyond 3 come from reruns the handler already queued and
+          # would duplicate the alert.
+          if: ${{ failure() && steps.go-sdk-validation.outcome == 'failure' && fromJSON(github.run_attempt) == 3 }}
+          env:
+            SLACK_BEARER_TOKEN: ${{ secrets.slack_bearer_token }}
+            # #cloud-apix-devops-integrations-notifications and
+            # @apix-devops-integrations-help (S0C2KP6E273). These are
+            # non-sensitive IDs, kept inline because only the repo owner can
+            # manage repository secrets.
+            SLACK_CHANNEL_ID: C06Q7QF1ZST
+            SLACK_HELP_GROUP: '<!subteam^S0C2KP6E273>'
+            TARGET_ENV: ${{ inputs.env }}
+            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          run: .github/scripts/notify_sdk_validation_failure.sh
