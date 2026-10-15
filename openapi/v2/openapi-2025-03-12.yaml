@@ -32736,6 +32736,32 @@ components:
             required:
                 - results
             type: object
+        PaginatedApiSkuServiceView:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/SkuServiceResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
         PaginatedApiStreamsConnectionView:
             properties:
                 links:
@@ -39921,6 +39947,13 @@ components:
                     readOnly: true
                     type: string
             type: object
+        SkuServiceResponse:
+            properties:
+                name:
+                    description: Human-readable name of the SKU service as shown on invoices.
+                    readOnly: true
+                    type: string
+            type: object
         Slack:
             description: Details to integrate one Slack account with one MongoDB Cloud project.
             properties:
@@ -45244,7 +45277,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 6f71af08b3880ea20afd225df455921e6d892dbd
+    x-xgen-sha: bfc6fb2032db75034abadd410cc6abedc9da411f
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -99165,6 +99198,88 @@ paths:
                       --header "Accept: application/vnd.atlas.2025-03-12+json" \
                       -X GET "https://cloud.mongodb.com/api/atlas/v2/rateLimits/{endpointSetId}?pretty=true"
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/getRateLimit
+    /api/atlas/v2/skuServices:
+        get:
+            description: Returns all launched SKU services. SKU services are the customer-facing categories that SKUs are grouped under on MongoDB invoices.
+            operationId: listSkuServices
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.2025-03-12+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedApiSkuServiceView'
+                            x-xgen-version: "2025-03-12"
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Stock Keeping Unit Services
+            tags:
+                - Invoices
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api invoices listSkuServices --help
+                - label: Go
+                  lang: go
+                  source: |
+                    import (
+                    	"os"
+                    	"context"
+                    	"log"
+                    	sdk "go.mongodb.org/atlas-sdk/v20250312001/admin"
+                    )
+
+                    func main() {
+                    	ctx := context.Background()
+                    	clientID := os.Getenv("MONGODB_ATLAS_CLIENT_ID")
+                    	clientSecret := os.Getenv("MONGODB_ATLAS_CLIENT_SECRET")
+
+                    	// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth
+                    	client, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))
+
+                    	if err != nil {
+                    		log.Fatalf("Error: %v", err)
+                    	}
+
+                    	params = &sdk.ListSkuServicesApiParams{}
+                    	sdkResp, httpResp, err := client.InvoicesApi.
+                    		ListSkuServicesWithParams(ctx, params).
+                    		Execute()
+                    }
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/skuServices?pretty=true"
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.2025-03-12+json" \
+                      -X GET "https://cloud.mongodb.com/api/atlas/v2/skuServices?pretty=true"
+            x-rolesRequirements:
+                - Organization Member
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listSkuServices
     /api/atlas/v2/skus:
         get:
             description: Returns all available SKUs (Stock Keeping Units) that can appear on MongoDB invoices. SKUs represent different products and services offered by MongoDB.
