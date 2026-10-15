@@ -350,6 +350,43 @@
         },
         "description": "Payment Required."
       },
+      "resourcePolicyForbidden": {
+        "content": {
+          "application/json": {
+            "examples": {
+              "forbidden": {
+                "summary": "Forbidden",
+                "value": {
+                  "detail": "(This is just an example, the exception may not be related to this endpoint)",
+                  "error": 403,
+                  "errorCode": "CANNOT_CHANGE_GROUP_NAME",
+                  "reason": "Forbidden"
+                }
+              },
+              "resourcePolicyViolation": {
+                "summary": "Atlas Resource Policy violation",
+                "value": {
+                  "detail": "Invalid Configuration. Contains selections that are unavailable due to your organization's resource policies.",
+                  "error": 403,
+                  "errorCode": "ATLAS_RESOURCE_POLICIES_VIOLATION_NOT_AUTHORIZED",
+                  "parameters": [],
+                  "policiesCausingDecision": [
+                    {
+                      "id": "32b6e34b3d91647abb20e7b8",
+                      "name": "forbid-aws-clusters"
+                    }
+                  ],
+                  "reason": "Forbidden"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Forbidden. Atlas Resource Policy details are returned only when an Atlas Resource Policy denies the request."
+      },
       "serviceUnavailable": {
         "content": {
           "application/json": {
@@ -3559,6 +3596,16 @@
             },
             "readOnly": true,
             "type": "array"
+          },
+          "policiesCausingDecision": {
+            "description": "Atlas Resource Policies that caused the request to be denied. Returned only when `errorCode` is `ATLAS_RESOURCE_POLICIES_VIOLATION_NOT_AUTHORIZED`.",
+            "items": {
+              "$ref": "#/components/schemas/ResourcePolicyReference"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-array-semantic": "set"
           },
           "reason": {
             "description": "Application error message returned with this error.",
@@ -46398,6 +46445,28 @@
         "title": "Resource Events",
         "type": "object"
       },
+      "ResourcePolicyReference": {
+        "description": "Atlas Resource Policy that caused the request to be denied.",
+        "properties": {
+          "id": {
+            "description": "Unique 24-hexadecimal character string that identifies the Atlas Resource Policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable label that identifies the Atlas Resource Policy.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
       "ResourceTag": {
         "description": "Key-value pair that tags and categorizes a MongoDB Cloud organization, project, or cluster. For example, `environment : production`.",
         "properties": {
@@ -57521,7 +57590,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "bfc6fb2032db75034abadd410cc6abedc9da411f"
+    "x-xgen-sha": "4300f0995a00f38931f3294b3e63c9b771d19b45"
   },
   "openapi": "3.0.1",
   "paths": {
