@@ -27,7 +27,8 @@ class Collector {
       [EntryType.EXCEPTION]: [],
     };
 
-    this.fileName = 'ipa-collector-results-combined.log';
+    // IPA_COLLECTOR_FILE lets tooling (e.g. scripts/ipa-snapshot.js) direct the log to a private path
+    this.fileName = process.env.IPA_COLLECTOR_FILE || 'ipa-collector-results-combined.log';
 
     process.on('exit', () => this.flushToFile());
     process.on('SIGINT', () => {
