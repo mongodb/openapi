@@ -1761,7 +1761,7 @@ components:
                     writeOnly: true
                 name:
                     description: A name for the new API key that will be created.
-                    maxLength: 250
+                    maxLength: 50
                     minLength: 1
                     type: string
             required:
@@ -1840,7 +1840,7 @@ components:
             properties:
                 name:
                     description: A new name for the API key.
-                    maxLength: 250
+                    maxLength: 50
                     minLength: 1
                     type: string
             required:
@@ -30171,6 +30171,49 @@ components:
                 tier:
                     $ref: '#/components/schemas/MongosTier'
             type: object
+        MongosTopologyResourceRegionConfig:
+            description: Dedicated mongos placement in one region.
+            properties:
+                nodeCount:
+                    description: Number of dedicated mongos to run in this region.
+                    format: int32
+                    type: integer
+                providerName:
+                    description: Cloud provider on which the dedicated mongos run.
+                    enum:
+                        - AWS
+                        - AZURE
+                        - GCP
+                    type: string
+                regionName:
+                    description: Region in which the dedicated mongos run.
+                    type: string
+            type: object
+        MongosTopologyResourceResponse:
+            description: Configuration of the dedicated mongos routers for a sharded cluster, identified by the name of its associated cluster.
+            properties:
+                clusterName:
+                    description: Human-readable label that identifies the sharded cluster this topology belongs to.
+                    type: string
+                instanceSize:
+                    description: Instance size of the dedicated mongos hosts (for example, `M30`).
+                    type: string
+                regionConfigs:
+                    description: Per-region placement of the dedicated mongos hosts.
+                    items:
+                        $ref: '#/components/schemas/MongosTopologyResourceRegionConfig'
+                    type: array
+                status:
+                    description: Lifecycle status of the dedicated mongos topology resource.
+                    enum:
+                        - PENDING_CLUSTER_CREATION
+                        - CREATING
+                        - UPDATING
+                        - DELETING
+                        - ACTIVE
+                    readOnly: true
+                    type: string
+            type: object
         MongotuneAlertConfigViewForNdsGroup:
             description: Intelligent Workload Management alert configuration allows to select which Intelligent Workload Management events trigger alerts and how users are notified.
             properties:
@@ -36331,6 +36374,32 @@ components:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
                         $ref: '#/components/schemas/MetricIntegrationResponse'
+                    readOnly: true
+                    type: array
+                totalCount:
+                    description: Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.
+                    format: int32
+                    minimum: 0
+                    readOnly: true
+                    type: integer
+            required:
+                - results
+            type: object
+        PaginatedMongosTopologyResourceResponse:
+            properties:
+                links:
+                    description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
+                    externalDocs:
+                        description: Web Linking Specification (RFC 5988)
+                        url: https://datatracker.ietf.org/doc/html/rfc5988
+                    items:
+                        $ref: '#/components/schemas/Link'
+                    readOnly: true
+                    type: array
+                results:
+                    description: List of returned documents that MongoDB Cloud provides when completing this request.
+                    items:
+                        $ref: '#/components/schemas/MongosTopologyResourceResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -48616,7 +48685,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 3aa04d7ff92fade9e467cdaa15e8cbe328dbf628
+    x-xgen-sha: 562d4948a8d6ad98fb983f0089d71ffe1b4accdd
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -67831,6 +67900,93 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Projects/operation/getGroupMongoDbVersions
             x-xgen-operation-id-override: getMongoDbVersions
+    /api/atlas/v2/groups/{groupId}/mongosTopologies:
+        get:
+            description: Returns the dedicated mongos topologies in the specified project, including topologies staged before their cluster exists.
+            operationId: listGroupMongosTopologies
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/includeCount'
+                - $ref: '#/components/parameters/itemsPerPage'
+                - $ref: '#/components/parameters/pageNum'
+                - $ref: '#/components/parameters/pretty'
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/PaginatedMongosTopologyResourceResponse'
+                            x-xgen-preview:
+                                name: mongos-topologies
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return All Dedicated Mongos Topologies for One Project
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupMongosTopologies
+    /api/atlas/v2/groups/{groupId}/mongosTopologies/{clusterName}:
+        get:
+            description: Returns the dedicated mongos topology for the specified cluster, or a topology staged before its cluster exists.
+            operationId: getGroupMongosTopology
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the sharded cluster this topology belongs to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/MongosTopologyResourceResponse'
+                            x-xgen-preview:
+                                name: mongos-topologies
+                            x-xgen-version: preview
+                    description: OK
+                    headers:
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Return One Dedicated Mongos Topology for One Cluster
+            tags:
+                - Clusters
+            x-rolesRequirements:
+                - Project Read Only
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupMongosTopology
     /api/atlas/v2/groups/{groupId}/peers:
         get:
             description: Returns details about all network peering connections in the specified project. Network peering allows multiple cloud-hosted applications to securely connect to the same project.
