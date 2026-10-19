@@ -17450,6 +17450,72 @@
         "title": "Cps Backup Threshold Alert Configuration",
         "type": "object"
       },
+      "CpuBurstCreditMeasurementsResponse": {
+        "properties": {
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "intervalMinutes": {
+            "description": "Length in minutes of the cloud provider aggregation interval that produced every data point in this response. Divide a `CPU_CREDIT_USAGE` value by this interval to derive a per-minute consumption rate.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CpuBurstCreditResult"
+            },
+            "description": "Map of CPU credit results keyed by the combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. Every process in the project appears exactly once, including processes that do not use a burstable instance family.",
+            "readOnly": true,
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "CpuBurstCreditResult": {
+        "description": "Outcome of the CPU burst credit lookup for one MongoDB process, and the measurements returned by the cloud provider for that process.",
+        "properties": {
+          "measurements": {
+            "description": "List that contains the CPU credit measurements for this host. Empty unless `status` is `OK`.",
+            "items": {
+              "$ref": "#/components/schemas/MetricsMeasurement"
+            },
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Bounded by the fixed set of CPU credit metrics the cloud providers report, not by caller input."
+            }
+          },
+          "status": {
+            "description": "Outcome of the credit lookup for this host. `OK` indicates that the cloud provider returned a data point. `NO_DATA` indicates that the host uses a burstable instance family but no data point was available. `NOT_APPLICABLE` indicates that the host does not use a burstable instance family, or runs on a cloud provider that does not implement a CPU credit model.",
+            "enum": [
+              "OK",
+              "NO_DATA",
+              "NOT_APPLICABLE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
       "CreateAWSEndpointRequest": {
         "allOf": [
           {
@@ -65571,7 +65637,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "68e0e64ff7bdb43be5adf59636fb93492b4de9b3"
+    "x-xgen-sha": "73575bdaed1fd4af1c5eae2a55ea86135408a77c"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -88509,6 +88575,82 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Network-Peering/operation/updateGroupContainer",
         "x-xgen-owner-team": "Atlas Dedicated"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/cpuBurstCredits": {
+      "get": {
+        "description": "Returns the most recent CPU burst credit balance and consumption reported by the cloud provider for every MongoDB process in the specified project. Cloud providers aggregate these metrics over a fixed interval, so each data point is timestamped at the start of the interval that produced it and can lag the current time by up to twice that interval. Processes that do not use a burstable instance family, and processes on cloud providers that do not implement a CPU credit model, are returned with a status of `NOT_APPLICABLE`.",
+        "operationId": "getGroupCpuBurstCredits",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CpuBurstCreditMeasurementsResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "cpu-burst-credits"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Burst Credits for All Processes in One Project",
+        "tags": [
+          "Monitoring and Logs"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Monitoring-and-Logs/operation/getGroupCpuBurstCredits",
+        "x-xgen-hidden-env": {
+          "envs": "dev,qa,stage,prod"
+        },
+        "x-xgen-operation-id-override": "getCpuBurstCredits",
+        "x-xgen-owner-team": "Intel I"
       }
     },
     "/api/atlas/v2/groups/{groupId}/customDBRoles/roles": {
