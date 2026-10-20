@@ -59008,6 +59008,46 @@
         },
         "type": "object"
       },
+      "StreamsDataCatalogConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "catalogUrl": {
+                "description": "Base HTTPS URL of the catalog. Must be on the provider's domain: `*.cloud.databricks.com` or `*.azuredatabricks.net` for Databricks Unity, and `*.snowflakecomputing.com` for Snowflake Horizon.",
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for Iceberg Data Catalog connections.",
+        "discriminator": {
+          "mapping": {
+            "DATABRICKS_UNITY": "#/components/schemas/StreamsDatabricksUnityCatalogConnection",
+            "SNOWFLAKE_HORIZON": "#/components/schemas/StreamsSnowflakeHorizonCatalogConnection"
+          },
+          "propertyName": "catalogProvider"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/StreamsDatabricksUnityCatalogConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsSnowflakeHorizonCatalogConnection"
+          }
+        ],
+        "required": [
+          "catalogUrl"
+        ],
+        "type": "object",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        }
+      },
       "StreamsDataProcessRegion": {
         "description": "Information about the cloud provider region in which MongoDB Cloud processes the stream.",
         "properties": {
@@ -59043,6 +59083,73 @@
           "region"
         ],
         "type": "object"
+      },
+      "StreamsDatabricksAuthentication": {
+        "description": "Databricks service principal credentials used to obtain an OAuth token.",
+        "properties": {
+          "clientId": {
+            "description": "OAuth client ID of the Databricks service principal.",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "OAuth client secret of the Databricks service principal. Never returned in responses; omit or leave blank on update to keep the stored secret.",
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "clientId",
+          "clientSecret"
+        ],
+        "type": "object"
+      },
+      "StreamsDatabricksConnectionConfig": {
+        "description": "Databricks settings for a connection.",
+        "properties": {
+          "authentication": {
+            "$ref": "#/components/schemas/StreamsDatabricksAuthentication"
+          }
+        },
+        "required": [
+          "authentication"
+        ],
+        "type": "object",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        }
+      },
+      "StreamsDatabricksUnityCatalogConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsDataCatalogConnection"
+          },
+          {
+            "properties": {
+              "catalogProvider": {
+                "description": "Catalog system the connection points at. Cannot be changed after creation.",
+                "enum": [
+                  "DATABRICKS_UNITY"
+                ],
+                "type": "string"
+              },
+              "databricks": {
+                "$ref": "#/components/schemas/StreamsDatabricksConnectionConfig"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for a Databricks Unity Catalog connection.",
+        "required": [
+          "catalogProvider",
+          "catalogUrl",
+          "databricks"
+        ],
+        "type": "object",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        }
       },
       "StreamsEventTypeViewForNdsGroup": {
         "description": "Unique identifier of event type.",
@@ -60247,6 +60354,83 @@
           "schemaRegistryUrls"
         ],
         "type": "object"
+      },
+      "StreamsSnowflakeAuthentication": {
+        "description": "Snowflake service user and key pair used to authenticate to Snowflake.",
+        "properties": {
+          "account": {
+            "description": "Snowflake account identifier.",
+            "type": "string"
+          },
+          "privateKey": {
+            "description": "Private key of the service user's key pair. Never returned in responses; omit or leave blank on update to keep the stored key.",
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "role": {
+            "description": "Snowflake role the service user assumes.",
+            "type": "string"
+          },
+          "user": {
+            "description": "Snowflake service user.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account",
+          "privateKey",
+          "role",
+          "user"
+        ],
+        "type": "object"
+      },
+      "StreamsSnowflakeConnectionConfig": {
+        "description": "Snowflake settings for a connection.",
+        "properties": {
+          "authentication": {
+            "$ref": "#/components/schemas/StreamsSnowflakeAuthentication"
+          }
+        },
+        "required": [
+          "authentication"
+        ],
+        "type": "object",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        }
+      },
+      "StreamsSnowflakeHorizonCatalogConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsDataCatalogConnection"
+          },
+          {
+            "properties": {
+              "catalogProvider": {
+                "description": "Catalog system the connection points at. Cannot be changed after creation.",
+                "enum": [
+                  "SNOWFLAKE_HORIZON"
+                ],
+                "type": "string"
+              },
+              "snowflake": {
+                "$ref": "#/components/schemas/StreamsSnowflakeConnectionConfig"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for a Snowflake Horizon catalog connection.",
+        "required": [
+          "catalogProvider",
+          "catalogUrl",
+          "snowflake"
+        ],
+        "type": "object",
+        "x-xgen-hidden-env": {
+          "envs": "qa,stage,prod"
+        }
       },
       "StreamsStartProcessorFailover": {
         "description": "Failover options for starting a stream processor.",
@@ -65292,7 +65476,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "4758a4f1ba4cfd3d6b2339c66bbbf7b67bc579e7"
+    "x-xgen-sha": "59b658fc6bd4c9a0a6b892e096c4b93fc5ee0d09"
   },
   "openapi": "3.0.1",
   "paths": {
