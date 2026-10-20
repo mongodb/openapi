@@ -40715,6 +40715,30 @@
         },
         "type": "object"
       },
+      "MongosTopologyCreateRequest": {
+        "description": "Dedicated mongos topology to attach to a sharded cluster.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "type": "string"
+          },
+          "instanceSize": {
+            "description": "Instance size of the dedicated mongos hosts (for example, `M30`).",
+            "type": "string"
+          },
+          "regionConfigs": {
+            "description": "Per-region placement of the dedicated mongos hosts.",
+            "items": {
+              "$ref": "#/components/schemas/MongosTopologyResourceRegionConfig"
+            },
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Region placements are naturally bounded by the number of cloud regions; no fixed array cap is enforced."
+            }
+          }
+        },
+        "type": "object"
+      },
       "MongosTopologyResourceRegionConfig": {
         "description": "Dedicated mongos placement in one region.",
         "properties": {
@@ -65639,7 +65663,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "2f21508bc27d359d1003b9d22d5c63a1391b3451"
+    "x-xgen-sha": "b99f1168961e5e731af81bfdf5c163a0a60c5e32"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -97666,6 +97690,96 @@
           "Project Read Only"
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupMongosTopologies",
+        "x-xgen-owner-team": "Atlas Clusters Security III"
+      },
+      "post": {
+        "description": "Attaches a dedicated mongos topology to an existing sharded cluster, triggering the transition from colocated to dedicated mongos. When no cluster with the given name exists yet, the topology is staged and adopted when the cluster is created.",
+        "operationId": "createGroupMongosTopology",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MongosTopologyCreateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "mongos-topologies"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Dedicated mongos topology to attach.",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "mongos-topologies"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Accepted",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Add One Dedicated Mongos Topology to One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-106-create-method-response-code-is-201": "Attaching a topology is a long-running operation; it returns 202."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createGroupMongosTopology",
+        "x-xgen-long-running-operation": {
+          "legacy": false
+        },
         "x-xgen-owner-team": "Atlas Clusters Security III"
       }
     },
