@@ -3,14 +3,14 @@ module github.com/mongodb/openapi/tools/cli
 go 1.26.0
 
 require (
-	github.com/getkin/kin-openapi v0.149.0
+	github.com/getkin/kin-openapi v0.151.0
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/oasdiff/oasdiff v1.33.0
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0
-	golang.org/x/text v0.42.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
 
