@@ -40790,7 +40790,6 @@
               "PENDING_CLUSTER_CREATION",
               "CREATING",
               "UPDATING",
-              "DELETING",
               "ACTIVE"
             ],
             "readOnly": true,
@@ -65663,7 +65662,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "fd9dde0bf88cd41d6d23d3b1d37cd693908e66f6"
+    "x-xgen-sha": "dc64f0405793ccff0bed4bd3fdc80ee74af9cbfc"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -97784,8 +97783,80 @@
       }
     },
     "/api/atlas/v2/groups/{groupId}/mongosTopologies/{clusterName}": {
+      "delete": {
+        "description": "Removes the dedicated mongos topology from the specified cluster, transitioning it back to colocated mongos. This does not delete the cluster.",
+        "operationId": "deleteGroupMongosTopology",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "mongos-topologies"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove the Dedicated Mongos Topology from One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/deleteGroupMongosTopology",
+        "x-xgen-owner-team": "Atlas Clusters Security III"
+      },
       "get": {
-        "description": "Returns the dedicated mongos topology for the specified cluster, or a topology staged before its cluster exists.",
+        "description": "Returns the dedicated mongos topology for the specified cluster, or a topology staged before its cluster exists. Only a topology that is dedicated or transitioning to dedicated is returned; a cluster whose mongos are colocated or transitioning back to colocated has no topology resource.",
         "operationId": "getGroupMongosTopology",
         "parameters": [
           {
