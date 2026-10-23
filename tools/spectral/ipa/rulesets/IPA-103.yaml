@@ -1,0 +1,24 @@
+# IPA-103: Resources
+# https://mongodb.github.io/ipa/103
+
+functions:
+  - IPA103ResponseBodyRootShape
+
+rules:
+  xgen-IPA-103-response-body-root-shape:
+    description: |
+      Response bodies must define a well-defined root shape: a JSON object with named properties, or a discriminated `oneOf` whose variants are all objects.
+
+      ##### Implementation details
+      Rule checks for the following conditions:
+        - Applies to JSON response bodies that define a schema
+        - The resolved schema must be `type: object` with at least one named property, or a `oneOf` whose variants are all `type: object`
+        - Collection envelopes per IPA-110 (`results`, `links`, `totalCount`) satisfy the rule, as they are objects with named properties
+        - Rejects `type: array`, primitive types, and objects whose only keys are `additionalProperties`
+        - Responses with `x-xgen-IPA-exception` for this rule are excluded from validation
+    message: '{{error}} https://mdb.link/mongodb-atlas-openapi-validation#xgen-IPA-103-response-body-root-shape'
+    severity: error
+    given: '$.paths[*][*].responses[*].content'
+    then:
+      field: '@key'
+      function: 'IPA103ResponseBodyRootShape'
