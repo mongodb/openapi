@@ -121,11 +121,35 @@ To learn more about Spectral custom functions, see the [Spectral Documentation](
 
 ---
 
+### Where a Rule Applies: Conditions and `defineRule`
+
+Concepts such as "singleton resource", "read-only resource" or "single resource path" are defined once, as named **conditions** in [`rulesets/functions/utils/conditions`](./rulesets/functions/utils/conditions). Each condition has a plain-English definition and examples (add a `note` to an example when what makes it match isn't visible in its path), and the glossary [`rulesets/CONDITIONS.md`](./rulesets/CONDITIONS.md) is generated from them.
+
+Build new rules with [`defineRule`](./rulesets/functions/utils/defineRule.js), declaring the conditions under which the rule applies instead of returning early:
+
+```js
+import { defineRule } from './utils/defineRule.js';
+import { not } from './utils/conditions/registry.js';
+import { isReadOnly, isSingleton } from './utils/conditions/resource.js';
+
+export default defineRule({
+  appliesTo: [isSingleton, not(isReadOnly)],
+  check: ({ input, path }) => (hasPutMethod(input) || hasPatchMethod(input) ? [] : [{ path, message: ERROR_MESSAGE }]),
+});
+```
+
+- `appliesTo` conditions are evaluated in order. If one does not hold, the rule does not apply and nothing is collected.
+- `check` returns the validation errors; adoptions, violations and exceptions are collected for you (see below).
+- The rule's "Applies to" section in [`rulesets/README.md`](./rulesets/README.md) is generated from `appliesTo`, so don't describe these conditions in the YAML description.
+- Reuse an existing condition where possible. If a rule needs a different definition, add a condition with `variantOf` and a `divergence` note rather than changing the shared one.
+
+To check that a refactor changes no result, run `tools/spectral/ipa/scripts/ipa-snapshot.js` on the same spec before and after, then compare the two outputs with `ipa-snapshot-compare.js` (see the header of each script for options).
+
 ### Resource & Singleton Evaluation
 
 In IPA Spectral validation, a **resource** is typically identified using a *resource collection path*, such as `/resource`.
 
-To develop rules that evaluate resource and singleton patterns, you can use the following utility functions:
+The conditions above wrap the following utility functions, which rules not yet built with `defineRule` use directly:
 
 ####  Retrieve Resource Path Items
 
