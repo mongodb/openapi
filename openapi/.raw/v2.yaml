@@ -44963,285 +44963,118 @@ components:
             type: object
         ShardingRecommendation:
             description: One sharding recommendation for the cluster or one of its collections.
+            discriminator:
+                mapping:
+                    ADD_SHARDS: '#/components/schemas/ShardingRecommendationAddShards'
+                    SHARD_CLUSTER: '#/components/schemas/ShardingRecommendationShardCluster'
+                    SHARD_COLLECTION: '#/components/schemas/ShardingRecommendationShardCollection'
+                propertyName: type
+            oneOf:
+                - $ref: '#/components/schemas/ShardingRecommendationAddShards'
+                - $ref: '#/components/schemas/ShardingRecommendationShardCollection'
+                - $ref: '#/components/schemas/ShardingRecommendationShardCluster'
             properties:
-                scope:
-                    description: Level at which the recommendation applies.
-                    enum:
-                        - CLUSTER
-                        - COLLECTION
-                    readOnly: true
-                    type: string
-                summary:
-                    $ref: '#/components/schemas/ShardingRecommendationSummary'
-                target:
-                    description: 'Entity the recommendation applies to: the cluster name when scope is `CLUSTER`, or the namespace in `database.collection` form when scope is `COLLECTION`.'
-                    readOnly: true
-                    type: string
                 triggers:
                     description: Monitored conditions that fired and produced this recommendation.
                     items:
-                        $ref: '#/components/schemas/ShardingRecommendationFiredTrigger'
-                    maxItems: 10
+                        $ref: '#/components/schemas/ShardingRecommendationTrigger'
+                    maxItems: 100
                     readOnly: true
                     type: array
                 type:
                     description: Recommendation type that produced this recommendation.
-                    enum:
-                        - ADD_SHARDS
-                        - MOVE_COLLECTION
-                        - SHARD_COLLECTION
-                        - SHARD_CLUSTER
                     readOnly: true
                     type: string
             required:
-                - scope
-                - target
                 - triggers
                 - type
             type: object
-        ShardingRecommendationAddShardsSummary:
+        ShardingRecommendationAddShards:
             allOf:
-                - $ref: '#/components/schemas/ShardingRecommendationSummary'
+                - $ref: '#/components/schemas/ShardingRecommendation'
                 - properties:
-                    avgDiskSpaceUsedBytes:
-                        description: Average disk space used across the cluster's shards, in bytes. This parameter is absent when no measurement was available.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                    avgDiskSpaceWarning:
-                        description: Flag that indicates whether the average disk space used breached its warning threshold.
-                        readOnly: true
-                        type: boolean
-                    collectionSizePerShardBytes:
-                        description: Largest collection size per shard in the cluster, in bytes. This parameter is absent when no measurement was available.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                    collectionSizeWarning:
-                        description: Flag that indicates whether the collection size per shard breached its warning threshold.
-                        readOnly: true
-                        type: boolean
-                    currentShardCount:
-                        description: Number of shards in the cluster when the recommendation was generated.
-                        format: int32
-                        readOnly: true
-                        type: integer
                     recommendedShardCount:
                         description: Recommended total number of shards for the cluster.
                         format: int32
                         readOnly: true
                         type: integer
+                    type:
+                        description: Recommendation type that produced this recommendation.
+                        enum:
+                            - ADD_SHARDS
+                        readOnly: true
+                        type: string
                   type: object
-            description: Summary of a recommendation to add shards to the cluster.
+            description: Recommendation to add shards to the cluster.
             required:
-                - avgDiskSpaceWarning
-                - collectionSizeWarning
-                - currentShardCount
                 - recommendedShardCount
+                - triggers
                 - type
             type: object
-        ShardingRecommendationFailure:
-            description: One recommendation type whose generation failed. Recommendation types that completed are unaffected and still appear in the recommendations object.
-            properties:
-                code:
-                    description: Stable code that classifies the failure. Codes are added over time, so tolerate codes that your client does not recognize.
-                    enum:
-                        - TIMEOUT
-                        - INTERNAL_ERROR
-                    readOnly: true
-                    type: string
-                message:
-                    description: Human-readable summary of the failure.
-                    readOnly: true
-                    type: string
-                type:
-                    description: Recommendation type that failed to generate. Types are added over time, so tolerate types that your client does not recognize.
-                    enum:
-                        - ADD_SHARDS
-                        - MOVE_COLLECTION
-                        - SHARD_COLLECTION
-                        - SHARD_CLUSTER
-                    readOnly: true
-                    type: string
+        ShardingRecommendationShardCluster:
+            allOf:
+                - $ref: '#/components/schemas/ShardingRecommendation'
+                - properties:
+                    type:
+                        description: Recommendation type that produced this recommendation.
+                        enum:
+                            - SHARD_CLUSTER
+                        readOnly: true
+                        type: string
+                  type: object
+            description: Recommendation to convert the replica set to a sharded cluster.
             required:
-                - code
-                - message
+                - triggers
                 - type
             type: object
-        ShardingRecommendationFiredTrigger:
-            description: One monitored condition that fired and contributed to the recommendation.
+        ShardingRecommendationShardCollection:
+            allOf:
+                - $ref: '#/components/schemas/ShardingRecommendation'
+                - properties:
+                    namespace:
+                        description: Namespace of the collection to shard, in `<database>.<collection>` form.
+                        readOnly: true
+                        type: string
+                    type:
+                        description: Recommendation type that produced this recommendation.
+                        enum:
+                            - SHARD_COLLECTION
+                        readOnly: true
+                        type: string
+                  type: object
+            description: Recommendation to shard one collection.
+            required:
+                - namespace
+                - triggers
+                - type
+            type: object
+        ShardingRecommendationTrigger:
+            description: One monitored condition that fired, observed on one entity.
             properties:
                 name:
-                    description: Identifier of the monitored condition that fired, in upper snake case. Conditions are added over time, so treat this as an open set and tolerate identifiers that your client does not recognize.
+                    description: Identifier of the monitored condition that fired.
                     example: HIGH_DISK_SPACE_PERCENT_USED
                     readOnly: true
                     type: string
-                targets:
-                    description: Entities for which the trigger fired.
-                    items:
-                        $ref: '#/components/schemas/ShardingRecommendationTriggerTarget'
-                    maxItems: 10
+                target:
+                    description: 'Entity the condition was observed on: a namespace in `<database>.<collection>` form, a host name, or a replica set (shard) name, as identified by `targetType`. Present if and only if `targetType` is present; both are absent for cluster-wide conditions, such as `UNSHARDED_COLLECTION_COUNT`, which are not tied to a single entity. The cluster is already identified in the request path.'
                     readOnly: true
-                    type: array
+                    type: string
+                targetType:
+                    description: Kind of entity that `target` identifies. Present if and only if `target` is present; both are absent for cluster-wide conditions.
+                    enum:
+                        - REPLICA_SET
+                        - HOST
+                        - NAMESPACE
+                    readOnly: true
+                    type: string
                 unit:
-                    description: Unit of the measured trigger values.
+                    description: Unit of the measured trigger value.
                     enum:
                         - BYTES
                         - PERCENT
                         - SCALAR
                         - MICROSECONDS
-                    readOnly: true
-                    type: string
-            required:
-                - name
-                - targets
-                - unit
-            type: object
-        ShardingRecommendationMoveCollectionSummary:
-            allOf:
-                - $ref: '#/components/schemas/ShardingRecommendationSummary'
-                - properties:
-                    collectionDiskFootprintBytes:
-                        description: Disk space that the collection and its indexes occupy, in bytes. This parameter is absent when no measurement was available.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                    currentShard:
-                        description: Name of the shard that hosts the collection.
-                        readOnly: true
-                        type: string
-                    headroomWarning:
-                        description: Flag that indicates whether the destination shard's free disk space breached its headroom threshold.
-                        readOnly: true
-                        type: boolean
-                    proposedShard:
-                        description: Name of the recommended destination shard. This parameter is absent when no destination shard has enough free disk space.
-                        readOnly: true
-                        type: string
-                    proposedShardFreeBytes:
-                        description: Free disk space on the recommended destination shard, in bytes.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                    queryableEncryptionWarning:
-                        description: Flag that indicates whether the cluster uses Queryable Encryption, which the `moveCollection` operation doesn't support.
-                        readOnly: true
-                        type: boolean
-                    requiredFreeBytes:
-                        description: Free disk space that a destination shard requires to accept the collection, in bytes.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                  type: object
-            description: Summary of a recommendation to move one collection to a different shard.
-            required:
-                - headroomWarning
-                - queryableEncryptionWarning
-                - type
-            type: object
-        ShardingRecommendationShardClusterSummary:
-            allOf:
-                - $ref: '#/components/schemas/ShardingRecommendationSummary'
-                - properties:
-                    diskSpaceByteWarning:
-                        description: Flag that indicates whether the disk space used breached its warning threshold.
-                        readOnly: true
-                        type: boolean
-                    diskSpacePercentWarning:
-                        description: Flag that indicates whether the percentage of disk space used breached its warning threshold.
-                        readOnly: true
-                        type: boolean
-                    maxDiskSpaceUsedBytes:
-                        description: Largest amount of disk space used across the cluster's hosts, in bytes. This parameter is absent when no measurement was available.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                    maxDiskSpaceUsedPercent:
-                        description: Largest percentage of disk space used across the cluster's hosts. This parameter is absent when no measurement was available.
-                        format: double
-                        readOnly: true
-                        type: number
-                  type: object
-            description: Summary of a recommendation to convert the replica set to a sharded cluster.
-            required:
-                - diskSpaceByteWarning
-                - diskSpacePercentWarning
-                - type
-            type: object
-        ShardingRecommendationShardCollectionSummary:
-            allOf:
-                - $ref: '#/components/schemas/ShardingRecommendationSummary'
-                - properties:
-                    collectionDataSizeBytes:
-                        description: Uncompressed size of the collection's data, in bytes. This parameter is absent when no measurement was available.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                    collectionDataSizeGrowthPercent:
-                        description: Peak growth of the collection's data size over the evaluation window, as a percentage. This parameter is absent when growth did not contribute to the recommendation.
-                        format: double
-                        readOnly: true
-                        type: number
-                    collectionDataSizeWarning:
-                        description: Flag that indicates whether the collection data size breached its warning threshold.
-                        readOnly: true
-                        type: boolean
-                    documentCount:
-                        description: Number of documents in the collection. This parameter is absent when no measurement was available.
-                        format: int64
-                        readOnly: true
-                        type: integer
-                    documentCountWarning:
-                        description: Flag that indicates whether the document count breached its warning threshold.
-                        readOnly: true
-                        type: boolean
-                  type: object
-            description: Summary of a recommendation to shard one collection.
-            required:
-                - collectionDataSizeWarning
-                - documentCountWarning
-                - type
-            type: object
-        ShardingRecommendationSummary:
-            description: Summary of the recommended change. The type field identifies which recommendation type the summary describes and which fields are present.
-            discriminator:
-                mapping:
-                    ADD_SHARDS: '#/components/schemas/ShardingRecommendationAddShardsSummary'
-                    MOVE_COLLECTION: '#/components/schemas/ShardingRecommendationMoveCollectionSummary'
-                    SHARD_CLUSTER: '#/components/schemas/ShardingRecommendationShardClusterSummary'
-                    SHARD_COLLECTION: '#/components/schemas/ShardingRecommendationShardCollectionSummary'
-                propertyName: type
-            oneOf:
-                - $ref: '#/components/schemas/ShardingRecommendationAddShardsSummary'
-                - $ref: '#/components/schemas/ShardingRecommendationMoveCollectionSummary'
-                - $ref: '#/components/schemas/ShardingRecommendationShardCollectionSummary'
-                - $ref: '#/components/schemas/ShardingRecommendationShardClusterSummary'
-            properties:
-                type:
-                    description: Recommendation type that this summary describes. This value determines which properties are present.
-                    readOnly: true
-                    type: string
-            readOnly: true
-            required:
-                - type
-            type: object
-        ShardingRecommendationTriggerTarget:
-            description: One entity, such as a shard or namespace, for which the trigger fired.
-            properties:
-                hostName:
-                    description: Name of the host that the trigger fired for. This parameter is absent when the trigger did not resolve to a single host.
-                    readOnly: true
-                    type: string
-                name:
-                    description: Human-readable name that identifies the entity for which the trigger fired.
-                    readOnly: true
-                    type: string
-                namespace:
-                    description: Namespace, in `database.collection` form, that the trigger fired for. This parameter is absent for cluster-level and shard-level triggers.
-                    readOnly: true
-                    type: string
-                replicaSetName:
-                    description: Name of the replica set that the trigger fired for. This parameter is absent when the trigger did not resolve to a replica set.
                     readOnly: true
                     type: string
                 value:
@@ -45251,30 +45084,11 @@ components:
                     type: number
             required:
                 - name
+                - unit
             type: object
         ShardingRecommendationsResponse:
             description: Sharding recommendations generated for one cluster.
             properties:
-                evaluatedTypes:
-                    description: Recommendation types that were evaluated for the cluster. A type that appears here but has no entry in `recommendations` was evaluated and produced nothing to recommend. A type is absent when it does not apply to the cluster topology, was excluded by the `recommendationTypes` query parameter, or failed to generate (see `failures`).
-                    items:
-                        enum:
-                            - ADD_SHARDS
-                            - MOVE_COLLECTION
-                            - SHARD_COLLECTION
-                            - SHARD_CLUSTER
-                        type: string
-                    maxItems: 4
-                    readOnly: true
-                    type: array
-                    uniqueItems: true
-                failures:
-                    description: Recommendation types whose generation failed. Empty when every evaluated recommendation type completed.
-                    items:
-                        $ref: '#/components/schemas/ShardingRecommendationFailure'
-                    maxItems: 4
-                    readOnly: true
-                    type: array
                 recommendations:
                     description: Sharding recommendations for the cluster. Each recommendation identifies the recommendation type that produced it in its `type` property.
                     items:
@@ -45283,8 +45097,6 @@ components:
                     readOnly: true
                     type: array
             required:
-                - evaluatedTypes
-                - failures
                 - recommendations
             type: object
         ShardingRequest:
@@ -51438,7 +51250,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 7a0d8031117d5c5153c57209387545e6e6e38af2
+    x-xgen-sha: 2d5ab0f5c092ba7470dcc07ce3d286d9b7c76326
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -64651,7 +64463,7 @@ paths:
             xgen-IPA-113-singleton-should-have-update-method: Sharding insights are observed from the cluster by MongoDB Cloud and cannot be modified by the caller.
     /api/atlas/v2/groups/{groupId}/clusters/{clusterName}/shardingRecommendations:
         get:
-            description: Returns the active Sharding Advisor recommendations for one cluster, together with the recommendation types that were evaluated. Recommendations describe changes that may improve the cluster's data distribution, such as adding shards or sharding a collection, together with the monitored conditions that produced them.
+            description: Returns the active Sharding Advisor recommendations for one cluster. Recommendations describe changes that may improve the cluster's data distribution, such as adding shards or sharding a collection, together with the monitored conditions that produced them.
             operationId: getGroupClusterShardingRecommendations
             parameters:
                 - $ref: '#/components/parameters/groupId'
@@ -64662,39 +64474,6 @@ paths:
                   schema:
                     pattern: ^[a-zA-Z0-9][a-zA-Z0-9-]*$
                     type: string
-                - description: Recommendation types to evaluate. To include multiple types, pass the parameter multiple times delimited with an ampersand (`&`) between each type. Omit this parameter to evaluate every type that applies to the cluster.
-                  in: query
-                  name: recommendationTypes
-                  schema:
-                    items:
-                        enum:
-                            - ADD_SHARDS
-                            - MOVE_COLLECTION
-                            - SHARD_COLLECTION
-                            - SHARD_CLUSTER
-                        type: string
-                    maxItems: 4
-                    type: array
-                    uniqueItems: true
-                  style: form
-                - description: Shards to which to limit shard-level recommendations. To include multiple shards, pass the parameter multiple times delimited with an ampersand (`&`) between each shard. Setting this parameter skips the cluster-level recommendation types. Omit this parameter to evaluate every shard.
-                  in: query
-                  name: shards
-                  schema:
-                    items:
-                        type: string
-                    maxItems: 20
-                    type: array
-                  style: form
-                - description: Namespaces to which to limit collection-level recommendations. A namespace consists of one database and one collection resource written as `<database>.<collection>`. To include multiple namespaces, pass the parameter multiple times delimited with an ampersand (`&`) between each namespace. Omit this parameter to evaluate every namespace.
-                  in: query
-                  name: namespaces
-                  schema:
-                    items:
-                        type: string
-                    maxItems: 20
-                    type: array
-                  style: form
                 - $ref: '#/components/parameters/envelope'
                 - $ref: '#/components/parameters/pretty'
             responses:
