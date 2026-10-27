@@ -121,6 +121,32 @@ To learn more about Spectral custom functions, see the [Spectral Documentation](
 
 ---
 
+### Where a Rule Applies: Conditions and `defineRule`
+
+A rule function usually decides where it applies with early `return`s, which every rule words its own way and which record nothing. With [`defineRule`](./rulesets/functions/utils/defineRule.js) a rule declares the **conditions** it applies under, and its check only does the check. A condition is a named, reusable yes/no question about a component, defined once in [`rulesets/functions/utils/conditions`](./rulesets/functions/utils/conditions) with a plain-English definition and examples:
+
+```js
+import { defineRule } from './utils/defineRule.js';
+import { defineCondition, not } from './utils/conditions/registry.js';
+
+const isCustomMethod = defineCondition({
+  id: 'path.isCustomMethod',
+  subject: 'path',
+  definition: 'The path contains `:`, e.g. `/groups/{groupId}:migrate`.',
+  fn: ({ resourcePath }) => resourcePath.includes(':'),
+});
+
+export default defineRule({
+  appliesTo: [not(isCustomMethod)],
+  check: ({ input, path }) => (input.get ? [] : [{ path, message: ERROR_MESSAGE }]),
+});
+```
+
+- `appliesTo` conditions are evaluated in order. If one does not hold, the rule does not apply and the check does not run. Combine conditions with `allOf`, `anyOf` and `not`.
+- A condition that throws fails the whole lint run, so a condition must not throw on a component it was not meant for. Put the conditions it relies on before it in `appliesTo`: evaluation stops at the first one that does not hold.
+- `check` receives a `RuleContext` with the `input`, `options`, `path`, and values derived from them such as `resourcePath` and `resourcePathItems`, computed once per call. It returns the validation errors, as a rule function does today.
+- Reuse an existing condition where possible. If a rule needs a different definition of the same concept, add a condition with `variantOf` and a `divergence` note rather than changing the shared one.
+
 ### Resource & Singleton Evaluation
 
 In IPA Spectral validation, a **resource** is typically identified using a *resource collection path*, such as `/resource`.
