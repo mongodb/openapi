@@ -1,47 +1,23 @@
-import {
-  getResourcePathItems,
-  hasGetMethod,
-  isResourceCollectionIdentifier,
-  isSingleResourceIdentifier,
-  isSingletonResource,
-} from './utils/resourceEvaluation.js';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
+// @ts-check
+import { defineRule } from './utils/defineRule.js';
+import { isCollection } from './utils/conditions/path.js';
+import { hasSingletonShape, instancePath } from './utils/conditions/resource.js';
+import { hasGetMethod } from './utils/resourceEvaluation.js';
 
 const ERROR_MESSAGE = 'APIs must provide a get method for resources.';
 
-export default (input, _, { path, documentInventory, rule }) => {
-  const ruleName = rule.name;
-  if (!isResourceCollectionIdentifier(input)) {
-    return;
-  }
-
-  const oas = documentInventory.resolved;
-
-  const errors = checkViolationsAndReturnErrors(oas.paths, input, path, ruleName);
-
-  return evaluateAndCollectAdoptionStatus(errors, ruleName, oas.paths[input], path);
-};
-
-function checkViolationsAndReturnErrors(oasPaths, input, path, ruleName) {
-  try {
-    const resourcePathItems = getResourcePathItems(input, oasPaths);
-    const resourcePaths = Object.keys(resourcePathItems);
-
-    if (isSingletonResource(resourcePathItems)) {
-      if (!hasGetMethod(resourcePathItems[resourcePaths[0]])) {
-        return [{ path, message: ERROR_MESSAGE }];
-      }
-    } else {
-      if (resourcePaths.length === 1) {
-        return [{ path, message: ERROR_MESSAGE }];
-      }
-      const singleResourcePath = resourcePaths.find((p) => isSingleResourceIdentifier(p));
-      if (!singleResourcePath || !hasGetMethod(resourcePathItems[singleResourcePath])) {
-        return [{ path, message: ERROR_MESSAGE }];
-      }
+export default defineRule({
+  appliesTo: [isCollection],
+  checkUses: [hasSingletonShape],
+  exceptionTarget: (ctx) => ctx.pathItem,
+  check: (ctx) => {
+    const error = [{ path: ctx.path, message: ERROR_MESSAGE }];
+    // A singleton has its Get on the first of its paths (in spec order), other resources on the instance path
+    if (ctx.is(hasSingletonShape)) {
+      const [firstPath] = Object.keys(ctx.resourcePathItems);
+      return hasGetMethod(ctx.resourcePathItems[firstPath]) ? [] : error;
     }
-    return [];
-  } catch (e) {
-    return handleInternalError(ruleName, path, e);
-  }
-}
+    const instance = instancePath(ctx);
+    return instance && hasGetMethod(ctx.resourcePathItems[instance]) ? [] : error;
+  },
+});
