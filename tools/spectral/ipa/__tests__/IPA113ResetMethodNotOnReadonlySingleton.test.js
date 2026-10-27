@@ -33,6 +33,47 @@ testRule('xgen-IPA-113-reset-method-not-on-readonly-singleton', [
     errors: [],
   },
   {
+    name: 'valid reset when base path returns list response shape',
+    document: {
+      paths: {
+        '/resource/{exampleId}/listSingleton': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        results: {
+                          type: 'array',
+                          readOnly: true,
+                          items: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'string', readOnly: true },
+                              status: { type: 'string', readOnly: true },
+                            },
+                          },
+                        },
+                        totalCount: { type: 'integer', readOnly: true },
+                      },
+                      required: ['results'],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resource/{exampleId}/listSingleton:reset': {
+          post: {},
+        },
+      },
+    },
+    errors: [],
+  },
+  {
     name: 'invalid reset on read-only singleton',
     document: {
       paths: {
