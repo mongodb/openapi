@@ -14,9 +14,11 @@
  * @property {'leaf'|'allOf'|'anyOf'|'not'} op
  * @property {(ctx: RuleContext) => unknown} [fn] predicate for leaf conditions; reads the rule context
  * @property {Array<Condition>} [children] operands for allOf/anyOf/not
+ * @property {string} [label] short phrase completing "Applies when ...", rendered in the rule docs
  * @property {string} [subject] what the condition is evaluated on, e.g. 'path', 'resource', 'operation'
  * @property {string} [definition] plain-English definition, rendered in the glossary
- * @property {{match: Array<Object>, noMatch: Array<Object>}} [examples] rule context fixtures, run by the tests
+ * @property {{match: Array<Object>, noMatch: Array<Object>}} [examples] rule context fixtures, run by the tests; each may
+ *   have a `note` saying what makes it (not) match, shown in the glossary when that is not visible in its path
  * @property {string} [variantOf] id of the condition this one is a divergent variant of
  * @property {string} [divergence] how this variant differs from variantOf, and where it is used
  * @property {boolean} [readsRuleOptions] the result depends on the rule's functionOptions, so it has no rule-independent count
