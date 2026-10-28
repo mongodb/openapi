@@ -240,4 +240,169 @@ testRule('xgen-IPA-108-readonly-resource-should-not-have-delete-method', [
     },
     errors: [],
   },
+  {
+    name: 'valid: resource with create is allowed a delete method',
+    document: {
+      openapi: '3.0.0',
+      paths: {
+        '/resource': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+            responses: {
+              201: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          delete: {
+            responses: {
+              204: {
+                description: 'No Content',
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid: read-only resource with only a custom method should not have a delete method',
+    document: {
+      openapi: '3.0.0',
+      paths: {
+        '/readOnlyResource': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/readOnlyResource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          delete: {
+            responses: {
+              204: {
+                description: 'No Content',
+              },
+            },
+          },
+        },
+        '/readOnlyResource/{id}:reset': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  schema: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+            responses: {
+              201: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-108-readonly-resource-should-not-have-delete-method',
+        message: 'Read-only resources must not define the Delete method.',
+        path: ['paths', '/readOnlyResource/{id}', 'delete'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);

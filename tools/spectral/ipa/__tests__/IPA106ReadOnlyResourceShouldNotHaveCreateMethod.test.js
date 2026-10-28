@@ -287,4 +287,170 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
     },
     errors: [],
   },
+  {
+    name: 'valid: resource with create method and request body parity exception',
+    document: {
+      openapi: '3.0.0',
+      paths: {
+        '/resource': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  'x-xgen-IPA-exception': {
+                    'xgen-IPA-106-create-method-request-body-is-get-method-response':
+                      'Request body takes firstName',
+                  },
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      firstName: { type: 'integer' },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              201: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid: read-only resource with create method and an unrelated exception on the request body content',
+    document: {
+      openapi: '3.0.0',
+      paths: {
+        '/resource': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': {
+                  'x-xgen-IPA-exception': {
+                    'xgen-IPA-106-create-method-request-has-no-readonly-fields': 'Unrelated exception',
+                  },
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      firstName: { type: 'integer' },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              201: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string', readOnly: true },
+                        name: { type: 'string', readOnly: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-106-readonly-resource-should-not-have-create-method',
+        message: 'Read-only resources must not define the Create method.',
+        path: ['paths', '/resource', 'post'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
 ]);
