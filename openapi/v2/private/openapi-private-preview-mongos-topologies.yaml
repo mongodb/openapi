@@ -462,6 +462,21 @@ components:
                     readOnly: true
                     type: string
             type: object
+        MongosTopologyUpdateRequest:
+            description: Dedicated mongos tier to apply to a sharded cluster.
+            properties:
+                clusterName:
+                    description: Human-readable label that identifies the sharded cluster this topology belongs to.
+                    type: string
+                instanceSize:
+                    description: Instance size of the dedicated mongos hosts (for example, `M30`).
+                    type: string
+                regionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts.
+                    items:
+                        $ref: '#/components/schemas/MongosTopologyResourceRegionConfig'
+                    type: array
+            type: object
         PaginatedMongosTopologyResourceResponse:
             properties:
                 links:
@@ -549,7 +564,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: ddd15131cd64eb07dfb54b31afb7d1ccf30db04c
+    x-xgen-sha: 175b450c845daf524ed819828565258d62dc5df1
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/mongosTopologies:
@@ -649,6 +664,13 @@ paths:
                             x-xgen-version: private-preview-mongos-topologies
                     description: Accepted
                     headers:
+                        Location:
+                            description: URI of the dedicated mongos topology, which reports its latest status. Absent when the request sets `envelope=true`, which returns the URI in the envelope's `locations` parameter instead.
+                            schema:
+                                description: Relative URI of the dedicated mongos topology.
+                                format: uri
+                                type: string
+                            style: simple
                         RateLimit-Limit:
                             $ref: '#/components/headers/HeaderRateLimitLimit'
                         RateLimit-Remaining:
@@ -837,6 +859,101 @@ paths:
                 color: '#B89D09'
                 label: PREVIEW
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupMongosTopology
+        patch:
+            description: |-
+                This API is in preview. Breaking changes might be introduced before it is released. Don't use preview APIs in production.
+
+                 Updates the dedicated mongos tier (instance size or region placements) for the specified cluster. Either field may be omitted and keeps its current value.
+            operationId: updateGroupMongosTopology
+            parameters:
+                - $ref: '#/components/parameters/envelope'
+                - $ref: '#/components/parameters/groupId'
+                - $ref: '#/components/parameters/pretty'
+                - description: Human-readable label that identifies the sharded cluster this topology belongs to.
+                  in: path
+                  name: clusterName
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/vnd.atlas.preview+json:
+                        schema:
+                            $ref: '#/components/schemas/MongosTopologyUpdateRequest'
+                        x-xgen-preview:
+                            name: mongos-topologies
+                        x-xgen-version: private-preview-mongos-topologies
+                description: Dedicated mongos tier fields to update.
+                required: true
+            responses:
+                "202":
+                    content:
+                        application/vnd.atlas.preview+json:
+                            schema:
+                                $ref: '#/components/schemas/MongosTopologyResourceResponse'
+                            x-xgen-preview:
+                                name: mongos-topologies
+                            x-xgen-version: private-preview-mongos-topologies
+                    description: Accepted
+                    headers:
+                        Location:
+                            description: URI of the dedicated mongos topology, which reports its latest status. Absent when the request sets `envelope=true`, which returns the URI in the envelope's `locations` parameter instead.
+                            schema:
+                                description: Relative URI of the dedicated mongos topology.
+                                format: uri
+                                type: string
+                            style: simple
+                        RateLimit-Limit:
+                            $ref: '#/components/headers/HeaderRateLimitLimit'
+                        RateLimit-Remaining:
+                            $ref: '#/components/headers/HeaderRateLimitRemaining'
+                "400":
+                    $ref: '#/components/responses/badRequest'
+                "401":
+                    $ref: '#/components/responses/unauthorized'
+                "403":
+                    $ref: '#/components/responses/forbidden'
+                "404":
+                    $ref: '#/components/responses/notFound'
+                "409":
+                    $ref: '#/components/responses/conflict'
+                "429":
+                    $ref: '#/components/responses/tooManyRequests'
+                "500":
+                    $ref: '#/components/responses/internalServerError'
+            summary: Update the Dedicated Mongos Topology for One Cluster
+            tags:
+                - Clusters
+            x-beta: true
+            x-codeSamples:
+                - label: Atlas CLI
+                  lang: cURL
+                  source: atlas api clusters updateGroupMongosTopology --help
+                - label: curl (Service Accounts)
+                  lang: cURL
+                  source: |-
+                    curl --include --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mongosTopologies/{clusterName}" \
+                      -d '{ <Payload> }'
+                - label: curl (Digest)
+                  lang: cURL
+                  source: |-
+                    curl --user "${PUBLIC_KEY}:${PRIVATE_KEY}" \
+                      --digest --include \
+                      --header "Accept: application/vnd.atlas.preview+json" \
+                      --header "Content-Type: application/json" \
+                      -X PATCH "https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/mongosTopologies/{clusterName}" \
+                      -d '{ <Payload> }'
+            x-rolesRequirements:
+                - Project Owner
+            x-state:
+                color: '#B89D09'
+                label: PREVIEW
+            x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupMongosTopology
+            x-xgen-long-running-operation:
+                legacy: false
 security:
     - ServiceAccounts: []
     - DigestAuth: []
