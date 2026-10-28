@@ -315,8 +315,7 @@ testRule('xgen-IPA-106-readonly-resource-should-not-have-create-method', [
               content: {
                 'application/vnd.atlas.2023-01-01+json': {
                   'x-xgen-IPA-exception': {
-                    'xgen-IPA-106-create-method-request-body-is-get-method-response':
-                      'Request body takes firstName',
+                    'xgen-IPA-106-create-method-request-body-is-get-method-response': 'Request body takes firstName',
                   },
                   schema: {
                     type: 'object',
