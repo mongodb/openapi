@@ -15,6 +15,10 @@ var (
 	// Note: oasdiff v1.14.0+ uses backticks in GetUncolorizedText() via quotedValues().
 	identifierRegex = regexp.MustCompile("`([^`]*)`")
 
+	// sharedSchemaDetailRegex matches the detail oasdiff v1.34.0+ appends to a change in a schema that several
+	// properties reference, such as " (shared schema: `X`, also at `Y`, `Z` and 2 more)".
+	sharedSchemaDetailRegex = regexp.MustCompile(" \\((?:shared schema: `[^`]*`(?:, also at .*)?|also at .*)\\)$")
+
 	// squashPlaceholder is used internally during squash text construction to mark substituted values.
 	// It must not appear in any oasdiff message text.  The final text replaces this with a single quote.
 	squashPlaceholder = "\x01"
@@ -214,6 +218,7 @@ func findHandler(id string) (*handler, bool) {
 }
 
 type squashedEntries struct {
+	template          *OasDiffEntry
 	valuesNotSquashed []string
 	valuesToSquash    map[string]struct{}
 }
@@ -239,14 +244,12 @@ func squashEntriesByValues(
 			return nil, err
 		}
 
-		templateEntry := opEntries[0]
-		templateText := templateEntry.Text
-
 		for _, squashData := range squashMap {
+			templateEntry := squashData.template
 			keyValues := squashData.valuesNotSquashed
 			squashValues := squashData.valuesToSquash
 
-			text := templateText
+			text, detail := splitSharedSchemaDetail(templateEntry.Text)
 			for idx, value := range keyValues {
 				var valuesToAddToTemplate string
 				if idx == squashIdx {
@@ -282,7 +285,7 @@ func squashEntriesByValues(
 				),
 				pluralizeFrom,
 				pluralizeToIfNeeded(pluralizeFrom, pluralizeTo, len(squashValues)),
-			)
+			) + detail
 			result = append(result, squashedEntry)
 		}
 	}
@@ -324,9 +327,12 @@ func newSquashMap(operation string, entries []*OasDiffEntry, expectedNumberOfVal
 		valueToSquash := values[squashIdx]
 		values[squashIdx] = ""
 
-		mergedKey := strings.Join(values, "|")
+		// Entries in different shared schemas must not be squashed together, since each keeps its own detail.
+		_, detail := splitSharedSchemaDetail(entry.Text)
+		mergedKey := strings.Join(values, "|") + detail
 		if _, exists := squashMap[mergedKey]; !exists {
 			squashMap[mergedKey] = squashedEntries{
+				template:          entry,
 				valuesNotSquashed: values,
 				valuesToSquash:    make(map[string]struct{}),
 			}
@@ -337,10 +343,11 @@ func newSquashMap(operation string, entries []*OasDiffEntry, expectedNumberOfVal
 	return squashMap, nil
 }
 
-// extractExactValuesOrFail extracts a list of values enclosed in single quotes from a given text entry.
+// extractExactValuesOrFail extracts a list of values enclosed in backticks from a given text entry,
+// ignoring the shared schema detail at its end.
 // If the number of extracted values doesn’t match the expected number (expectedNumberOfValues), it returns an error.
 func extractExactValuesOrFail(operation string, entry *OasDiffEntry, expectedNumberOfValues int) ([]string, error) {
-	text := entry.Text
+	text, _ := splitSharedSchemaDetail(entry.Text)
 	values := identifierRegex.FindAllStringSubmatch(text, -1)
 
 	// Extract the matched values
@@ -356,8 +363,18 @@ func extractExactValuesOrFail(operation string, entry *OasDiffEntry, expectedNum
 	}
 
 	return nil, fmt.Errorf(
-		"the pattern for %s message was changed. Expecting exactly %d values between apostrophes: %s",
+		"the pattern for %s message was changed. Expecting exactly %d values between backticks: %s",
 		operation, expectedNumberOfValues, text)
+}
+
+// splitSharedSchemaDetail splits the shared schema detail from the end of a message, so that its values are not
+// taken for the message's own. The detail is empty if the message has none.
+func splitSharedSchemaDetail(text string) (message, detail string) {
+	loc := sharedSchemaDetailRegex.FindStringIndex(text)
+	if loc == nil {
+		return text, ""
+	}
+	return text[:loc[0]], text[loc[0]:]
 }
 
 // pluralizeToIfNeeded checks if pluralization is needed.

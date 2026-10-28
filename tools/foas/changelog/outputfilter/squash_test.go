@@ -207,6 +207,18 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 			wantErr:                require.NoError,
 		},
 		{
+			name:      "Multiple values with shared schema details",
+			operation: "test",
+			entry: &OasDiffEntry{
+				ID:          "response-write-only-property-enum-value-added",
+				OperationID: "op1",
+				Text:        "added the new `CENTRAL_US_AW` enum value to the `results/items/regionConfigs/items/` response property for the response status `200` (shared schema: `AWSRegionConfig20240805`, also at `results/items/regionConfigs/items/regionName` and 2 more)", //nolint:lll //Test string
+			},
+			expectedNumberOfValues: 3,
+			want:                   []string{"CENTRAL_US_AW", "results/items/regionConfigs/items/", "200"},
+			wantErr:                require.NoError,
+		},
+		{
 			name:                   "Incorrect number of values",
 			operation:              "test",
 			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: `test1`, `test2`"},
@@ -229,6 +241,17 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 }
 
 func TestNewSquashMap(t *testing.T) {
+	singleEntry := &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test`"}
+	multipleEntries := []*OasDiffEntry{
+		{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test1`"},
+		{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test2`"},
+		{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test3`"},
+	}
+	sharedSchemaEntries := []*OasDiffEntry{
+		{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test1` (shared schema: `S1`)"},
+		{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test2` (shared schema: `S2`)"},
+	}
+
 	testCases := []struct {
 		name                   string
 		operation              string
@@ -248,15 +271,14 @@ func TestNewSquashMap(t *testing.T) {
 			wantErr:                require.NoError,
 		},
 		{
-			name:      "Single entry",
-			operation: "test",
-			entries: []*OasDiffEntry{
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test`"},
-			},
+			name:                   "Single entry",
+			operation:              "test",
+			entries:                []*OasDiffEntry{singleEntry},
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
 			want: map[string]squashedEntries{
 				"": {
+					template:          singleEntry,
 					valuesNotSquashed: []string{""},
 					valuesToSquash:    map[string]struct{}{"test": {}},
 				},
@@ -264,19 +286,36 @@ func TestNewSquashMap(t *testing.T) {
 			wantErr: require.NoError,
 		},
 		{
-			name:      "Multiple entries",
-			operation: "test",
-			entries: []*OasDiffEntry{
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test1`"},
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test2`"},
-				{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Value: `test3`"},
-			},
+			name:                   "Multiple entries",
+			operation:              "test",
+			entries:                multipleEntries,
 			expectedNumberOfValues: 1,
 			squashIdx:              0,
 			want: map[string]squashedEntries{
 				"": {
+					template:          multipleEntries[0],
 					valuesNotSquashed: []string{""},
 					valuesToSquash:    map[string]struct{}{"test1": {}, "test2": {}, "test3": {}},
+				},
+			},
+			wantErr: require.NoError,
+		},
+		{
+			name:                   "Entries in different shared schemas",
+			operation:              "test",
+			entries:                sharedSchemaEntries,
+			expectedNumberOfValues: 1,
+			squashIdx:              0,
+			want: map[string]squashedEntries{
+				" (shared schema: `S1`)": {
+					template:          sharedSchemaEntries[0],
+					valuesNotSquashed: []string{""},
+					valuesToSquash:    map[string]struct{}{"test1": {}},
+				},
+				" (shared schema: `S2`)": {
+					template:          sharedSchemaEntries[1],
+					valuesNotSquashed: []string{""},
+					valuesToSquash:    map[string]struct{}{"test2": {}},
 				},
 			},
 			wantErr: require.NoError,
