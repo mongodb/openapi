@@ -207,6 +207,18 @@ func TestExtractExactValuesOrFail(t *testing.T) {
 			wantErr:                require.NoError,
 		},
 		{
+			name:      "Multiple values with shared schema details",
+			operation: "test",
+			entry: &OasDiffEntry{
+				ID:          "response-write-only-property-enum-value-added",
+				OperationID: "op1",
+				Text:        "added the new `CENTRAL_US_AW` enum value to the `results/items/regionConfigs/items/` response property for the response status `200` (shared schema: `AWSRegionConfig20240805`, also at `results/items/regionConfigs/items/regionName` and 2 more)", //nolint:lll //Test string
+			},
+			expectedNumberOfValues: 3,
+			want:                   []string{"CENTRAL_US_AW", "results/items/regionConfigs/items/", "200"},
+			wantErr:                require.NoError,
+		},
+		{
 			name:                   "Incorrect number of values",
 			operation:              "test",
 			entry:                  &OasDiffEntry{ID: "response-write-only-property-enum-value-added", OperationID: "op1", Text: "Values: `test1`, `test2`"},

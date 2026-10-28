@@ -337,8 +337,11 @@ func newSquashMap(operation string, entries []*OasDiffEntry, expectedNumberOfVal
 	return squashMap, nil
 }
 
-// extractExactValuesOrFail extracts a list of values enclosed in single quotes from a given text entry.
-// If the number of extracted values doesn’t match the expected number (expectedNumberOfValues), it returns an error.
+// extractExactValuesOrFail extracts the first expectedNumberOfValues values enclosed in backticks
+// from a given text entry. If fewer values than expected are found, it returns an error.
+// Trailing values are ignored: since oasdiff v1.34.0, a change in a schema that several properties
+// reference is reported once and carries a "(shared schema: `X`, also at `Y` and N more)" detail
+// that adds extra values after the ones the squashers operate on.
 func extractExactValuesOrFail(operation string, entry *OasDiffEntry, expectedNumberOfValues int) ([]string, error) {
 	text := entry.Text
 	values := identifierRegex.FindAllStringSubmatch(text, -1)
@@ -351,12 +354,12 @@ func extractExactValuesOrFail(operation string, entry *OasDiffEntry, expectedNum
 		}
 	}
 
-	if len(extractedValues) == expectedNumberOfValues {
-		return extractedValues, nil
+	if len(extractedValues) >= expectedNumberOfValues {
+		return extractedValues[:expectedNumberOfValues], nil
 	}
 
 	return nil, fmt.Errorf(
-		"the pattern for %s message was changed. Expecting exactly %d values between apostrophes: %s",
+		"the pattern for %s message was changed. Expecting at least %d values between apostrophes: %s",
 		operation, expectedNumberOfValues, text)
 }
 
