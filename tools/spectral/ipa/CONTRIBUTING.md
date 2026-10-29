@@ -47,6 +47,18 @@ npm run test -- singletonHasNoId
 ```
 ---
 
+### Checking that a change does not alter results
+
+For a refactor of the ruleset, `ipa-snapshot-compare.js` lints a spec with the ruleset at a git ref and with this checkout, and reports per rule which findings and collector entries (violations, adoptions, exceptions) were gained or lost. It exits 1 on any difference.
+
+```
+node tools/spectral/ipa/scripts/ipa-snapshot-compare.js --spec openapi/v2.json --base origin/main
+```
+
+- The ref is checked out into a temporary worktree that is removed afterwards, so your working tree is not touched. Nothing needs building.
+- Without `--head`, the head is this checkout as it is now, including uncommitted changes. Pass `--head <git-ref>` to compare two refs.
+- Add `--verbose` to list the entries. A full run on `openapi/v2.json` takes about 15 seconds.
+
 ## Code Style
 
 - Use [Prettier](https://prettier.io/) for code formatting
@@ -108,6 +120,32 @@ export default (input, options, context)
 To learn more about Spectral custom functions, see the [Spectral Documentation](https://docs.stoplight.io/docs/spectral/a781e290eb9f9-custom-functions).
 
 ---
+
+### Where a Rule Applies: Conditions and `defineRule`
+
+A rule function usually decides where it applies with early `return`s, which every rule words its own way and which record nothing. With [`defineRule`](./rulesets/functions/utils/defineRule.js) a rule declares the **conditions** it applies under, and its check only does the check. A condition is a named, reusable yes/no question about a component, defined once in [`rulesets/functions/utils/conditions`](./rulesets/functions/utils/conditions) with a plain-English definition and examples:
+
+```js
+import { defineRule } from './utils/defineRule.js';
+import { defineCondition, not } from './utils/conditions/registry.js';
+
+const isCustomMethod = defineCondition({
+  id: 'path.isCustomMethod',
+  subject: 'path',
+  definition: 'The path contains `:`, e.g. `/groups/{groupId}:migrate`.',
+  fn: ({ resourcePath }) => resourcePath.includes(':'),
+});
+
+export default defineRule({
+  appliesTo: [not(isCustomMethod)],
+  check: ({ input, path }) => (input.get ? [] : [{ path, message: ERROR_MESSAGE }]),
+});
+```
+
+- `appliesTo` conditions are evaluated in order. If one does not hold, the rule does not apply and the check does not run. Combine conditions with `allOf`, `anyOf` and `not`.
+- A condition that throws fails the whole lint run, so a condition must not throw on a component it was not meant for. Put the conditions it relies on before it in `appliesTo`: evaluation stops at the first one that does not hold.
+- `check` receives a `RuleContext` with the `input`, `options`, `path`, and values derived from them such as `resourcePath` and `resourcePathItems`, computed once per call. It returns the validation errors, as a rule function does today.
+- Reuse an existing condition where possible. If a rule needs a different definition of the same concept, add a condition with `variantOf` and a `divergence` note rather than changing the shared one.
 
 ### Resource & Singleton Evaluation
 

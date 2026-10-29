@@ -261,6 +261,68 @@ func TestSquash(t *testing.T) {
 			wantError: require.NoError,
 		},
 		{
+			name: "Test squashing entries with shared schema details",
+			entries: []*OasDiffEntry{
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new `CENTRAL_US_AW` enum value to the `results/items/regionConfigs/items/` response property for the response status `200` (shared schema: `AWSRegionConfig20240805`, also at `results/items/regionConfigs/items/regionName` and 2 more)", //nolint:lll //Test string
+					Operation:   "POST",
+					OperationID: "createCluster",
+					Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+				},
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new `EASTERN_US_AW` enum value to the `results/items/regionConfigs/items/` response property for the response status `200` (shared schema: `AWSRegionConfig20240805`, also at `results/items/regionConfigs/items/regionName` and 2 more)", //nolint:lll //Test string
+					Operation:   "POST",
+					OperationID: "createCluster",
+					Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+				},
+			},
+			expectedEntries: []*OasDiffEntry{
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new 'CENTRAL_US_AW, EASTERN_US_AW' enum values to the 'results/items/regionConfigs/items/' response property for the response status '200' (shared schema: `AWSRegionConfig20240805`, also at `results/items/regionConfigs/items/regionName` and 2 more)", //nolint:lll //Test string
+					Operation:   "POST",
+					OperationID: "createCluster",
+					Path:        "/api/atlas/v2/groups/{groupId}/clusters",
+				},
+			},
+			wantError: require.NoError,
+		},
+		{
+			name: "Test squashing entries keeps each shared schema detail with its own property",
+			entries: []*OasDiffEntry{
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new `A` enum value to the `shared/path/` response property for the response status `200` (shared schema: `S`, also at `other/path/` and 2 more)", //nolint:lll //Test string
+					OperationID: "op",
+				},
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new `B` enum value to the `unrelated/path/` response property for the response status `200`",
+					OperationID: "op",
+				},
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new `C` enum value to the `unrelated/path/` response property for the response status `200`",
+					OperationID: "op",
+				},
+			},
+			expectedEntries: []*OasDiffEntry{
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new 'A' enum value to the 'shared/path/' response property for the response status '200' (shared schema: `S`, also at `other/path/` and 2 more)", //nolint:lll //Test string
+					OperationID: "op",
+				},
+				{
+					ID:          "response-property-enum-value-added",
+					Text:        "added the new 'B, C' enum values to the 'unrelated/path/' response property for the response status '200'",
+					OperationID: "op",
+				},
+			},
+			wantError: require.NoError,
+		},
+		{
 			name: "Test squashing entries with wrong description",
 			entries: []*OasDiffEntry{
 				{

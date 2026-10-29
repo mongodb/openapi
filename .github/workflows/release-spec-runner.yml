@@ -33,6 +33,11 @@ jobs:
     name: Release Preparation
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -43,7 +48,7 @@ jobs:
       # We upload the scripts in .github/scripts/* (defined only in main) so that they can be downloaded and reused 
       # when releasing in all the branches.
       - name: Upload release scripts 
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: release-scripts
           retention-days: 1
@@ -141,10 +146,7 @@ jobs:
     if: >-
       github.event_name == 'schedule' || contains(inputs.env_to_release, 'prod')
     uses: ./.github/workflows/release-spec-v1.yml
-    secrets:
-      api_bot_pat: ${{ secrets.API_BOT_PAT }}
-      mms_deployed_sha_url: ${{ secrets.MMS_DEPLOYED_SHA_URL_PROD }}
-      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+    secrets: inherit
     with:
       aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
       aws_s3_role_to_assume: ${{ vars.AWS_S3_ROLE_TO_ASSUME }}

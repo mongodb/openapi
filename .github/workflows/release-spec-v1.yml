@@ -22,13 +22,6 @@ on:
         description: 'AWS S3 Role to Assume.'
         required: true
         type: string
-    secrets: # all secrets are passed explicitly in this workflow
-      api_bot_pat:
-        required: true
-      mms_deployed_sha_url:
-        required: true
-      jira_api_token:
-        required: true
 permissions:
   contents: write
   issues: write
@@ -39,6 +32,11 @@ jobs:
     name: Release OpenAPI Spec for V1 (DEPRECATED) APIs
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: aws configure
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -48,7 +46,7 @@ jobs:
         env:
           AWS_DEFAULT_REGION: ${{inputs.aws_default_region}}
           S3_BUCKET: ${{ inputs.aws_s3_bucket }}
-          MMS_DEPLOYED_SHA_URL: ${{secrets.mms_deployed_sha_url}}
+          MMS_DEPLOYED_SHA_URL: ${{secrets.MMS_DEPLOYED_SHA_URL_PROD}}
         run: |
           sha=$(curl "${MMS_DEPLOYED_SHA_URL}")
           echo "Downloading the OpenAPI Spec for v1 with sha ${sha}"
@@ -56,7 +54,7 @@ jobs:
       - name: Generate YAML spec
         run: yq -P '.' v1.json > v1.yaml
       - name: Upload artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: openapi-v1-${{ inputs.env }}
           path: |
@@ -66,17 +64,17 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.branch }}
-          token: ${{secrets.api_bot_pat}}
+          token: ${{steps.app-token.outputs.token}}
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
           name: openapi-v1-${{ inputs.env }}
-          github-token: ${{ secrets.api_bot_pat }}
+          github-token: ${{ steps.app-token.outputs.token }}
           run-id: ${{ github.run_id }}
           path: openapi/v1-deprecated
       - name: Commit changes
         id: commit
-        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d
+        uses: stefanzweifel/git-auto-commit-action@d0b01107b5db882071f96de5dd4b54961ea93f4c
         env:
           target_env: ${{ inputs.env }}
           target_branch: ${{ inputs.branch }}
@@ -93,9 +91,14 @@ jobs:
     if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - env:
           GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.api_bot_pat }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
 
   failure-handler:
