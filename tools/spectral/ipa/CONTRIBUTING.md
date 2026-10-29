@@ -143,8 +143,10 @@ export default defineRule({
 ```
 
 - `appliesTo` conditions are evaluated in order. If one does not hold, the rule does not apply and the check does not run. Combine conditions with `allOf`, `anyOf` and `not`.
-- A condition that throws fails the whole lint run, so a condition must not throw on a component it was not meant for. Put the conditions it relies on before it in `appliesTo`: evaluation stops at the first one that does not hold.
+- A condition that throws fails the whole lint run, so a condition must not throw on a component it was not meant for. Put the conditions it relies on before it in `appliesTo`: evaluation stops at the first one that does not hold. A `check` that throws is reported according to `onInternalError`, below.
 - `check` receives a `RuleContext` with the `input`, `options`, `path`, and values derived from them such as `resourcePath` and `resourcePathItems`, computed once per call. It returns the validation errors, as a rule function does today.
+- Adoptions, violations and exceptions are collected for you from what `check` returns, reading `x-xgen-IPA-exception` from the input (or from `exceptionTarget`). `onInternalError` (`'violation'`, `'return'`, `'throw'`) sets what happens if `check` throws, and `beforeCheck` runs outside that try for a failure that must stop the lint run.
+- Give a condition a `label`, and an example a `note`, to have it described in the generated docs: `npm run gen-ipa-docs` renders an "Applies to" section for each `defineRule` rule in [`rulesets/README.md`](./rulesets/README.md) and the glossary [`rulesets/CONDITIONS.md`](./rulesets/CONDITIONS.md), so don't describe where a rule applies in its YAML description.
 - Reuse an existing condition where possible. If a rule needs a different definition of the same concept, add a condition with `variantOf` and a `divergence` note rather than changing the shared one.
 
 ### Resource & Singleton Evaluation
