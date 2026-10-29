@@ -9,7 +9,7 @@ A set of custom validation rules for the MongoDB Atlas Programmatic API, adherin
 
 ### Custom Rules
 
-For a complete list of implemented rules, please refer to the [Ruleset Documentation](./ipa/rulesets/README.md).
+For a complete list of implemented rules, please refer to the [Ruleset Documentation](./ipa/rulesets/README.md). The conditions that decide where rules apply are explained in the [Conditions glossary](./ipa/rulesets/CONDITIONS.md).
 
 ### External Documentation
 
