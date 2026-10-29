@@ -3064,6 +3064,8 @@ components:
                     enum:
                         - ISRGROOTX1
                     type: string
+                searchAutoMigration:
+                    $ref: '#/components/schemas/SearchAutoMigration'
                 stateName:
                     description: |-
                         Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
@@ -6765,6 +6767,8 @@ components:
                     enum:
                         - ISRGROOTX1
                     type: string
+                searchAutoMigration:
+                    $ref: '#/components/schemas/SearchAutoMigration'
                 stateName:
                     description: |-
                         Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
@@ -12491,6 +12495,8 @@ components:
                     enum:
                         - ISRGROOTX1
                     type: string
+                searchAutoMigration:
+                    $ref: '#/components/schemas/SearchAutoMigration'
                 stateName:
                     description: |-
                         Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
@@ -42355,6 +42361,14 @@ components:
             required:
                 - type
             type: object
+        SearchAutoMigration:
+            description: Configuration for automatically adding Dedicated Search Nodes on eligible Atlas Infinite clusters. This setting has no effect on Atlas Core clusters.
+            properties:
+                disabled:
+                    default: false
+                    description: Flag that disables future automatic Search Node provisioning. Defaults to false on creation. Omission on update preserves the stored choice. Disabling retains existing Search Nodes and allows in-flight migrations to continue. Enabling does not bypass resource policies; if indexes exceed the migration threshold, the next eligible evaluation may start provisioning.
+                    type: boolean
+            type: object
         SearchDeploymentAuditTypeView:
             description: Unique identifier of event type.
             enum:
@@ -46392,6 +46406,7 @@ components:
                     AWSLambda: '#/components/schemas/StreamsAWSLambdaConnection'
                     AzureBlobStorage: '#/components/schemas/StreamsAzureBlobStorageConnection'
                     Cluster: '#/components/schemas/StreamsClusterConnection'
+                    DataCatalog: '#/components/schemas/StreamsDataCatalogConnection'
                     GCPPubSub: '#/components/schemas/StreamsGCPPubSubConnection'
                     Https: '#/components/schemas/StreamsHttpsConnection'
                     Kafka: '#/components/schemas/StreamsKafkaConnection'
@@ -46410,6 +46425,7 @@ components:
                 - $ref: '#/components/schemas/StreamsSchemaRegistryConnection'
                 - $ref: '#/components/schemas/StreamsAzureBlobStorageConnection'
                 - $ref: '#/components/schemas/StreamsGCPPubSubConnection'
+                - $ref: '#/components/schemas/StreamsDataCatalogConnection'
             properties:
                 errorMessage:
                     description: Connection error message.
@@ -46455,6 +46471,7 @@ components:
                         - AWSKinesisDataStreams
                         - SchemaRegistry
                         - GCPPubSub
+                        - DataCatalog
                     type: string
                     x-xgen-IPA-exception:
                         xgen-IPA-123-enum-values-must-be-upper-snake-case: Schema predates IPA validation.
@@ -46505,8 +46522,6 @@ components:
             required:
                 - catalogUrl
             type: object
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
         StreamsDataProcessRegion:
             description: Information about the cloud provider region in which MongoDB Cloud processes the stream.
             properties:
@@ -46557,8 +46572,6 @@ components:
             required:
                 - authentication
             type: object
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
         StreamsDatabricksUnityCatalogConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsDataCatalogConnection'
@@ -46577,8 +46590,6 @@ components:
                 - catalogUrl
                 - databricks
             type: object
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
         StreamsEventTypeViewForNdsGroup:
             description: Unique identifier of event type.
             enum:
@@ -47619,8 +47630,6 @@ components:
             required:
                 - authentication
             type: object
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
         StreamsSnowflakeHorizonCatalogConnection:
             allOf:
                 - $ref: '#/components/schemas/StreamsDataCatalogConnection'
@@ -47639,8 +47648,6 @@ components:
                 - catalogUrl
                 - snowflake
             type: object
-            x-xgen-hidden-env:
-                envs: qa,stage,prod
         StreamsStartProcessorFailover:
             description: Failover options for starting a stream processor.
             properties:
@@ -51595,7 +51602,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 175b450c845daf524ed819828565258d62dc5df1
+    x-xgen-sha: ad84f610de6453ff2aaa487c93da862380a105b9
 openapi: 3.0.1
 paths:
     /api/atlas/v2:

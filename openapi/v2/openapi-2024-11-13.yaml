@@ -4324,6 +4324,8 @@ components:
                     enum:
                         - ISRGROOTX1
                     type: string
+                searchAutoMigration:
+                    $ref: '#/components/schemas/SearchAutoMigration'
                 stateName:
                     description: |-
                         Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
@@ -9267,6 +9269,8 @@ components:
                     enum:
                         - ISRGROOTX1
                     type: string
+                searchAutoMigration:
+                    $ref: '#/components/schemas/SearchAutoMigration'
                 stateName:
                     description: |-
                         Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.
@@ -33507,6 +33511,14 @@ components:
             required:
                 - type
             type: object
+        SearchAutoMigration:
+            description: Configuration for automatically adding Dedicated Search Nodes on eligible Atlas Infinite clusters. This setting has no effect on Atlas Core clusters.
+            properties:
+                disabled:
+                    default: false
+                    description: Flag that disables future automatic Search Node provisioning. Defaults to false on creation. Omission on update preserves the stored choice. Disabling retains existing Search Nodes and allows in-flight migrations to continue. Enabling does not bypass resource policies; if indexes exceed the migration threshold, the next eligible evaluation may start provisioning.
+                    type: boolean
+            type: object
         SearchDeploymentAuditTypeView:
             description: Unique identifier of event type.
             enum:
@@ -36458,6 +36470,7 @@ components:
                     AWSLambda: '#/components/schemas/StreamsAWSLambdaConnection'
                     AzureBlobStorage: '#/components/schemas/StreamsAzureBlobStorageConnection'
                     Cluster: '#/components/schemas/StreamsClusterConnection'
+                    DataCatalog: '#/components/schemas/StreamsDataCatalogConnection'
                     GCPPubSub: '#/components/schemas/StreamsGCPPubSubConnection'
                     Https: '#/components/schemas/StreamsHttpsConnection'
                     Kafka: '#/components/schemas/StreamsKafkaConnection'
@@ -36476,6 +36489,7 @@ components:
                 - $ref: '#/components/schemas/StreamsSchemaRegistryConnection'
                 - $ref: '#/components/schemas/StreamsAzureBlobStorageConnection'
                 - $ref: '#/components/schemas/StreamsGCPPubSubConnection'
+                - $ref: '#/components/schemas/StreamsDataCatalogConnection'
             properties:
                 errorMessage:
                     description: Connection error message.
@@ -36521,6 +36535,7 @@ components:
                         - AWSKinesisDataStreams
                         - SchemaRegistry
                         - GCPPubSub
+                        - DataCatalog
                     type: string
             readOnly: true
             type: object
@@ -36548,6 +36563,27 @@ components:
                     readOnly: true
                     type: array
             type: object
+        StreamsDataCatalogConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsConnection'
+                - properties:
+                    catalogUrl:
+                        description: 'Base HTTPS URL of the catalog. Must be on the provider''s domain: `*.cloud.databricks.com` or `*.azuredatabricks.net` for Databricks Unity, and `*.snowflakecomputing.com` for Snowflake Horizon.'
+                        format: uri
+                        type: string
+                  type: object
+            description: The configuration for Iceberg Data Catalog connections.
+            discriminator:
+                mapping:
+                    DATABRICKS_UNITY: '#/components/schemas/StreamsDatabricksUnityCatalogConnection'
+                    SNOWFLAKE_HORIZON: '#/components/schemas/StreamsSnowflakeHorizonCatalogConnection'
+                propertyName: catalogProvider
+            oneOf:
+                - $ref: '#/components/schemas/StreamsDatabricksUnityCatalogConnection'
+                - $ref: '#/components/schemas/StreamsSnowflakeHorizonCatalogConnection'
+            required:
+                - catalogUrl
+            type: object
         StreamsDataProcessRegion:
             description: Information about the cloud provider region in which MongoDB Cloud processes the stream.
             properties:
@@ -36574,6 +36610,47 @@ components:
             required:
                 - cloudProvider
                 - region
+            type: object
+        StreamsDatabricksAuthentication:
+            description: Databricks service principal credentials used to obtain an OAuth token.
+            properties:
+                clientId:
+                    description: OAuth client ID of the Databricks service principal.
+                    type: string
+                clientSecret:
+                    description: OAuth client secret of the Databricks service principal. Never returned in responses; omit or leave blank on update to keep the stored secret.
+                    format: password
+                    type: string
+                    writeOnly: true
+            required:
+                - clientId
+                - clientSecret
+            type: object
+        StreamsDatabricksConnectionConfig:
+            description: Databricks settings for a connection.
+            properties:
+                authentication:
+                    $ref: '#/components/schemas/StreamsDatabricksAuthentication'
+            required:
+                - authentication
+            type: object
+        StreamsDatabricksUnityCatalogConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsDataCatalogConnection'
+                - properties:
+                    catalogProvider:
+                        description: Catalog system the connection points at. Cannot be changed after creation.
+                        enum:
+                            - DATABRICKS_UNITY
+                        type: string
+                    databricks:
+                        $ref: '#/components/schemas/StreamsDatabricksConnectionConfig'
+                  type: object
+            description: The configuration for a Databricks Unity Catalog connection.
+            required:
+                - catalogProvider
+                - catalogUrl
+                - databricks
             type: object
         StreamsEventTypeViewForNdsGroup:
             description: Unique identifier of event type.
@@ -37466,6 +37543,55 @@ components:
                 - provider
                 - schemaRegistryAuthentication
                 - schemaRegistryUrls
+            type: object
+        StreamsSnowflakeAuthentication:
+            description: Snowflake service user and key pair used to authenticate to Snowflake.
+            properties:
+                account:
+                    description: Snowflake account identifier.
+                    type: string
+                privateKey:
+                    description: Private key of the service user's key pair. Never returned in responses; omit or leave blank on update to keep the stored key.
+                    format: password
+                    type: string
+                    writeOnly: true
+                role:
+                    description: Snowflake role the service user assumes.
+                    type: string
+                user:
+                    description: Snowflake service user.
+                    type: string
+            required:
+                - account
+                - privateKey
+                - role
+                - user
+            type: object
+        StreamsSnowflakeConnectionConfig:
+            description: Snowflake settings for a connection.
+            properties:
+                authentication:
+                    $ref: '#/components/schemas/StreamsSnowflakeAuthentication'
+            required:
+                - authentication
+            type: object
+        StreamsSnowflakeHorizonCatalogConnection:
+            allOf:
+                - $ref: '#/components/schemas/StreamsDataCatalogConnection'
+                - properties:
+                    catalogProvider:
+                        description: Catalog system the connection points at. Cannot be changed after creation.
+                        enum:
+                            - SNOWFLAKE_HORIZON
+                        type: string
+                    snowflake:
+                        $ref: '#/components/schemas/StreamsSnowflakeConnectionConfig'
+                  type: object
+            description: The configuration for a Snowflake Horizon catalog connection.
+            required:
+                - catalogProvider
+                - catalogUrl
+                - snowflake
             type: object
         StreamsTenant:
             properties:
@@ -40827,7 +40953,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 175b450c845daf524ed819828565258d62dc5df1
+    x-xgen-sha: ad84f610de6453ff2aaa487c93da862380a105b9
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
