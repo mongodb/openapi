@@ -149,6 +149,25 @@ export function hasPostMethod(pathObject) {
 }
 
 /**
+ * Checks if a resource has a standard Create method, a POST on the resource collection path.
+ * Custom methods are not Create methods.
+ *
+ * @param {string} resourcePath a single resource path, a resource collection path or a singleton path
+ * @param {Object} allPathItems all path items
+ * @returns {boolean}
+ */
+export function hasStandardCreateMethod(resourcePath, allPathItems) {
+  if (isCustomMethodIdentifier(resourcePath)) {
+    return false;
+  }
+  const collectionPath = isSingleResourceIdentifier(resourcePath)
+    ? resourcePath.substring(0, resourcePath.lastIndexOf('/'))
+    : resourcePath;
+  const collectionPathItem = allPathItems[collectionPath];
+  return collectionPathItem !== undefined && hasPostMethod(collectionPathItem);
+}
+
+/**
  * Checks if a path object has a DELETE method
  *
  * @param pathObject the path object to evaluate

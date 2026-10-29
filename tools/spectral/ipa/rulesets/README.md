@@ -368,6 +368,7 @@ Rule checks for the following conditions:
   - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
   - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
   - Fails if a Create method is defined on a read-only resource
+  - A Create method whose request body content has an `x-xgen-IPA-exception` for `xgen-IPA-106-create-method-request-body-is-get-method-response` is excluded, since the resource accepts input that is not in the GET response and is managed through Create
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 
 #### xgen-IPA-106-valid-operation-id
@@ -579,6 +580,7 @@ Rule checks for the following conditions:
   - Applies to DELETE methods on single resource paths and singleton resources
   - Checks if the resource is a read-only resource (all properties in GET response have readOnly:true)
   - If a resource does not have a standard GET method, it is not considered read-only (cannot determine the resource schema)
+  - Resources with a standard Create method (POST on the resource collection path) are excluded, since a resource that can be created can be deleted. The Create method is evaluated by xgen-IPA-106-readonly-resource-should-not-have-create-method
   - Fails if a Delete method is defined on a read-only resource
   - Operation objects with `x-xgen-IPA-exception` for this rule are excluded from validation
 

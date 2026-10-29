@@ -1,5 +1,6 @@
 import {
   getResourcePathItems,
+  hasStandardCreateMethod,
   isReadOnlyResource,
   isResourceCollectionIdentifier,
   isSingleResourceIdentifier,
@@ -23,6 +24,11 @@ export default (input, opts, { path, documentInventory, rule }) => {
   }
 
   if (!isReadOnlyResource(resourcePathItems)) {
+    return;
+  }
+
+  // A resource with a Create method is managed and not a true read-only resource, the Create method is evaluated separately by IPA-106
+  if (hasStandardCreateMethod(resourcePath, oas.paths)) {
     return;
   }
 
