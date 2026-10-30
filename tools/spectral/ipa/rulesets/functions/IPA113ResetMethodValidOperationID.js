@@ -1,21 +1,18 @@
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { isResetMethod, stripCustomMethodName } from './utils/resourceEvaluation.js';
+// @ts-check
+import { defineRule } from './utils/defineRule.js';
+import { isReset } from './utils/conditions/path.js';
+import { stripCustomMethodName } from './utils/resourceEvaluation.js';
 import { validateOperationIdAndReturnErrors } from './utils/validations/validateOperationIdAndReturnErrors.js';
 
-export default (input, { ignoreSingularizationList }, { path, rule }) => {
-  const ruleName = rule.name;
-  const resourcePath = path[1];
-
-  if (!isResetMethod(resourcePath)) {
-    return;
-  }
-
-  try {
-    const methodName = 'reset';
-    const endpointUrl = stripCustomMethodName(resourcePath);
-    const errors = validateOperationIdAndReturnErrors(methodName, endpointUrl, input, path, ignoreSingularizationList);
-    return evaluateAndCollectAdoptionStatus(errors, ruleName, input, path);
-  } catch (e) {
-    return handleInternalError(ruleName, path, e);
-  }
-};
+export default defineRule({
+  appliesTo: [isReset],
+  onInternalError: 'return',
+  check: ({ input, options, path, resourcePath }) =>
+    validateOperationIdAndReturnErrors(
+      'reset',
+      stripCustomMethodName(resourcePath),
+      input,
+      path,
+      options.ignoreSingularizationList
+    ),
+});
