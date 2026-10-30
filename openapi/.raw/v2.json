@@ -276,6 +276,43 @@
         },
         "description": "Forbidden."
       },
+      "forbiddenOrResourcePolicyViolation": {
+        "content": {
+          "application/json": {
+            "examples": {
+              "forbidden": {
+                "summary": "Forbidden",
+                "value": {
+                  "detail": "(This is just an example, the exception may not be related to this endpoint)",
+                  "error": 403,
+                  "errorCode": "CANNOT_CHANGE_GROUP_NAME",
+                  "reason": "Forbidden"
+                }
+              },
+              "resourcePolicyViolation": {
+                "summary": "Atlas Resource Policy violation",
+                "value": {
+                  "detail": "Invalid Configuration. Contains selections that are unavailable due to your organization's resource policies.",
+                  "error": 403,
+                  "errorCode": "ATLAS_RESOURCE_POLICIES_VIOLATION_NOT_AUTHORIZED",
+                  "parameters": [],
+                  "policiesCausingDecision": [
+                    {
+                      "id": "32b6e34b3d91647abb20e7b8",
+                      "name": "forbid-aws-clusters"
+                    }
+                  ],
+                  "reason": "Forbidden"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Forbidden. Atlas Resource Policy details are returned only when an Atlas Resource Policy denies the request."
+      },
       "gone": {
         "content": {
           "application/json": {
@@ -1111,10 +1148,13 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true,
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "One endpoint can be referenced by more than 100 connection strings across clusters; the ids are the delete guardrail's blast radius."
+            },
             "x-xgen-hidden-env": {
               "envs": "prod"
             }
@@ -2920,6 +2960,9 @@
             "$ref": "#/components/schemas/NDSNotificationView"
           },
           {
+            "$ref": "#/components/schemas/OperationsContactNotification"
+          },
+          {
             "$ref": "#/components/schemas/OpsGenieNotification"
           },
           {
@@ -2972,6 +3015,9 @@
           },
           {
             "$ref": "#/components/schemas/MicrosoftTeamsNotification"
+          },
+          {
+            "$ref": "#/components/schemas/OperationsContactNotification"
           },
           {
             "$ref": "#/components/schemas/OpsGenieNotification"
@@ -3435,10 +3481,8 @@
             }
           },
           "minimumEnabledTlsProtocol": {
-            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
+            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections.",
             "enum": [
-              "TLS1_0",
-              "TLS1_1",
               "TLS1_2",
               "TLS1_3"
             ],
@@ -3753,6 +3797,9 @@
               "ISRGROOTX1"
             ],
             "type": "string"
+          },
+          "searchAutoMigration": {
+            "$ref": "#/components/schemas/SearchAutoMigration"
           },
           "stateName": {
             "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
@@ -4936,6 +4983,30 @@
         "readOnly": true,
         "type": "object"
       },
+      "ApiClusterScaleView_Atlas": {
+        "description": "Information on scaling the cluster to a tier that supports the requested feature. Present only when the feature is unavailable on the cluster's current tier.",
+        "properties": {
+          "docsUrl": {
+            "description": "Documentation page describing feature availability by cluster tier.",
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          },
+          "minimumTier": {
+            "description": "Lowest cluster tier that supports the requested feature.",
+            "example": "M10",
+            "readOnly": true,
+            "type": "string"
+          },
+          "scaleUrl": {
+            "description": "Link to the Atlas UI page that scales the cluster, with the minimum supported tier pre-selected.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
       "ApiCustomCriteria": {
         "allOf": [
           {
@@ -4975,7 +5046,7 @@
           {
             "properties": {
               "endHour": {
-                "description": "Hour of the day when the scheduled window ends.",
+                "description": "Hour of the day when the scheduled window ends, in the project's default time zone (UTC if unset).",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
@@ -4989,7 +5060,7 @@
                 "type": "integer"
               },
               "startHour": {
-                "description": "Hour of the day when the scheduled window starts.",
+                "description": "Hour of the day when the scheduled window starts, in the project's default time zone (UTC if unset).",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
@@ -5135,6 +5206,16 @@
             "x-xgen-IPA-exception": {
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
             }
+          },
+          "policiesCausingDecision": {
+            "description": "Atlas Resource Policies that caused the request to be denied. Returned only when `errorCode` is `ATLAS_RESOURCE_POLICIES_VIOLATION_NOT_AUTHORIZED`.",
+            "items": {
+              "$ref": "#/components/schemas/ResourcePolicyReference"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-array-semantic": "set"
           },
           "reason": {
             "description": "Application error message returned with this error.",
@@ -5617,6 +5698,11 @@
               "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
             }
           },
+          "message": {
+            "description": "Explanation of measurement availability limitations on the current tier.",
+            "readOnly": true,
+            "type": "string"
+          },
           "partitionName": {
             "description": "Human-readable label of the disk or partition to which the measurements apply.",
             "readOnly": true,
@@ -5628,6 +5714,9 @@
             "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\\.){1,10}[a-z]+)?(\\:[0-9]{4,5})$",
             "readOnly": true,
             "type": "string"
+          },
+          "scale": {
+            "$ref": "#/components/schemas/ApiClusterScaleView_Atlas"
           },
           "start": {
             "description": "Date and time that specifies when to start retrieving measurements. If you set **start**, you must set **end**. You can't set this parameter and **period** in the same request. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
@@ -5653,7 +5742,7 @@
                 "type": "integer"
               },
               "endHour": {
-                "description": "Hour of the day when the scheduled window ends.",
+                "description": "Hour of the day when the scheduled window ends, in the project's default time zone (UTC if unset).",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
@@ -5667,7 +5756,7 @@
                 "type": "integer"
               },
               "startHour": {
-                "description": "Hour of the day when the scheduled window starts.",
+                "description": "Hour of the day when the scheduled window starts, in the project's default time zone (UTC if unset).",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
@@ -5877,6 +5966,94 @@
           },
           "shardId": {
             "description": "Shard that owns this Search Node configuration.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiSearchDeploymentPreviewResponseView": {
+        "properties": {
+          "autoScaling": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApiSearchAutoScalingView"
+              }
+            ],
+            "description": "Autoscaling settings configured for this Search deployment.",
+            "readOnly": true
+          },
+          "baselineSpecs": {
+            "description": "List of starting settings for the Search Nodes in each cluster region.",
+            "items": {
+              "$ref": "#/components/schemas/ApiSearchDeploymentEffectiveSpecView"
+            },
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Upper bound is the number of cluster regions."
+            }
+          },
+          "effectiveSpecs": {
+            "description": "List of settings that configure the Search Nodes for your cluster. Each entry describes one region or, when `shardId` is present, one shard in one region.",
+            "items": {
+              "$ref": "#/components/schemas/ApiSearchDeploymentEffectiveSpecView"
+            },
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Upper bound is the number of cluster regions multiplied by the number of shards when per-shard details are included."
+            }
+          },
+          "encryptionAtRestProvider": {
+            "description": "Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.",
+            "enum": [
+              "NONE",
+              "AWS",
+              "AZURE",
+              "GCP"
+            ],
+            "externalDocs": {
+              "description": "Encryption at Rest using Customer Key Management",
+              "url": "https://www.mongodb.com/docs/atlas/security-kms-encryption/"
+            },
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          },
+          "groupId": {
+            "description": "Unique 24-hexadecimal character string that identifies the project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "id": {
+            "description": "Unique 24-hexadecimal digit string that identifies the search deployment.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "specs": {
+            "deprecated": true,
+            "description": "Deprecated. `specs` will be removed in a future release. We strongly recommend that you use `effectiveSpecs` instead.",
+            "items": {
+              "$ref": "#/components/schemas/ApiSearchDeploymentSpecView"
+            },
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
+            }
+          },
+          "stateName": {
+            "description": "Human-readable label that indicates the current operating condition of this search deployment.",
+            "enum": [
+              "IDLE",
+              "PAUSED",
+              "UPDATING"
+            ],
             "readOnly": true,
             "type": "string"
           }
@@ -6759,7 +6936,7 @@
                 "type": "integer"
               },
               "endHour": {
-                "description": "Hour of the day when the scheduled window ends.",
+                "description": "Hour of the day when the scheduled window ends, in the project's default time zone (UTC if unset).",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
@@ -6773,7 +6950,7 @@
                 "type": "integer"
               },
               "startHour": {
-                "description": "Hour of the day when the scheduled window starts.",
+                "description": "Hour of the day when the scheduled window starts, in the project's default time zone (UTC if unset).",
                 "format": "int32",
                 "maximum": 23,
                 "minimum": 0,
@@ -8339,6 +8516,9 @@
               "ISRGROOTX1"
             ],
             "type": "string"
+          },
+          "searchAutoMigration": {
+            "$ref": "#/components/schemas/SearchAutoMigration"
           },
           "stateName": {
             "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
@@ -10056,10 +10236,13 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true,
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "One endpoint can be referenced by more than 100 connection strings across clusters; the ids are the delete guardrail's blast radius."
+            },
             "x-xgen-hidden-env": {
               "envs": "prod"
             }
@@ -14937,36 +15120,40 @@
         "properties": {
           "awsPrivateLink": {
             "additionalProperties": {
-              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names.",
+              "deprecated": true,
+              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
               "externalDocs": {
-                "description": "Network Peering Connection",
-                "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+                "description": "Private Endpoints",
+                "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
               },
               "readOnly": true,
               "type": "string"
             },
-            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names.",
+            "deprecated": true,
+            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
             "externalDocs": {
-              "description": "Network Peering Connection",
-              "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+              "description": "Private Endpoints",
+              "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
             },
             "readOnly": true,
             "type": "object"
           },
           "awsPrivateLinkSrv": {
             "additionalProperties": {
-              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present.",
+              "deprecated": true,
+              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
               "externalDocs": {
-                "description": "Network Peering Connection",
-                "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+                "description": "Private Endpoints",
+                "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
               },
               "readOnly": true,
               "type": "string"
             },
-            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present.",
+            "deprecated": true,
+            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
             "externalDocs": {
-              "description": "Network Peering Connection",
-              "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+              "description": "Private Endpoints",
+              "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
             },
             "readOnly": true,
             "type": "object"
@@ -14981,7 +15168,12 @@
             "type": "string"
           },
           "privateEndpoint": {
-            "description": "List of private endpoint-aware connection strings that you can use to connect to this cluster through a private endpoint. This parameter returns only if you deployed a private endpoint to all regions to which you deployed this clusters' nodes.",
+            "deprecated": true,
+            "description": "List of private endpoint-aware connection strings that you can use to connect to this cluster through a private endpoint. This parameter returns only if you deployed a private endpoint to all regions to which you deployed this clusters' nodes. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
+            "externalDocs": {
+              "description": "Private Endpoints",
+              "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
+            },
             "items": {
               "$ref": "#/components/schemas/ClusterDescriptionConnectionStringsPrivateEndpoint"
             },
@@ -15345,6 +15537,9 @@
             ],
             "type": "string"
           },
+          "searchAutoMigration": {
+            "$ref": "#/components/schemas/SearchAutoMigration"
+          },
           "stateName": {
             "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
@@ -15600,10 +15795,8 @@
             "type": "boolean"
           },
           "minimumEnabledTlsProtocol": {
-            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
+            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections.",
             "enum": [
-              "TLS1_0",
-              "TLS1_1",
               "TLS1_2",
               "TLS1_3"
             ],
@@ -15792,10 +15985,8 @@
             "type": "boolean"
           },
           "minimumEnabledTlsProtocol": {
-            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
+            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections.",
             "enum": [
-              "TLS1_0",
-              "TLS1_1",
               "TLS1_2",
               "TLS1_3"
             ],
@@ -16933,11 +17124,6 @@
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
           },
-          "instantUserProvisioningDisabled": {
-            "description": "Flag that indicates whether instant user provisioning is disabled for this connected organization.",
-            "nullable": true,
-            "type": "boolean"
-          },
           "orgId": {
             "description": "Unique 24-hexadecimal digit string that identifies the connected organization configuration.",
             "example": "32b6e34b3d91647abb20e7b8",
@@ -17245,30 +17431,6 @@
           "services": {
             "description": "The list of SKU services to be included in the Cost Explorer Query.",
             "items": {
-              "enum": [
-                "Atlas",
-                "Clusters",
-                "Storage",
-                "Serverless Instances",
-                "Backup",
-                "Data Transfer",
-                "BI Connector",
-                "Premium Features",
-                "Atlas Data Federation",
-                "Atlas Stream Processing",
-                "App Services",
-                "Charts",
-                "Cloud Manager",
-                "Cloud Manager Standard/Premium",
-                "Legacy Backup",
-                "AI Model APIs",
-                "Automated Embedding",
-                "Native Reranking",
-                "Agent Engine",
-                "Flex Consulting",
-                "Support",
-                "Credits"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -17412,6 +17574,72 @@
           "notifications"
         ],
         "title": "Cps Backup Threshold Alert Configuration",
+        "type": "object"
+      },
+      "CpuBurstCreditMeasurementsResponse": {
+        "properties": {
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "intervalMinutes": {
+            "description": "Length in minutes of the cloud provider aggregation interval that produced every data point in this response. Divide a `CPU_CREDIT_USAGE` value by this interval to derive a per-minute consumption rate.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CpuBurstCreditResult"
+            },
+            "description": "Map of CPU credit results keyed by the combination of hostname and Internet Assigned Numbers Authority (IANA) port that serves the MongoDB process. Every process in the project appears exactly once, including processes that do not use a burstable instance family.",
+            "readOnly": true,
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "CpuBurstCreditResult": {
+        "description": "Outcome of the CPU burst credit lookup for one MongoDB process, and the measurements returned by the cloud provider for that process.",
+        "properties": {
+          "measurements": {
+            "description": "List that contains the CPU credit measurements for this host. Empty unless `status` is `OK`.",
+            "items": {
+              "$ref": "#/components/schemas/MetricsMeasurement"
+            },
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Bounded by the fixed set of CPU credit metrics the cloud providers report, not by caller input."
+            }
+          },
+          "status": {
+            "description": "Outcome of the credit lookup for this host. `OK` indicates that the cloud provider returned a data point. `NO_DATA` indicates that the host uses a burstable instance family but no data point was available. `NOT_APPLICABLE` indicates that the host does not use a burstable instance family, or runs on a cloud provider that does not implement a CPU credit model.",
+            "enum": [
+              "OK",
+              "NO_DATA",
+              "NOT_APPLICABLE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "readOnly": true,
         "type": "object"
       },
       "CreateAWSEndpointRequest": {
@@ -21844,6 +22072,14 @@
               },
               {
                 "enum": [
+                  "ENCRYPTION_KEY_TRANSITION_STARTED",
+                  "ENCRYPTION_KEY_TRANSITION_COMPLETED"
+                ],
+                "title": "Encryption Key Transition Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
                   "BUCKET_CREATED_AUDIT",
                   "BUCKET_DELETED_AUDIT"
                 ],
@@ -22007,6 +22243,19 @@
                   "ONLINE_ARCHIVE_MAX_CONSECUTIVE_OFFLOAD_WINDOWS_CHECK"
                 ],
                 "title": "Online Archive Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_AVAILABLE",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_CREATED",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_DELETED",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_MISCONFIGURED",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_IN",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_OUT",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_UPDATED"
+                ],
+                "title": "Private Endpoint Connection String Audit Types",
                 "type": "string"
               },
               {
@@ -22339,6 +22588,7 @@
                   "ORG_SETTINGS_CONFIGURED",
                   "ORG_SETTINGS_UPDATED",
                   "ORG_SETTINGS_DELETED",
+                  "ORG_ACCESS_PROVISIONING_METHOD_UPDATED",
                   "RESTRICT_ORG_MEMBERSHIP_ENABLED",
                   "RESTRICT_ORG_MEMBERSHIP_DISABLED",
                   "ROLE_MAPPING_CREATED",
@@ -26494,6 +26744,14 @@
           },
           {
             "enum": [
+              "ENCRYPTION_KEY_TRANSITION_STARTED",
+              "ENCRYPTION_KEY_TRANSITION_COMPLETED"
+            ],
+            "title": "Encryption Key Transition Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
               "BUCKET_CREATED_AUDIT",
               "BUCKET_DELETED_AUDIT"
             ],
@@ -26929,6 +27187,7 @@
               "SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS",
               "SEARCH_HOST_DISABLE_FTS",
               "SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS",
+              "SEARCH_AUTOSCALING_ADMIN_OVERRIDES_UPDATED",
               "CLUSTER_BLOCK_WRITE",
               "CLUSTER_UNBLOCK_WRITE",
               "KMIP_KEY_ROTATION_SCHEDULED",
@@ -26959,6 +27218,8 @@
               "DISK_WARMING_PROCESS_NODE_UNHIDDEN_BY_ADMIN",
               "DISK_WARMING_PROCESS_INSTANCE_CANCELLED_BY_ADMIN",
               "DISK_WARMING_PROCESS_DISK_TAG_READY_BY_ADMIN",
+              "NODE_FROZEN_BY_ADMIN",
+              "NODE_UNFROZEN_BY_ADMIN",
               "CLUSTER_CREATED_VIA_ANIS",
               "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
               "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
@@ -27125,6 +27386,19 @@
               "ONLINE_ARCHIVE_MAX_CONSECUTIVE_OFFLOAD_WINDOWS_CHECK"
             ],
             "title": "Online Archive Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_AVAILABLE",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_CREATED",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_DELETED",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_MISCONFIGURED",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_IN",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_OUT",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_UPDATED"
+            ],
+            "title": "Private Endpoint Connection String Audit Types",
             "type": "string"
           },
           {
@@ -27548,6 +27822,7 @@
               "ORG_SETTINGS_CONFIGURED",
               "ORG_SETTINGS_UPDATED",
               "ORG_SETTINGS_DELETED",
+              "ORG_ACCESS_PROVISIONING_METHOD_UPDATED",
               "RESTRICT_ORG_MEMBERSHIP_ENABLED",
               "RESTRICT_ORG_MEMBERSHIP_DISABLED",
               "ROLE_MAPPING_CREATED",
@@ -33475,37 +33750,24 @@
         "properties": {
           "isAtlasHomePageAiAssistantEnabled": {
             "description": "Flag that indicates whether the MongoDB Assistant on the Atlas Home Page is enabled for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isClusterAiAssistantEnabled": {
             "description": "Flag that indicates whether the AI Cluster Assistant is enabled for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isCollectDatabaseSpecificsStatisticsEnabled": {
             "description": "Flag that indicates whether to collect database-specific metrics for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isDataExplorerEnabled": {
             "description": "Flag that indicates whether to enable the Data Explorer for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isDataExplorerGenAIFeaturesEnabled": {
             "description": "Flag that indicates whether to enable the use of generative AI features which make requests to 3rd party services in Data Explorer for the specified project.",
             "type": "boolean",
             "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation.",
               "xgen-IPA-112-field-names-are-camel-case": "Schema predates IPA validation."
             }
           },
@@ -33514,108 +33776,73 @@
             "description": "Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.",
             "type": "boolean",
             "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation.",
               "xgen-IPA-112-field-names-are-camel-case": "Schema predates IPA validation."
             }
           },
           "isDataValidationEnabled": {
             "description": "Flag that indicates whether data validation is enabled for all clusters in the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isExtendedStorageSizesEnabled": {
             "description": "Flag that indicates whether to enable extended storage sizes for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isNativeRerankingEnabled": {
             "description": "Flag that indicates whether to enable Native Reranking with Voyage AI models in the Aggregation Pipeline for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isPerformanceAdvisorEnabled": {
             "description": "Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isPrivateEndpointConnectionStringsEnabled": {
             "default": false,
             "description": "Flag that indicates whether the project uses the private endpoint connection strings resource.",
             "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            },
             "x-xgen-hidden-env": {
               "envs": "prod"
             }
           },
           "isRealtimePerformancePanelEnabled": {
             "description": "Flag that indicates whether to enable the Real Time Performance Panel for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isSchemaAdvisorEnabled": {
             "description": "Flag that indicates whether to enable the Schema Advisor for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           }
         },
-        "type": "object"
+        "type": "object",
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
+        }
       },
       "GroupSettingsPreview": {
         "properties": {
           "isAtlasHomePageAiAssistantEnabled": {
             "description": "Flag that indicates whether the MongoDB Assistant on the Atlas Home Page is enabled for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isClusterAiAssistantEnabled": {
             "description": "Flag that indicates whether the AI Cluster Assistant is enabled for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isClusterAiQuickStartEnabled": {
             "description": "Flag that indicates whether to enable Cluster AI Quick Start for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isCollectDatabaseSpecificsStatisticsEnabled": {
             "description": "Flag that indicates whether to collect database-specific metrics for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isDataExplorerEnabled": {
             "description": "Flag that indicates whether to enable the Data Explorer for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isDataExplorerGenAIFeaturesEnabled": {
             "description": "Flag that indicates whether to enable the use of generative AI features which make requests to 3rd party services in Data Explorer for the specified project.",
             "type": "boolean",
             "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation.",
               "xgen-IPA-112-field-names-are-camel-case": "Schema predates IPA validation."
             }
           },
@@ -33624,72 +33851,50 @@
             "description": "Flag that indicates whether to enable the passing of sample field values with the use of generative AI features in the Data Explorer for the specified project.",
             "type": "boolean",
             "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation.",
               "xgen-IPA-112-field-names-are-camel-case": "Schema predates IPA validation."
             }
           },
           "isDataValidationEnabled": {
             "description": "Flag that indicates whether data validation is enabled for all clusters in the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isExtendedStorageSizesEnabled": {
             "description": "Flag that indicates whether to enable extended storage sizes for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isNativeRerankingEnabled": {
             "description": "Flag that indicates whether to enable Native Reranking with Voyage AI models in the Aggregation Pipeline for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isPerformanceAdvisorEnabled": {
             "description": "Flag that indicates whether to enable the Performance Advisor and Profiler for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isPrivateEndpointConnectionStringsEnabled": {
             "default": false,
             "description": "Flag that indicates whether the project uses the private endpoint connection strings resource.",
             "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            },
             "x-xgen-hidden-env": {
               "envs": "prod"
             }
           },
           "isQueryInsightsGenAiFeaturesEnabled": {
             "description": "Flag that indicates whether to enable AI features in Query Insights for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Used 'is' prefix for alignment with other grouped boolean fields in this endpoint."
-            }
+            "type": "boolean"
           },
           "isRealtimePerformancePanelEnabled": {
             "description": "Flag that indicates whether to enable the Real Time Performance Panel for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           },
           "isSchemaAdvisorEnabled": {
             "description": "Flag that indicates whether to enable the Schema Advisor for the specified project.",
-            "type": "boolean",
-            "x-xgen-IPA-exception": {
-              "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
-            }
+            "type": "boolean"
           }
         },
-        "type": "object"
+        "type": "object",
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-112-boolean-field-names-avoid-is-prefix": "Schema predates IPA validation."
+        }
       },
       "GroupUpdate": {
         "description": "Request view to update the group.",
@@ -34587,6 +34792,7 @@
             "NORMALIZED_FTS_PROCESS_CPU_USER": "#/components/schemas/RawMetricAlertView",
             "NORMALIZED_SYSTEM_CPU_STEAL": "#/components/schemas/RawMetricAlertView",
             "NORMALIZED_SYSTEM_CPU_USER": "#/components/schemas/RawMetricAlertView",
+            "NORMALIZED_SYSTEM_CPU_USER_SEARCH_PRIMARY_CONTRIBUTOR": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_CMD": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_DELETE": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_GETMORE": "#/components/schemas/RawMetricAlertView",
@@ -35026,6 +35232,7 @@
             "NORMALIZED_FTS_PROCESS_CPU_USER": "#/components/schemas/RawMetricEventView",
             "NORMALIZED_SYSTEM_CPU_STEAL": "#/components/schemas/RawMetricEventView",
             "NORMALIZED_SYSTEM_CPU_USER": "#/components/schemas/RawMetricEventView",
+            "NORMALIZED_SYSTEM_CPU_USER_SEARCH_PRIMARY_CONTRIBUTOR": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_CMD": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_DELETE": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_GETMORE": "#/components/schemas/RawMetricEventView",
@@ -35367,6 +35574,7 @@
             "NORMALIZED_FTS_PROCESS_CPU_USER": "#/components/schemas/NormalizedFtsProcessCpuUserRawMetricThresholdView",
             "NORMALIZED_SYSTEM_CPU_STEAL": "#/components/schemas/NormalizedSystemCpuStealRawMetricThresholdView",
             "NORMALIZED_SYSTEM_CPU_USER": "#/components/schemas/NormalizedSystemCpuUserRawMetricThresholdView",
+            "NORMALIZED_SYSTEM_CPU_USER_SEARCH_PRIMARY_CONTRIBUTOR": "#/components/schemas/NormalizedSystemCpuUserSearchPrimaryContributorRawMetricThresholdView",
             "OPCOUNTER_CMD": "#/components/schemas/OpCounterCmdRawMetricThresholdView",
             "OPCOUNTER_DELETE": "#/components/schemas/OpCounterDeleteRawMetricThresholdView",
             "OPCOUNTER_GETMORE": "#/components/schemas/OpCounterGetMoreRawMetricThresholdView",
@@ -35622,6 +35830,9 @@
           },
           {
             "$ref": "#/components/schemas/NormalizedSystemCpuUserRawMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/NormalizedSystemCpuUserSearchPrimaryContributorRawMetricThresholdView"
           },
           {
             "$ref": "#/components/schemas/NormalizedSystemCpuStealRawMetricThresholdView"
@@ -40183,7 +40394,11 @@
               "enum": [
                 "ATLAS_STREAM_PROCESSING",
                 "MONGODB_METRICS",
-                "HARDWARE_METRICS"
+                "HARDWARE_METRICS",
+                "DB_STATS",
+                "QUERY_SHAPE_INSIGHTS",
+                "SEARCH_METRICS",
+                "SHARDING_METRICS"
               ],
               "type": "string"
             },
@@ -40274,7 +40489,11 @@
               "enum": [
                 "ATLAS_STREAM_PROCESSING",
                 "MONGODB_METRICS",
-                "HARDWARE_METRICS"
+                "HARDWARE_METRICS",
+                "DB_STATS",
+                "QUERY_SHAPE_INSIGHTS",
+                "SEARCH_METRICS",
+                "SHARDING_METRICS"
               ],
               "type": "string"
             },
@@ -40357,7 +40576,11 @@
               "enum": [
                 "ATLAS_STREAM_PROCESSING",
                 "MONGODB_METRICS",
-                "HARDWARE_METRICS"
+                "HARDWARE_METRICS",
+                "DB_STATS",
+                "QUERY_SHAPE_INSIGHTS",
+                "SEARCH_METRICS",
+                "SHARDING_METRICS"
               ],
               "type": "string"
             },
@@ -40662,6 +40885,113 @@
           },
           "tier": {
             "$ref": "#/components/schemas/MongosTier"
+          }
+        },
+        "type": "object"
+      },
+      "MongosTopologyCreateRequest": {
+        "description": "Dedicated mongos topology to attach to a sharded cluster.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "type": "string"
+          },
+          "instanceSize": {
+            "description": "Instance size of the dedicated mongos hosts (for example, `M30`).",
+            "type": "string"
+          },
+          "regionPlacements": {
+            "description": "Per-region placement of the dedicated mongos hosts.",
+            "items": {
+              "$ref": "#/components/schemas/MongosTopologyResourceRegionConfig"
+            },
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Region placements are naturally bounded by the number of cloud regions; no fixed array cap is enforced."
+            }
+          }
+        },
+        "type": "object"
+      },
+      "MongosTopologyResourceRegionConfig": {
+        "description": "Dedicated mongos placement in one region.",
+        "properties": {
+          "nodeCount": {
+            "description": "Number of dedicated mongos to run in this region.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "providerName": {
+            "description": "Cloud provider on which the dedicated mongos run.",
+            "enum": [
+              "AWS",
+              "AZURE",
+              "GCP"
+            ],
+            "type": "string"
+          },
+          "regionName": {
+            "description": "Region in which the dedicated mongos run.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "MongosTopologyResourceResponse": {
+        "description": "Configuration of the dedicated mongos routers for a sharded cluster, identified by the name of its associated cluster.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "type": "string"
+          },
+          "instanceSize": {
+            "description": "Instance size of the dedicated mongos hosts (for example, `M30`).",
+            "type": "string"
+          },
+          "regionPlacements": {
+            "description": "Per-region placement of the dedicated mongos hosts.",
+            "items": {
+              "$ref": "#/components/schemas/MongosTopologyResourceRegionConfig"
+            },
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Region placements are naturally bounded by the number of cloud regions; no fixed array cap is enforced."
+            }
+          },
+          "status": {
+            "description": "Lifecycle status of the dedicated mongos topology resource.",
+            "enum": [
+              "PENDING_CLUSTER_CREATION",
+              "CREATING",
+              "UPDATING",
+              "ACTIVE"
+            ],
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "MongosTopologyUpdateRequest": {
+        "description": "Dedicated mongos tier to apply to a sharded cluster.",
+        "properties": {
+          "clusterName": {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "type": "string"
+          },
+          "instanceSize": {
+            "description": "Instance size of the dedicated mongos hosts (for example, `M30`).",
+            "type": "string"
+          },
+          "regionPlacements": {
+            "description": "Per-region placement of the dedicated mongos hosts.",
+            "items": {
+              "$ref": "#/components/schemas/MongosTopologyResourceRegionConfig"
+            },
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Region placements are naturally bounded by the number of cloud regions; no fixed array cap is enforced."
+            }
           }
         },
         "type": "object"
@@ -41332,6 +41662,7 @@
           "SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS",
           "SEARCH_HOST_DISABLE_FTS",
           "SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS",
+          "SEARCH_AUTOSCALING_ADMIN_OVERRIDES_UPDATED",
           "CLUSTER_BLOCK_WRITE",
           "CLUSTER_UNBLOCK_WRITE",
           "KMIP_KEY_ROTATION_SCHEDULED",
@@ -41362,6 +41693,8 @@
           "DISK_WARMING_PROCESS_NODE_UNHIDDEN_BY_ADMIN",
           "DISK_WARMING_PROCESS_INSTANCE_CANCELLED_BY_ADMIN",
           "DISK_WARMING_PROCESS_DISK_TAG_READY_BY_ADMIN",
+          "NODE_FROZEN_BY_ADMIN",
+          "NODE_UNFROZEN_BY_ADMIN",
           "CLUSTER_CREATED_VIA_ANIS",
           "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
           "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
@@ -42803,6 +43136,41 @@
         ],
         "type": "object"
       },
+      "NormalizedSystemCpuUserSearchPrimaryContributorRawMetricThresholdView": {
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured `metricThreshold.threshold`.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "LESS_THAN",
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "$ref": "#/components/schemas/RawMetricUnits"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
+        "type": "object"
+      },
       "NumberMetricAlertView": {
         "properties": {
           "acknowledgedUntil": {
@@ -44193,6 +44561,40 @@
         "required": [
           "metricName"
         ],
+        "type": "object"
+      },
+      "OperationsContactNotification": {
+        "description": "Explicit recurrence override for project operations contact alerts. This setting does not enable notification delivery. Delivery requires opting in through project settings. Contact addresses are resolved when a notification is sent and are not returned here.",
+        "properties": {
+          "delayMin": {
+            "description": "Number of minutes that MongoDB Cloud waits after detecting an alert condition before it sends out the first notification.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "intervalMin": {
+            "description": "Number of minutes to wait between successive notifications. MongoDB Cloud sends notifications until someone acknowledges the unacknowledged alert.\n\nPagerDuty, VictorOps, and OpsGenie notifications don't return this element. Configure and manage the notification interval within each of those services.",
+            "format": "int32",
+            "minimum": 5,
+            "type": "integer"
+          },
+          "notifierId": {
+            "description": "The `notifierId` is a system-generated unique identifier assigned to each notification method. This is needed when updating third-party notifications without requiring explicit authentication credentials.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "typeName": {
+            "description": "Human-readable label that displays the alert notification type.",
+            "enum": [
+              "OPERATIONS_CONTACT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "typeName"
+        ],
+        "title": "Operations Contact Notification",
         "type": "object"
       },
       "OperationsQueriesKilledRawMetricThresholdView": {
@@ -46230,7 +46632,7 @@
             "type": "boolean"
           },
           "operationsContact": {
-            "description": "String that specifies a distribution list email address for the specified organization to receive proactive notifications about its infrastructure. The operations contact is used for notifications only and is not authorized to make decisions or approvals. Passing an explicit null clears the existing operations contact (if any). An empty string is invalid and is rejected with a validation error.",
+            "description": "String that specifies a distribution list email address for the specified organization to receive proactive notifications about its infrastructure. The operations contact is used for notifications only and is not authorized to make decisions or approvals. Passing an explicit null clears the existing operations contact (if any). An empty string is invalid and is rejected with a validation error. Addresses are trimmed and converted to lowercase before validation; each normalized address must contain at most 254 characters.",
             "nullable": true,
             "type": "string"
           },
@@ -46239,7 +46641,7 @@
             "type": "boolean"
           },
           "securityContact": {
-            "description": "String that specifies a single email address for the specified organization to receive security-related notifications. Specifying a security contact does not grant them authorization or access to Atlas for security decisions or approvals. An empty string is valid and clears the existing security contact (if any).",
+            "description": "String that specifies a single email address for the specified organization to receive security-related notifications. Specifying a security contact does not grant them authorization or access to Atlas for security decisions or approvals. An empty string is valid and clears the existing security contact (if any). Addresses are trimmed and converted to lowercase before validation; each normalized address must contain at most 254 characters.",
             "type": "string"
           },
           "streamsCrossGroupEnabled": {
@@ -47273,6 +47675,41 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/SkuResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedApiSkuServiceView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/SkuServiceResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -48750,6 +49187,41 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/MetricIntegrationResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedMongosTopologyResourceResponse": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/MongosTopologyResourceResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -50536,10 +51008,13 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true,
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "One endpoint can be referenced by more than 100 connection strings across clusters; the ids are the delete guardrail's blast radius."
+            },
             "x-xgen-hidden-env": {
               "envs": "prod"
             }
@@ -50654,10 +51129,13 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true,
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "One endpoint can be referenced by more than 100 connection strings across clusters; the ids are the delete guardrail's blast radius."
+            },
             "x-xgen-hidden-env": {
               "envs": "prod"
             }
@@ -53024,6 +53502,28 @@
         "title": "Resource Events",
         "type": "object"
       },
+      "ResourcePolicyReference": {
+        "description": "Atlas Resource Policy that caused the request to be denied.",
+        "properties": {
+          "id": {
+            "description": "Unique 24-hexadecimal character string that identifies the Atlas Resource Policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable label that identifies the Atlas Resource Policy.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
       "ResourceTag": {
         "description": "Key-value pair that tags and categorizes a MongoDB Cloud organization, project, or cluster. For example, `environment : production`.",
         "properties": {
@@ -53157,7 +53657,6 @@
               },
               "useLegacyPathStructure": {
                 "description": "When true, uses the legacy daily-folder path structure compatible with Push-Based Log Export: `{prefix}/{cluster}/{hostname}/{logType}/{YYYY-MM-DD}/{timestamp}-{logType}.log`. When false (default), uses the flat timestamped structure: `{prefix}/{cluster}/{hostname}/{logType}/{timestamp}-{logType}.log`.",
-                "nullable": true,
                 "type": "boolean"
               }
             },
@@ -53213,7 +53712,6 @@
               },
               "useLegacyPathStructure": {
                 "description": "When true, uses the legacy daily-folder path structure compatible with Push-Based Log Export: `{prefix}/{cluster}/{hostname}/{logType}/{YYYY-MM-DD}/{timestamp}-{logType}.log`. When false (default), uses the flat timestamped structure: `{prefix}/{cluster}/{hostname}/{logType}/{timestamp}-{logType}.log`.",
-                "nullable": true,
                 "type": "boolean"
               }
             },
@@ -53517,6 +54015,17 @@
         "required": [
           "type"
         ],
+        "type": "object"
+      },
+      "SearchAutoMigration": {
+        "description": "Configuration for automatically adding Dedicated Search Nodes on eligible Atlas Infinite clusters. This setting has no effect on Atlas Core clusters.",
+        "properties": {
+          "disabled": {
+            "default": false,
+            "description": "Flag that disables future automatic Search Node provisioning. Defaults to false on creation. Omission on update preserves the stored choice. Disabling retains existing Search Nodes and allows in-flight migrations to continue. Enabling does not bypass resource policies; if indexes exceed the migration threshold, the next eligible evaluation may start provisioning.",
+            "type": "boolean"
+          }
+        },
         "type": "object"
       },
       "SearchDeploymentAuditTypeView": {
@@ -53965,7 +54474,7 @@
             "type": "string"
           },
           "queryable": {
-            "description": "Flag that indicates whether the index is queryable on all hosts.",
+            "description": "Flag that indicates whether the index is queryable on the nodes currently receiving query traffic.",
             "type": "boolean"
           },
           "status": {
@@ -57555,6 +58064,16 @@
         },
         "type": "object"
       },
+      "SkuServiceResponse": {
+        "properties": {
+          "name": {
+            "description": "Human-readable name of the SKU service as shown on invoices.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "Slack": {
         "description": "Details to integrate one Slack account with one MongoDB Cloud project.",
         "properties": {
@@ -58586,7 +59105,10 @@
           "enabled": {
             "description": "Flag that indicates whether autoscaling is enabled.\n\n- **Omitted, `null`, or `false`:**\n  - On `CREATE`: a no-op, there is no persisted setting yet to disable or clear.\n  - On `MODIFY` or `:startWith`: omitted preserves the current setting. `null` or `false` disables autoscaling and clears its configuration.\n- **`true`** on `CREATE`, `MODIFY`, or `:startWith`: enables autoscaling.",
             "nullable": true,
-            "type": "boolean"
+            "type": "boolean",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-111-boolean-fields-not-nullable": "Explicit null is supported to disable autoscaling while an omitted field preserves the current setting."
+            }
           },
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -58682,6 +59204,7 @@
             "AWSLambda": "#/components/schemas/StreamsAWSLambdaConnection",
             "AzureBlobStorage": "#/components/schemas/StreamsAzureBlobStorageConnection",
             "Cluster": "#/components/schemas/StreamsClusterConnection",
+            "DataCatalog": "#/components/schemas/StreamsDataCatalogConnection",
             "GCPPubSub": "#/components/schemas/StreamsGCPPubSubConnection",
             "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
@@ -58721,9 +59244,17 @@
           },
           {
             "$ref": "#/components/schemas/StreamsGCPPubSubConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsDataCatalogConnection"
           }
         ],
         "properties": {
+          "errorMessage": {
+            "description": "Connection error message.",
+            "readOnly": true,
+            "type": "string"
+          },
           "id": {
             "description": "Unique identifier of the connection.",
             "readOnly": true,
@@ -58771,7 +59302,8 @@
               "AWSLambda",
               "AWSKinesisDataStreams",
               "SchemaRegistry",
-              "GCPPubSub"
+              "GCPPubSub",
+              "DataCatalog"
             ],
             "type": "string",
             "x-xgen-IPA-exception": {
@@ -58850,10 +59382,7 @@
         "required": [
           "catalogUrl"
         ],
-        "type": "object",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        }
+        "type": "object"
       },
       "StreamsDataProcessRegion": {
         "description": "Information about the cloud provider region in which MongoDB Cloud processes the stream.",
@@ -58921,10 +59450,7 @@
         "required": [
           "authentication"
         ],
-        "type": "object",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        }
+        "type": "object"
       },
       "StreamsDatabricksUnityCatalogConnection": {
         "allOf": [
@@ -58953,10 +59479,7 @@
           "catalogUrl",
           "databricks"
         ],
-        "type": "object",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        }
+        "type": "object"
       },
       "StreamsEventTypeViewForNdsGroup": {
         "description": "Unique identifier of event type.",
@@ -60344,10 +60867,7 @@
         "required": [
           "authentication"
         ],
-        "type": "object",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        }
+        "type": "object"
       },
       "StreamsSnowflakeHorizonCatalogConnection": {
         "allOf": [
@@ -60376,10 +60896,7 @@
           "catalogUrl",
           "snowflake"
         ],
-        "type": "object",
-        "x-xgen-hidden-env": {
-          "envs": "qa,stage,prod"
-        }
+        "type": "object"
       },
       "StreamsStartProcessorFailover": {
         "description": "Failover options for starting a stream processor.",
@@ -63251,30 +63768,6 @@
           "skuServices": {
             "description": "The list of projects to be included in the Cost Explorer Query.",
             "items": {
-              "enum": [
-                "Atlas",
-                "Clusters",
-                "Storage",
-                "Serverless Instances",
-                "Backup",
-                "Data Transfer",
-                "BI Connector",
-                "Premium Features",
-                "Atlas Data Federation",
-                "Atlas Stream Processing",
-                "App Services",
-                "Charts",
-                "Cloud Manager",
-                "Cloud Manager Standard/Premium",
-                "Legacy Backup",
-                "AI Model APIs",
-                "Automated Embedding",
-                "Native Reranking",
-                "Agent Engine",
-                "Flex Consulting",
-                "Support",
-                "Credits"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -65425,7 +65918,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "eb57b1f5a9e1c4d06535dd914be9d604f57d1e55"
+    "x-xgen-sha": "90f7e27dda9e8b942432d019f80c3b48da975903"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -67966,7 +68459,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -68052,7 +68545,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -68792,7 +69285,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -68864,7 +69357,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -69019,7 +69512,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -70697,7 +71190,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -74083,7 +74576,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -78195,7 +78688,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -78601,7 +79094,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -82174,7 +82667,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -83526,6 +84019,13 @@
             "content": {
               "application/vnd.atlas.2024-05-30+json": {
                 "x-xgen-version": "2024-05-30"
+              },
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "search-node-autoscaling",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "No Content",
@@ -83617,6 +84117,16 @@
                   "$ref": "#/components/schemas/ApiSearchDeploymentResponseView"
                 },
                 "x-xgen-version": "2025-03-12"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSearchDeploymentPreviewResponseView"
+                },
+                "x-xgen-preview": {
+                  "name": "search-node-autoscaling",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -83701,6 +84211,16 @@
               "schema": {
                 "$ref": "#/components/schemas/ApiSearchDeploymentRequestView"
               }
+            },
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiSearchDeploymentRequestView"
+              },
+              "x-xgen-preview": {
+                "name": "search-node-autoscaling",
+                "public": "false"
+              },
+              "x-xgen-version": "preview"
             }
           },
           "description": "Updates the Search Nodes for the specified cluster.",
@@ -83721,6 +84241,16 @@
                   "$ref": "#/components/schemas/ApiSearchDeploymentResponseView"
                 },
                 "x-xgen-version": "2024-05-30"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSearchDeploymentPreviewResponseView"
+                },
+                "x-xgen-preview": {
+                  "name": "search-node-autoscaling",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
@@ -83801,6 +84331,16 @@
               "schema": {
                 "$ref": "#/components/schemas/ApiSearchDeploymentRequestView"
               }
+            },
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiSearchDeploymentRequestView"
+              },
+              "x-xgen-preview": {
+                "name": "search-node-autoscaling",
+                "public": "false"
+              },
+              "x-xgen-version": "preview"
             }
           },
           "description": "Creates Search Nodes for the specified cluster.",
@@ -83834,6 +84374,16 @@
                   "$ref": "#/components/schemas/ApiSearchDeploymentResponseView"
                 },
                 "x-xgen-version": "2024-05-30"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSearchDeploymentPreviewResponseView"
+                },
+                "x-xgen-preview": {
+                  "name": "search-node-autoscaling",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "Created",
@@ -84042,7 +84592,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -84499,7 +85049,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -84795,7 +85345,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -85067,6 +85617,9 @@
               "RateLimit-Remaining": {
                 "$ref": "#/components/headers/HeaderRateLimitRemaining"
               }
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-132-operation-endpoints-must-return-operation-response": "Shard key analyses use feature-specific operation response schemas to avoid claiming the global OperationResponse component name. They implement the IPA-132 field set."
             }
           },
           "400": {
@@ -85159,6 +85712,9 @@
               "RateLimit-Remaining": {
                 "$ref": "#/components/headers/HeaderRateLimitRemaining"
               }
+            },
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-132-operation-endpoints-must-return-operation-response": "Shard key analyses use feature-specific operation response schemas to avoid claiming the global OperationResponse component name. They implement the IPA-132 field set."
             }
           },
           "400": {
@@ -88317,6 +88873,82 @@
         "x-xgen-owner-team": "Atlas Dedicated"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/cpuBurstCredits": {
+      "get": {
+        "description": "Returns the most recent CPU burst credit balance and consumption reported by the cloud provider for every MongoDB process in the specified project. Cloud providers aggregate these metrics over a fixed interval, so each data point is timestamped at the start of the interval that produced it and can lag the current time by up to twice that interval. Processes that do not use a burstable instance family, and processes on cloud providers that do not implement a CPU credit model, are returned with a status of `NOT_APPLICABLE`.",
+        "operationId": "getGroupCpuBurstCredits",
+        "parameters": [
+          {
+            "description": "Unique 24-hexadecimal digit string that identifies the project.",
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-fA-F0-9]{24}$",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CpuBurstCreditMeasurementsResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "cpu-burst-credits"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return Burst Credits for All Processes in One Project",
+        "tags": [
+          "Monitoring and Logs"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Monitoring-and-Logs/operation/getGroupCpuBurstCredits",
+        "x-xgen-hidden-env": {
+          "envs": "dev,qa,stage,prod"
+        },
+        "x-xgen-operation-id-override": "getCpuBurstCredits",
+        "x-xgen-owner-team": "Intel I"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/customDBRoles/roles": {
       "get": {
         "description": "Returns all custom roles for the specified project.",
@@ -90777,7 +91409,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -91536,7 +92168,7 @@
             "$ref": "#/components/responses/paymentRequired"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -91891,7 +92523,7 @@
             "$ref": "#/components/responses/paymentRequired"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -92681,7 +93313,7 @@
             "$ref": "#/components/responses/paymentRequired"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -95412,7 +96044,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -95583,7 +96215,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -97257,6 +97889,433 @@
         "xgen-IPA-113-singleton-should-have-update-method": "API predates IPA validation."
       }
     },
+    "/api/atlas/v2/groups/{groupId}/mongosTopologies": {
+      "get": {
+        "description": "Returns the dedicated mongos topologies in the specified project, including topologies staged before their cluster exists.",
+        "operationId": "listGroupMongosTopologies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedMongosTopologyResourceResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "mongos-topologies"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Dedicated Mongos Topologies for One Project",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/listGroupMongosTopologies",
+        "x-xgen-owner-team": "Atlas Clusters Security III"
+      },
+      "post": {
+        "description": "Attaches a dedicated mongos topology to an existing sharded cluster, triggering the transition from colocated to dedicated mongos. When no cluster with the given name exists yet, the topology is staged and adopted when the cluster is created.",
+        "operationId": "createGroupMongosTopology",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MongosTopologyCreateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "mongos-topologies"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Dedicated mongos topology to attach.",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "mongos-topologies"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Accepted",
+            "headers": {
+              "Location": {
+                "description": "URI of the dedicated mongos topology, which reports its latest status. Absent when the request sets `envelope=true`, which returns the URI in the envelope's `locations` parameter instead.",
+                "schema": {
+                  "description": "Relative URI of the dedicated mongos topology.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Add One Dedicated Mongos Topology to One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-106-create-method-response-code-is-201": "Attaching a topology is a long-running operation; it returns 202."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/createGroupMongosTopology",
+        "x-xgen-long-running-operation": {
+          "legacy": false
+        },
+        "x-xgen-owner-team": "Atlas Clusters Security III"
+      }
+    },
+    "/api/atlas/v2/groups/{groupId}/mongosTopologies/{clusterName}": {
+      "delete": {
+        "description": "Removes the dedicated mongos topology from the specified cluster, transitioning it back to colocated mongos. This does not delete the cluster.",
+        "operationId": "deleteGroupMongosTopology",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "x-xgen-preview": {
+                  "name": "mongos-topologies"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "No Content",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Remove the Dedicated Mongos Topology from One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/deleteGroupMongosTopology",
+        "x-xgen-owner-team": "Atlas Clusters Security III"
+      },
+      "get": {
+        "description": "Returns the dedicated mongos topology for the specified cluster, or a topology staged before its cluster exists. Only a topology that is dedicated or transitioning to dedicated is returned; a cluster whose mongos are colocated or transitioning back to colocated has no topology resource.",
+        "operationId": "getGroupMongosTopology",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "mongos-topologies"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return One Dedicated Mongos Topology for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/getGroupMongosTopology",
+        "x-xgen-owner-team": "Atlas Clusters Security III"
+      },
+      "patch": {
+        "description": "Updates the dedicated mongos tier (instance size or region placements) for the specified cluster. Either field may be omitted and keeps its current value.",
+        "operationId": "updateGroupMongosTopology",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "description": "Human-readable label that identifies the sharded cluster this topology belongs to.",
+            "in": "path",
+            "name": "clusterName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.atlas.preview+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MongosTopologyUpdateRequest"
+              },
+              "x-xgen-preview": {
+                "name": "mongos-topologies"
+              },
+              "x-xgen-version": "preview"
+            }
+          },
+          "description": "Dedicated mongos tier fields to update.",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+                },
+                "x-xgen-preview": {
+                  "name": "mongos-topologies"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "Accepted",
+            "headers": {
+              "Location": {
+                "description": "URI of the dedicated mongos topology, which reports its latest status. Absent when the request sets `envelope=true`, which returns the URI in the envelope's `locations` parameter instead.",
+                "schema": {
+                  "description": "Relative URI of the dedicated mongos topology.",
+                  "format": "uri",
+                  "type": "string"
+                },
+                "style": "simple"
+              },
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Update the Dedicated Mongos Topology for One Cluster",
+        "tags": [
+          "Clusters"
+        ],
+        "x-rolesRequirements": [
+          "Project Owner"
+        ],
+        "x-xgen-IPA-exception": {
+          "xgen-IPA-107-update-method-response-code-is-200": "Updating the topology is a long-running operation; it returns 202."
+        },
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateGroupMongosTopology",
+        "x-xgen-long-running-operation": {
+          "legacy": false
+        },
+        "x-xgen-owner-team": "Atlas Clusters Security III"
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/peers": {
       "get": {
         "description": "Returns details about all network peering connections in the specified project. Network peering allows multiple cloud-hosted applications to securely connect to the same project.",
@@ -97407,7 +98466,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -97485,7 +98544,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -97658,7 +98717,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -103199,10 +104258,13 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
           },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
@@ -108309,7 +109371,8 @@
           "Project Stream Processing Owner"
         ],
         "x-xgen-IPA-exception": {
-          "xgen-IPA-106-create-method-response-code-is-201": "Registration is applied asynchronously by the planner, so the operation answers 202 Accepted per IPA-132. The Location header points at the endpoint itself until the Operation resource IPA-132 requires is available."
+          "xgen-IPA-106-create-method-response-code-is-201": "Registration is applied asynchronously by the planner, so the operation answers 202 Accepted per IPA-132. The Location header points at the endpoint itself until the Operation resource IPA-132 requires is available.",
+          "xgen-IPA-132-lros-must-expose-an-operations-endpoint": "The planner does not expose an operation resource for workspace private endpoint registration. Clients poll the endpoint URI in the Location header for registration status."
         },
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Streams/operation/createGroupStreamsWorkspacePrivateEndpoint",
         "x-xgen-long-running-operation": {
@@ -119555,6 +120618,75 @@
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/getRateLimit",
         "x-xgen-owner-team": "apix"
+      }
+    },
+    "/api/atlas/v2/skuServices": {
+      "get": {
+        "description": "Returns all launched SKU services. SKU services are the customer-facing categories that SKUs are grouped under on MongoDB invoices.",
+        "operationId": "listSkuServices",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiSkuServiceView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Stock Keeping Unit Services",
+        "tags": [
+          "Invoices"
+        ],
+        "x-rolesRequirements": [
+          "Organization Member",
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listSkuServices",
+        "x-xgen-owner-team": "Pricing"
+      },
+      "x-xgen-IPA-exception": {
+        "xgen-IPA-104-resource-has-GET": "SKU services are a small fixed set identified by name; no single lookup needed."
       }
     },
     "/api/atlas/v2/skus": {

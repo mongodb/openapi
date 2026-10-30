@@ -270,6 +270,43 @@
         },
         "description": "Forbidden."
       },
+      "forbiddenOrResourcePolicyViolation": {
+        "content": {
+          "application/json": {
+            "examples": {
+              "forbidden": {
+                "summary": "Forbidden",
+                "value": {
+                  "detail": "(This is just an example, the exception may not be related to this endpoint)",
+                  "error": 403,
+                  "errorCode": "CANNOT_CHANGE_GROUP_NAME",
+                  "reason": "Forbidden"
+                }
+              },
+              "resourcePolicyViolation": {
+                "summary": "Atlas Resource Policy violation",
+                "value": {
+                  "detail": "Invalid Configuration. Contains selections that are unavailable due to your organization's resource policies.",
+                  "error": 403,
+                  "errorCode": "ATLAS_RESOURCE_POLICIES_VIOLATION_NOT_AUTHORIZED",
+                  "parameters": [],
+                  "policiesCausingDecision": [
+                    {
+                      "id": "32b6e34b3d91647abb20e7b8",
+                      "name": "forbid-aws-clusters"
+                    }
+                  ],
+                  "reason": "Forbidden"
+                }
+              }
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        },
+        "description": "Forbidden. Atlas Resource Policy details are returned only when an Atlas Resource Policy denies the request."
+      },
       "gone": {
         "content": {
           "application/json": {
@@ -981,7 +1018,7 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true
@@ -2217,6 +2254,9 @@
             "$ref": "#/components/schemas/MicrosoftTeamsNotification"
           },
           {
+            "$ref": "#/components/schemas/OperationsContactNotification"
+          },
+          {
             "$ref": "#/components/schemas/OpsGenieNotification"
           },
           {
@@ -2425,10 +2465,8 @@
             "type": "array"
           },
           "minimumEnabledTlsProtocol": {
-            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
+            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections.",
             "enum": [
-              "TLS1_0",
-              "TLS1_1",
               "TLS1_2",
               "TLS1_3"
             ],
@@ -3528,6 +3566,30 @@
         "readOnly": true,
         "type": "object"
       },
+      "ApiClusterScaleView_Atlas": {
+        "description": "Information on scaling the cluster to a tier that supports the requested feature. Present only when the feature is unavailable on the cluster's current tier.",
+        "properties": {
+          "docsUrl": {
+            "description": "Documentation page describing feature availability by cluster tier.",
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          },
+          "minimumTier": {
+            "description": "Lowest cluster tier that supports the requested feature.",
+            "example": "M10",
+            "readOnly": true,
+            "type": "string"
+          },
+          "scaleUrl": {
+            "description": "Link to the Atlas UI page that scales the cluster, with the minimum supported tier pre-selected.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "readOnly": true,
+        "type": "object"
+      },
       "ApiError": {
         "properties": {
           "badRequestDetail": {
@@ -3559,6 +3621,16 @@
             },
             "readOnly": true,
             "type": "array"
+          },
+          "policiesCausingDecision": {
+            "description": "Atlas Resource Policies that caused the request to be denied. Returned only when `errorCode` is `ATLAS_RESOURCE_POLICIES_VIOLATION_NOT_AUTHORIZED`.",
+            "items": {
+              "$ref": "#/components/schemas/ResourcePolicyReference"
+            },
+            "maxItems": 100,
+            "readOnly": true,
+            "type": "array",
+            "x-xgen-array-semantic": "set"
           },
           "reason": {
             "description": "Application error message returned with this error.",
@@ -3818,6 +3890,11 @@
             "readOnly": true,
             "type": "array"
           },
+          "message": {
+            "description": "Explanation of measurement availability limitations on the current tier.",
+            "readOnly": true,
+            "type": "string"
+          },
           "partitionName": {
             "description": "Human-readable label of the disk or partition to which the measurements apply.",
             "readOnly": true,
@@ -3829,6 +3906,9 @@
             "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-f]{1,4}\\:){7}([0-9a-f]{1,4})|(([a-z0-9]+\\.){1,10}[a-z]+)?(\\:[0-9]{4,5})$",
             "readOnly": true,
             "type": "string"
+          },
+          "scale": {
+            "$ref": "#/components/schemas/ApiClusterScaleView_Atlas"
           },
           "start": {
             "description": "Date and time that specifies when to start retrieving measurements. If you set **start**, you must set **end**. You can't set this parameter and **period** in the same request. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
@@ -5993,6 +6073,9 @@
             ],
             "type": "string"
           },
+          "searchAutoMigration": {
+            "$ref": "#/components/schemas/SearchAutoMigration"
+          },
           "stateName": {
             "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
@@ -7447,7 +7530,7 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true
@@ -11736,36 +11819,40 @@
         "properties": {
           "awsPrivateLink": {
             "additionalProperties": {
-              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names.",
+              "deprecated": true,
+              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
               "externalDocs": {
-                "description": "Network Peering Connection",
-                "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+                "description": "Private Endpoints",
+                "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
               },
               "readOnly": true,
               "type": "string"
             },
-            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names.",
+            "deprecated": true,
+            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to MongoDB Cloud through the interface endpoint that the key names. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
             "externalDocs": {
-              "description": "Network Peering Connection",
-              "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+              "description": "Private Endpoints",
+              "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
             },
             "readOnly": true,
             "type": "object"
           },
           "awsPrivateLinkSrv": {
             "additionalProperties": {
-              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present.",
+              "deprecated": true,
+              "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
               "externalDocs": {
-                "description": "Network Peering Connection",
-                "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+                "description": "Private Endpoints",
+                "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
               },
               "readOnly": true,
               "type": "string"
             },
-            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present.",
+            "deprecated": true,
+            "description": "Private endpoint-aware connection strings that use AWS-hosted clusters with Amazon Web Services (AWS) PrivateLink. Each key identifies an Amazon Web Services (AWS) interface endpoint. Each value identifies the related `mongodb://` connection string that you use to connect to Atlas through the interface endpoint that the key names. If the cluster uses an optimized connection string, `awsPrivateLinkSrv` contains the optimized connection string. If the cluster has the non-optimized (legacy) connection string, `awsPrivateLinkSrv` contains the non-optimized connection string even if an optimized connection string is also present. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
             "externalDocs": {
-              "description": "Network Peering Connection",
-              "url": "https://docs.atlas.mongodb.com/security-vpc-peering/#std-label-vpc-peering/"
+              "description": "Private Endpoints",
+              "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
             },
             "readOnly": true,
             "type": "object"
@@ -11780,7 +11867,12 @@
             "type": "string"
           },
           "privateEndpoint": {
-            "description": "List of private endpoint-aware connection strings that you can use to connect to this cluster through a private endpoint. This parameter returns only if you deployed a private endpoint to all regions to which you deployed this clusters' nodes.",
+            "deprecated": true,
+            "description": "List of private endpoint-aware connection strings that you can use to connect to this cluster through a private endpoint. This parameter returns only if you deployed a private endpoint to all regions to which you deployed this clusters' nodes. This field is deprecated. Use the Private Endpoint Connection Strings resource instead.",
+            "externalDocs": {
+              "description": "Private Endpoints",
+              "url": "https://www.mongodb.com/docs/atlas/security-private-endpoint"
+            },
             "items": {
               "$ref": "#/components/schemas/ClusterDescriptionConnectionStringsPrivateEndpoint"
             },
@@ -12093,6 +12185,9 @@
             ],
             "type": "string"
           },
+          "searchAutoMigration": {
+            "$ref": "#/components/schemas/SearchAutoMigration"
+          },
           "stateName": {
             "description": "Human-readable label that indicates any current activity being taken on this cluster by the Atlas control plane. With the exception of CREATING and DELETING states, clusters should always be available and have a Primary node even when in states indicating ongoing activity.\n\n - `IDLE`: Atlas is making no changes to this cluster and all changes requested via the UI or API can be assumed to have been applied.\n - `CREATING`: A cluster being provisioned for the very first time returns state CREATING until it is ready for connections. Ensure IP Access List and DB Users are configured before attempting to connect.\n - `UPDATING`: A change requested via the UI, API, AutoScaling, or other scheduled activity is taking place.\n - `DELETING`: The cluster is in the process of deletion and will soon be deleted.\n - `REPAIRING`: One or more nodes in the cluster are being returned to service by the Atlas control plane. Other nodes should continue to provide service as normal.",
             "enum": [
@@ -12304,10 +12399,8 @@
             "type": "boolean"
           },
           "minimumEnabledTlsProtocol": {
-            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections. Clusters using TLS 1.0 or 1.1 should consider setting TLS 1.2 as the minimum TLS protocol version.",
+            "description": "Minimum Transport Layer Security (TLS) version that the cluster accepts for incoming connections.",
             "enum": [
-              "TLS1_0",
-              "TLS1_1",
               "TLS1_2",
               "TLS1_3"
             ],
@@ -13368,11 +13461,6 @@
             "pattern": "^([a-f0-9]{20})$",
             "type": "string"
           },
-          "instantUserProvisioningDisabled": {
-            "description": "Flag that indicates whether instant user provisioning is disabled for this connected organization.",
-            "nullable": true,
-            "type": "boolean"
-          },
           "orgId": {
             "description": "Unique 24-hexadecimal digit string that identifies the connected organization configuration.",
             "example": "32b6e34b3d91647abb20e7b8",
@@ -13658,30 +13746,6 @@
           "services": {
             "description": "The list of SKU services to be included in the Cost Explorer Query.",
             "items": {
-              "enum": [
-                "Atlas",
-                "Clusters",
-                "Storage",
-                "Serverless Instances",
-                "Backup",
-                "Data Transfer",
-                "BI Connector",
-                "Premium Features",
-                "Atlas Data Federation",
-                "Atlas Stream Processing",
-                "App Services",
-                "Charts",
-                "Cloud Manager",
-                "Cloud Manager Standard/Premium",
-                "Legacy Backup",
-                "AI Model APIs",
-                "Automated Embedding",
-                "Native Reranking",
-                "Agent Engine",
-                "Flex Consulting",
-                "Support",
-                "Credits"
-              ],
               "type": "string"
             },
             "type": "array"
@@ -17997,6 +18061,14 @@
               },
               {
                 "enum": [
+                  "ENCRYPTION_KEY_TRANSITION_STARTED",
+                  "ENCRYPTION_KEY_TRANSITION_COMPLETED"
+                ],
+                "title": "Encryption Key Transition Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
                   "BUCKET_CREATED_AUDIT",
                   "BUCKET_DELETED_AUDIT"
                 ],
@@ -18160,6 +18232,19 @@
                   "ONLINE_ARCHIVE_MAX_CONSECUTIVE_OFFLOAD_WINDOWS_CHECK"
                 ],
                 "title": "Online Archive Event Types",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_AVAILABLE",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_CREATED",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_DELETED",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_MISCONFIGURED",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_IN",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_OUT",
+                  "PRIVATE_ENDPOINT_CONNECTION_STRING_UPDATED"
+                ],
+                "title": "Private Endpoint Connection String Audit Types",
                 "type": "string"
               },
               {
@@ -18489,6 +18574,7 @@
                   "ORG_SETTINGS_CONFIGURED",
                   "ORG_SETTINGS_UPDATED",
                   "ORG_SETTINGS_DELETED",
+                  "ORG_ACCESS_PROVISIONING_METHOD_UPDATED",
                   "RESTRICT_ORG_MEMBERSHIP_ENABLED",
                   "RESTRICT_ORG_MEMBERSHIP_DISABLED",
                   "ROLE_MAPPING_CREATED",
@@ -22108,6 +22194,14 @@
           },
           {
             "enum": [
+              "ENCRYPTION_KEY_TRANSITION_STARTED",
+              "ENCRYPTION_KEY_TRANSITION_COMPLETED"
+            ],
+            "title": "Encryption Key Transition Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
               "BUCKET_CREATED_AUDIT",
               "BUCKET_DELETED_AUDIT"
             ],
@@ -22540,6 +22634,7 @@
               "SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS",
               "SEARCH_HOST_DISABLE_FTS",
               "SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS",
+              "SEARCH_AUTOSCALING_ADMIN_OVERRIDES_UPDATED",
               "CLUSTER_BLOCK_WRITE",
               "CLUSTER_UNBLOCK_WRITE",
               "KMIP_KEY_ROTATION_SCHEDULED",
@@ -22570,6 +22665,8 @@
               "DISK_WARMING_PROCESS_NODE_UNHIDDEN_BY_ADMIN",
               "DISK_WARMING_PROCESS_INSTANCE_CANCELLED_BY_ADMIN",
               "DISK_WARMING_PROCESS_DISK_TAG_READY_BY_ADMIN",
+              "NODE_FROZEN_BY_ADMIN",
+              "NODE_UNFROZEN_BY_ADMIN",
               "CLUSTER_CREATED_VIA_ANIS",
               "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
               "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
@@ -22730,6 +22827,19 @@
               "ONLINE_ARCHIVE_MAX_CONSECUTIVE_OFFLOAD_WINDOWS_CHECK"
             ],
             "title": "Online Archive Event Types",
+            "type": "string"
+          },
+          {
+            "enum": [
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_AVAILABLE",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_CREATED",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_DELETED",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_MISCONFIGURED",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_IN",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_OPT_OUT",
+              "PRIVATE_ENDPOINT_CONNECTION_STRING_UPDATED"
+            ],
+            "title": "Private Endpoint Connection String Audit Types",
             "type": "string"
           },
           {
@@ -23150,6 +23260,7 @@
               "ORG_SETTINGS_CONFIGURED",
               "ORG_SETTINGS_UPDATED",
               "ORG_SETTINGS_DELETED",
+              "ORG_ACCESS_PROVISIONING_METHOD_UPDATED",
               "RESTRICT_ORG_MEMBERSHIP_ENABLED",
               "RESTRICT_ORG_MEMBERSHIP_DISABLED",
               "ROLE_MAPPING_CREATED",
@@ -29469,6 +29580,7 @@
             "NORMALIZED_FTS_PROCESS_CPU_USER": "#/components/schemas/RawMetricAlertView",
             "NORMALIZED_SYSTEM_CPU_STEAL": "#/components/schemas/RawMetricAlertView",
             "NORMALIZED_SYSTEM_CPU_USER": "#/components/schemas/RawMetricAlertView",
+            "NORMALIZED_SYSTEM_CPU_USER_SEARCH_PRIMARY_CONTRIBUTOR": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_CMD": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_DELETE": "#/components/schemas/RawMetricAlertView",
             "OPCOUNTER_GETMORE": "#/components/schemas/RawMetricAlertView",
@@ -29899,6 +30011,7 @@
             "NORMALIZED_FTS_PROCESS_CPU_USER": "#/components/schemas/RawMetricEventView",
             "NORMALIZED_SYSTEM_CPU_STEAL": "#/components/schemas/RawMetricEventView",
             "NORMALIZED_SYSTEM_CPU_USER": "#/components/schemas/RawMetricEventView",
+            "NORMALIZED_SYSTEM_CPU_USER_SEARCH_PRIMARY_CONTRIBUTOR": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_CMD": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_DELETE": "#/components/schemas/RawMetricEventView",
             "OPCOUNTER_GETMORE": "#/components/schemas/RawMetricEventView",
@@ -30234,6 +30347,7 @@
             "NORMALIZED_FTS_PROCESS_CPU_USER": "#/components/schemas/NormalizedFtsProcessCpuUserRawMetricThresholdView",
             "NORMALIZED_SYSTEM_CPU_STEAL": "#/components/schemas/NormalizedSystemCpuStealRawMetricThresholdView",
             "NORMALIZED_SYSTEM_CPU_USER": "#/components/schemas/NormalizedSystemCpuUserRawMetricThresholdView",
+            "NORMALIZED_SYSTEM_CPU_USER_SEARCH_PRIMARY_CONTRIBUTOR": "#/components/schemas/NormalizedSystemCpuUserSearchPrimaryContributorRawMetricThresholdView",
             "OPCOUNTER_CMD": "#/components/schemas/OpCounterCmdRawMetricThresholdView",
             "OPCOUNTER_DELETE": "#/components/schemas/OpCounterDeleteRawMetricThresholdView",
             "OPCOUNTER_GETMORE": "#/components/schemas/OpCounterGetMoreRawMetricThresholdView",
@@ -30489,6 +30603,9 @@
           },
           {
             "$ref": "#/components/schemas/NormalizedSystemCpuUserRawMetricThresholdView"
+          },
+          {
+            "$ref": "#/components/schemas/NormalizedSystemCpuUserSearchPrimaryContributorRawMetricThresholdView"
           },
           {
             "$ref": "#/components/schemas/NormalizedSystemCpuStealRawMetricThresholdView"
@@ -34778,7 +34895,11 @@
               "enum": [
                 "ATLAS_STREAM_PROCESSING",
                 "MONGODB_METRICS",
-                "HARDWARE_METRICS"
+                "HARDWARE_METRICS",
+                "DB_STATS",
+                "QUERY_SHAPE_INSIGHTS",
+                "SEARCH_METRICS",
+                "SHARDING_METRICS"
               ],
               "type": "string"
             },
@@ -34869,7 +34990,11 @@
               "enum": [
                 "ATLAS_STREAM_PROCESSING",
                 "MONGODB_METRICS",
-                "HARDWARE_METRICS"
+                "HARDWARE_METRICS",
+                "DB_STATS",
+                "QUERY_SHAPE_INSIGHTS",
+                "SEARCH_METRICS",
+                "SHARDING_METRICS"
               ],
               "type": "string"
             },
@@ -34952,7 +35077,11 @@
               "enum": [
                 "ATLAS_STREAM_PROCESSING",
                 "MONGODB_METRICS",
-                "HARDWARE_METRICS"
+                "HARDWARE_METRICS",
+                "DB_STATS",
+                "QUERY_SHAPE_INSIGHTS",
+                "SEARCH_METRICS",
+                "SHARDING_METRICS"
               ],
               "type": "string"
             },
@@ -35854,6 +35983,7 @@
           "SEARCH_HOST_PAUSE_ALL_INITIAL_SYNCS",
           "SEARCH_HOST_DISABLE_FTS",
           "SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS",
+          "SEARCH_AUTOSCALING_ADMIN_OVERRIDES_UPDATED",
           "CLUSTER_BLOCK_WRITE",
           "CLUSTER_UNBLOCK_WRITE",
           "KMIP_KEY_ROTATION_SCHEDULED",
@@ -35884,6 +36014,8 @@
           "DISK_WARMING_PROCESS_NODE_UNHIDDEN_BY_ADMIN",
           "DISK_WARMING_PROCESS_INSTANCE_CANCELLED_BY_ADMIN",
           "DISK_WARMING_PROCESS_DISK_TAG_READY_BY_ADMIN",
+          "NODE_FROZEN_BY_ADMIN",
+          "NODE_UNFROZEN_BY_ADMIN",
           "CLUSTER_CREATED_VIA_ANIS",
           "MAINTENANCE_WAVE_ASSIGNMENT_ADDED",
           "MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED",
@@ -37243,6 +37375,41 @@
         ],
         "type": "object"
       },
+      "NormalizedSystemCpuUserSearchPrimaryContributorRawMetricThresholdView": {
+        "properties": {
+          "metricName": {
+            "description": "Human-readable label that identifies the metric against which MongoDB Cloud checks the configured `metricThreshold.threshold`.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "MongoDB Cloud computes the current metric value as an average.",
+            "enum": [
+              "AVERAGE"
+            ],
+            "type": "string"
+          },
+          "operator": {
+            "description": "Comparison operator to apply when checking the current metric value.",
+            "enum": [
+              "LESS_THAN",
+              "GREATER_THAN"
+            ],
+            "type": "string"
+          },
+          "threshold": {
+            "description": "Value of metric that, when exceeded, triggers an alert.",
+            "format": "double",
+            "type": "number"
+          },
+          "units": {
+            "$ref": "#/components/schemas/RawMetricUnits"
+          }
+        },
+        "required": [
+          "metricName"
+        ],
+        "type": "object"
+      },
       "NumberMetricAlertView": {
         "properties": {
           "acknowledgedUntil": {
@@ -38435,6 +38602,40 @@
         "required": [
           "metricName"
         ],
+        "type": "object"
+      },
+      "OperationsContactNotification": {
+        "description": "Explicit recurrence override for project operations contact alerts. This setting does not enable notification delivery. Delivery requires opting in through project settings. Contact addresses are resolved when a notification is sent and are not returned here.",
+        "properties": {
+          "delayMin": {
+            "description": "Number of minutes that MongoDB Cloud waits after detecting an alert condition before it sends out the first notification.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "intervalMin": {
+            "description": "Number of minutes to wait between successive notifications. MongoDB Cloud sends notifications until someone acknowledges the unacknowledged alert.\n\nPagerDuty, VictorOps, and OpsGenie notifications don't return this element. Configure and manage the notification interval within each of those services.",
+            "format": "int32",
+            "minimum": 5,
+            "type": "integer"
+          },
+          "notifierId": {
+            "description": "The `notifierId` is a system-generated unique identifier assigned to each notification method. This is needed when updating third-party notifications without requiring explicit authentication credentials.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "type": "string"
+          },
+          "typeName": {
+            "description": "Human-readable label that displays the alert notification type.",
+            "enum": [
+              "OPERATIONS_CONTACT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "typeName"
+        ],
+        "title": "Operations Contact Notification",
         "type": "object"
       },
       "OperationsQueriesKilledRawMetricThresholdView": {
@@ -40370,7 +40571,7 @@
             "type": "boolean"
           },
           "operationsContact": {
-            "description": "String that specifies a distribution list email address for the specified organization to receive proactive notifications about its infrastructure. The operations contact is used for notifications only and is not authorized to make decisions or approvals. Passing an explicit null clears the existing operations contact (if any). An empty string is invalid and is rejected with a validation error.",
+            "description": "String that specifies a distribution list email address for the specified organization to receive proactive notifications about its infrastructure. The operations contact is used for notifications only and is not authorized to make decisions or approvals. Passing an explicit null clears the existing operations contact (if any). An empty string is invalid and is rejected with a validation error. Addresses are trimmed and converted to lowercase before validation; each normalized address must contain at most 254 characters.",
             "nullable": true,
             "type": "string"
           },
@@ -40379,7 +40580,7 @@
             "type": "boolean"
           },
           "securityContact": {
-            "description": "String that specifies a single email address for the specified organization to receive security-related notifications. Specifying a security contact does not grant them authorization or access to Atlas for security decisions or approvals. An empty string is valid and clears the existing security contact (if any).",
+            "description": "String that specifies a single email address for the specified organization to receive security-related notifications. Specifying a security contact does not grant them authorization or access to Atlas for security decisions or approvals. An empty string is valid and clears the existing security contact (if any). Addresses are trimmed and converted to lowercase before validation; each normalized address must contain at most 254 characters.",
             "type": "string"
           },
           "streamsCrossGroupEnabled": {
@@ -41343,6 +41544,41 @@
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
               "$ref": "#/components/schemas/SkuResponse"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "totalCount": {
+            "description": "Total number of documents available. When `includeCount` is set to `false`, MongoDB Cloud may omit this value or return it when the count is available without additional calculation. The total number is an estimate and may not be exact.",
+            "format": "int32",
+            "minimum": 0,
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "PaginatedApiSkuServiceView": {
+        "properties": {
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "results": {
+            "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
+            "items": {
+              "$ref": "#/components/schemas/SkuServiceResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -43941,7 +44177,7 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true
@@ -44053,7 +44289,7 @@
               "pattern": "^([a-f0-9]{24})$",
               "type": "string"
             },
-            "maxItems": 100,
+            "maxItems": 250,
             "readOnly": true,
             "type": "array",
             "uniqueItems": true
@@ -46299,6 +46535,28 @@
         "title": "Resource Events",
         "type": "object"
       },
+      "ResourcePolicyReference": {
+        "description": "Atlas Resource Policy that caused the request to be denied.",
+        "properties": {
+          "id": {
+            "description": "Unique 24-hexadecimal character string that identifies the Atlas Resource Policy.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable label that identifies the Atlas Resource Policy.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
       "ResourceTag": {
         "description": "Key-value pair that tags and categorizes a MongoDB Cloud organization, project, or cluster. For example, `environment : production`.",
         "properties": {
@@ -46432,7 +46690,6 @@
               },
               "useLegacyPathStructure": {
                 "description": "When true, uses the legacy daily-folder path structure compatible with Push-Based Log Export: `{prefix}/{cluster}/{hostname}/{logType}/{YYYY-MM-DD}/{timestamp}-{logType}.log`. When false (default), uses the flat timestamped structure: `{prefix}/{cluster}/{hostname}/{logType}/{timestamp}-{logType}.log`.",
-                "nullable": true,
                 "type": "boolean"
               }
             },
@@ -46488,7 +46745,6 @@
               },
               "useLegacyPathStructure": {
                 "description": "When true, uses the legacy daily-folder path structure compatible with Push-Based Log Export: `{prefix}/{cluster}/{hostname}/{logType}/{YYYY-MM-DD}/{timestamp}-{logType}.log`. When false (default), uses the flat timestamped structure: `{prefix}/{cluster}/{hostname}/{logType}/{timestamp}-{logType}.log`.",
-                "nullable": true,
                 "type": "boolean"
               }
             },
@@ -46710,6 +46966,17 @@
         "required": [
           "type"
         ],
+        "type": "object"
+      },
+      "SearchAutoMigration": {
+        "description": "Configuration for automatically adding Dedicated Search Nodes on eligible Atlas Infinite clusters. This setting has no effect on Atlas Core clusters.",
+        "properties": {
+          "disabled": {
+            "default": false,
+            "description": "Flag that disables future automatic Search Node provisioning. Defaults to false on creation. Omission on update preserves the stored choice. Disabling retains existing Search Nodes and allows in-flight migrations to continue. Enabling does not bypass resource policies; if indexes exceed the migration threshold, the next eligible evaluation may start provisioning.",
+            "type": "boolean"
+          }
+        },
         "type": "object"
       },
       "SearchDeploymentAuditTypeView": {
@@ -47132,7 +47399,7 @@
             "type": "string"
           },
           "queryable": {
-            "description": "Flag that indicates whether the index is queryable on all hosts.",
+            "description": "Flag that indicates whether the index is queryable on the nodes currently receiving query traffic.",
             "type": "boolean"
           },
           "status": {
@@ -50639,6 +50906,16 @@
         },
         "type": "object"
       },
+      "SkuServiceResponse": {
+        "properties": {
+          "name": {
+            "description": "Human-readable name of the SKU service as shown on invoices.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "Slack": {
         "description": "Details to integrate one Slack account with one MongoDB Cloud project.",
         "properties": {
@@ -51688,6 +51965,7 @@
             "AWSLambda": "#/components/schemas/StreamsAWSLambdaConnection",
             "AzureBlobStorage": "#/components/schemas/StreamsAzureBlobStorageConnection",
             "Cluster": "#/components/schemas/StreamsClusterConnection",
+            "DataCatalog": "#/components/schemas/StreamsDataCatalogConnection",
             "GCPPubSub": "#/components/schemas/StreamsGCPPubSubConnection",
             "Https": "#/components/schemas/StreamsHttpsConnection",
             "Kafka": "#/components/schemas/StreamsKafkaConnection",
@@ -51727,9 +52005,17 @@
           },
           {
             "$ref": "#/components/schemas/StreamsGCPPubSubConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsDataCatalogConnection"
           }
         ],
         "properties": {
+          "errorMessage": {
+            "description": "Connection error message.",
+            "readOnly": true,
+            "type": "string"
+          },
           "id": {
             "description": "Unique identifier of the connection.",
             "readOnly": true,
@@ -51777,7 +52063,8 @@
               "AWSLambda",
               "AWSKinesisDataStreams",
               "SchemaRegistry",
-              "GCPPubSub"
+              "GCPPubSub",
+              "DataCatalog"
             ],
             "type": "string"
           }
@@ -51818,6 +52105,43 @@
         },
         "type": "object"
       },
+      "StreamsDataCatalogConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsConnection"
+          },
+          {
+            "properties": {
+              "catalogUrl": {
+                "description": "Base HTTPS URL of the catalog. Must be on the provider's domain: `*.cloud.databricks.com` or `*.azuredatabricks.net` for Databricks Unity, and `*.snowflakecomputing.com` for Snowflake Horizon.",
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for Iceberg Data Catalog connections.",
+        "discriminator": {
+          "mapping": {
+            "DATABRICKS_UNITY": "#/components/schemas/StreamsDatabricksUnityCatalogConnection",
+            "SNOWFLAKE_HORIZON": "#/components/schemas/StreamsSnowflakeHorizonCatalogConnection"
+          },
+          "propertyName": "catalogProvider"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/StreamsDatabricksUnityCatalogConnection"
+          },
+          {
+            "$ref": "#/components/schemas/StreamsSnowflakeHorizonCatalogConnection"
+          }
+        ],
+        "required": [
+          "catalogUrl"
+        ],
+        "type": "object"
+      },
       "StreamsDataProcessRegion": {
         "description": "Information about the cloud provider region in which MongoDB Cloud processes the stream.",
         "properties": {
@@ -51851,6 +52175,67 @@
         "required": [
           "cloudProvider",
           "region"
+        ],
+        "type": "object"
+      },
+      "StreamsDatabricksAuthentication": {
+        "description": "Databricks service principal credentials used to obtain an OAuth token.",
+        "properties": {
+          "clientId": {
+            "description": "OAuth client ID of the Databricks service principal.",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "OAuth client secret of the Databricks service principal. Never returned in responses; omit or leave blank on update to keep the stored secret.",
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "clientId",
+          "clientSecret"
+        ],
+        "type": "object"
+      },
+      "StreamsDatabricksConnectionConfig": {
+        "description": "Databricks settings for a connection.",
+        "properties": {
+          "authentication": {
+            "$ref": "#/components/schemas/StreamsDatabricksAuthentication"
+          }
+        },
+        "required": [
+          "authentication"
+        ],
+        "type": "object"
+      },
+      "StreamsDatabricksUnityCatalogConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsDataCatalogConnection"
+          },
+          {
+            "properties": {
+              "catalogProvider": {
+                "description": "Catalog system the connection points at. Cannot be changed after creation.",
+                "enum": [
+                  "DATABRICKS_UNITY"
+                ],
+                "type": "string"
+              },
+              "databricks": {
+                "$ref": "#/components/schemas/StreamsDatabricksConnectionConfig"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for a Databricks Unity Catalog connection.",
+        "required": [
+          "catalogProvider",
+          "catalogUrl",
+          "databricks"
         ],
         "type": "object"
       },
@@ -53161,6 +53546,77 @@
           "provider",
           "schemaRegistryAuthentication",
           "schemaRegistryUrls"
+        ],
+        "type": "object"
+      },
+      "StreamsSnowflakeAuthentication": {
+        "description": "Snowflake service user and key pair used to authenticate to Snowflake.",
+        "properties": {
+          "account": {
+            "description": "Snowflake account identifier.",
+            "type": "string"
+          },
+          "privateKey": {
+            "description": "Private key of the service user's key pair. Never returned in responses; omit or leave blank on update to keep the stored key.",
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "role": {
+            "description": "Snowflake role the service user assumes.",
+            "type": "string"
+          },
+          "user": {
+            "description": "Snowflake service user.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account",
+          "privateKey",
+          "role",
+          "user"
+        ],
+        "type": "object"
+      },
+      "StreamsSnowflakeConnectionConfig": {
+        "description": "Snowflake settings for a connection.",
+        "properties": {
+          "authentication": {
+            "$ref": "#/components/schemas/StreamsSnowflakeAuthentication"
+          }
+        },
+        "required": [
+          "authentication"
+        ],
+        "type": "object"
+      },
+      "StreamsSnowflakeHorizonCatalogConnection": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StreamsDataCatalogConnection"
+          },
+          {
+            "properties": {
+              "catalogProvider": {
+                "description": "Catalog system the connection points at. Cannot be changed after creation.",
+                "enum": [
+                  "SNOWFLAKE_HORIZON"
+                ],
+                "type": "string"
+              },
+              "snowflake": {
+                "$ref": "#/components/schemas/StreamsSnowflakeConnectionConfig"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "The configuration for a Snowflake Horizon catalog connection.",
+        "required": [
+          "catalogProvider",
+          "catalogUrl",
+          "snowflake"
         ],
         "type": "object"
       },
@@ -55544,30 +56000,6 @@
           "skuServices": {
             "description": "The list of projects to be included in the Cost Explorer Query.",
             "items": {
-              "enum": [
-                "Atlas",
-                "Clusters",
-                "Storage",
-                "Serverless Instances",
-                "Backup",
-                "Data Transfer",
-                "BI Connector",
-                "Premium Features",
-                "Atlas Data Federation",
-                "Atlas Stream Processing",
-                "App Services",
-                "Charts",
-                "Cloud Manager",
-                "Cloud Manager Standard/Premium",
-                "Legacy Backup",
-                "AI Model APIs",
-                "Automated Embedding",
-                "Native Reranking",
-                "Agent Engine",
-                "Flex Consulting",
-                "Support",
-                "Credits"
-              ],
               "type": "string"
             },
             "type": "array",
@@ -57557,7 +57989,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "eb57b1f5a9e1c4d06535dd914be9d604f57d1e55"
+    "x-xgen-sha": "90f7e27dda9e8b942432d019f80c3b48da975903"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -60367,7 +60799,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -60470,7 +60902,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -61369,7 +61801,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -61462,7 +61894,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -61659,7 +62091,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -63672,7 +64104,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -66836,7 +67268,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -71223,7 +71655,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -71698,7 +72130,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -74582,7 +75014,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -76704,7 +77136,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -77239,7 +77671,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -77589,7 +78021,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -84091,7 +84523,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -84988,7 +85420,7 @@
             "$ref": "#/components/responses/paymentRequired"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -85298,7 +85730,7 @@
             "$ref": "#/components/responses/paymentRequired"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -86046,7 +86478,7 @@
             "$ref": "#/components/responses/paymentRequired"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -89264,7 +89696,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -89440,7 +89872,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -91598,7 +92030,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -91694,7 +92126,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -91899,7 +92331,7 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
@@ -98268,10 +98700,13 @@
             "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "$ref": "#/components/responses/forbidden"
+            "$ref": "#/components/responses/forbiddenOrResourcePolicyViolation"
           },
           "404": {
             "$ref": "#/components/responses/notFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
           },
           "429": {
             "$ref": "#/components/responses/tooManyRequests"
@@ -115271,6 +115706,93 @@
           }
         ],
         "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Rate-Limiting/operation/getRateLimit"
+      }
+    },
+    "/api/atlas/v2/skuServices": {
+      "get": {
+        "description": "Returns all launched SKU services. SKU services are the customer-facing categories that SKUs are grouped under on MongoDB invoices.",
+        "operationId": "listSkuServices",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/includeCount"
+          },
+          {
+            "$ref": "#/components/parameters/itemsPerPage"
+          },
+          {
+            "$ref": "#/components/parameters/pageNum"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.2025-03-12+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedApiSkuServiceView"
+                },
+                "x-xgen-version": "2025-03-12"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return All Stock Keeping Unit Services",
+        "tags": [
+          "Invoices"
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "Atlas CLI",
+            "source": "atlas api invoices listSkuServices --help"
+          },
+          {
+            "lang": "go",
+            "label": "Go",
+            "source": "import (\n\t\"os\"\n\t\"context\"\n\t\"log\"\n\tsdk \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\tclientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n\tclientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n\t// See https://dochub.mongodb.org/core/atlas-go-sdk-oauth\n\tclient, err := sdk.NewClient(sdk.UseOAuthAuth(clientID, clientSecret))\n\n\tif err != nil {\n\t\tlog.Fatalf(\"Error: %v\", err)\n\t}\n\n\tparams = &sdk.ListSkuServicesApiParams{}\n\tsdkResp, httpResp, err := client.InvoicesApi.\n\t\tListSkuServicesWithParams(ctx, params).\n\t\tExecute()\n}\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Service Accounts)",
+            "source": "curl --include --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/skuServices?pretty=true\""
+          },
+          {
+            "lang": "cURL",
+            "label": "curl (Digest)",
+            "source": "curl --user \"${PUBLIC_KEY}:${PRIVATE_KEY}\" \\\n  --digest --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  -X GET \"https://cloud.mongodb.com/api/atlas/v2/skuServices?pretty=true\""
+          }
+        ],
+        "x-rolesRequirements": [
+          "Organization Member",
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Invoices/operation/listSkuServices"
       }
     },
     "/api/atlas/v2/skus": {
