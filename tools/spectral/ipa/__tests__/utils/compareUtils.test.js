@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import {
   findAdditionalPropertiesFalsePaths,
   isDeepEqual,
+  isSubsetSchema,
   removePropertiesByFlag,
   removePropertyKeys,
   removeRequestProperties,
@@ -141,6 +142,74 @@ describe('isDeepEqual', () => {
     };
 
     expect(isDeepEqual(schema1, schema2)).toBe(true);
+  });
+});
+
+describe('isSubsetSchema', () => {
+  it('should return true for identical schemas', () => {
+    const schema = { type: 'object', properties: { name: { type: 'string' } } };
+    expect(isSubsetSchema(schema, schema)).toBe(true);
+  });
+
+  it('should allow additional properties in the superset schema', () => {
+    const subset = { type: 'object', properties: { name: { type: 'string' } } };
+    const superset = {
+      type: 'object',
+      properties: { id: { type: 'string' }, name: { type: 'string' }, createdAt: { type: 'string' } },
+    };
+    expect(isSubsetSchema(subset, superset)).toBe(true);
+  });
+
+  it('should not allow additional properties in the subset schema', () => {
+    const subset = {
+      type: 'object',
+      properties: { name: { type: 'string' }, expiresInHours: { type: 'integer' } },
+    };
+    const superset = { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } };
+    expect(isSubsetSchema(subset, superset)).toBe(false);
+  });
+
+  it('should detect type mismatches of properties', () => {
+    const subset = { type: 'object', properties: { count: { type: 'integer' } } };
+    const superset = { type: 'object', properties: { count: { type: 'string' } } };
+    expect(isSubsetSchema(subset, superset)).toBe(false);
+  });
+
+  it('should detect type mismatches of the schemas', () => {
+    expect(isSubsetSchema({ type: 'object' }, { type: 'array' })).toBe(false);
+  });
+
+  it('should check nested objects recursively', () => {
+    const superset = {
+      type: 'object',
+      properties: {
+        settings: { type: 'object', properties: { enabled: { type: 'boolean' }, mode: { type: 'string' } } },
+      },
+    };
+    expect(
+      isSubsetSchema(
+        { type: 'object', properties: { settings: { type: 'object', properties: { enabled: { type: 'boolean' } } } } },
+        superset
+      )
+    ).toBe(true);
+    expect(
+      isSubsetSchema(
+        { type: 'object', properties: { settings: { type: 'object', properties: { region: { type: 'string' } } } } },
+        superset
+      )
+    ).toBe(false);
+  });
+
+  it('should not compare properties when one of the schemas has none', () => {
+    expect(isSubsetSchema({ type: 'object', properties: { name: { type: 'string' } } }, { type: 'object' })).toBe(true);
+    expect(isSubsetSchema({ type: 'object' }, { type: 'object', properties: { name: { type: 'string' } } })).toBe(true);
+  });
+
+  it('should require polymorphism keywords of the subset schema in the superset schema', () => {
+    const oneOf = [{ type: 'string' }];
+    expect(isSubsetSchema({ type: 'object', oneOf }, { type: 'object', oneOf })).toBe(true);
+    expect(isSubsetSchema({ type: 'object', oneOf }, { type: 'object' })).toBe(false);
+    expect(isSubsetSchema({ type: 'object' }, { type: 'object', oneOf })).toBe(true);
   });
 });
 

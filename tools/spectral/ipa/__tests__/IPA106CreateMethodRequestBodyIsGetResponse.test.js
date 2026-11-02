@@ -392,31 +392,31 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/resourceTwo', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/resourceThree', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
@@ -429,13 +429,13 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/resourceCircular', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
@@ -484,13 +484,13 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
     errors: [
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
       {
         code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
-        message: 'The request body schema properties must match the response body schema properties of the Get method.',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
         path: ['paths', '/animalResource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2024-01-01+json'],
         severity: DiagnosticSeverity.Error,
       },
@@ -574,5 +574,178 @@ testRule('xgen-IPA-106-create-method-request-body-is-get-method-response', [
       },
     },
     errors: [],
+  },
+  {
+    name: 'valid: dedicated request and response schemas where the response has additional fields',
+    document: {
+      components: {
+        schemas: {
+          ResourceRequest: { type: 'object', properties: { name: { type: 'string' } } },
+          ResourceResponse: {
+            type: 'object',
+            properties: { id: { type: 'string' }, name: { type: 'string' }, createdAt: { type: 'string' } },
+          },
+        },
+      },
+      paths: {
+        '/resource': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': { schema: { $ref: '#/components/schemas/ResourceRequest' } },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: { $ref: '#/components/schemas/ResourceResponse' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'valid: writeOnly request property is not required in the response',
+    document: {
+      components: {
+        schemas: {
+          ResourceRequest: {
+            type: 'object',
+            properties: { name: { type: 'string' }, password: { type: 'string', writeOnly: true } },
+          },
+          ResourceResponse: { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } },
+        },
+      },
+      paths: {
+        '/resource': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': { schema: { $ref: '#/components/schemas/ResourceRequest' } },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: { $ref: '#/components/schemas/ResourceResponse' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'invalid: request property is missing in the response',
+    document: {
+      components: {
+        schemas: {
+          ResourceRequest: {
+            type: 'object',
+            properties: { name: { type: 'string' }, expiresInHours: { type: 'integer' } },
+          },
+          ResourceResponse: {
+            type: 'object',
+            properties: { id: { type: 'string' }, name: { type: 'string' }, expiry: { type: 'string' } },
+          },
+        },
+      },
+      paths: {
+        '/resource': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': { schema: { $ref: '#/components/schemas/ResourceRequest' } },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: { $ref: '#/components/schemas/ResourceResponse' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
+    name: 'invalid: request property has a different type than the response property',
+    document: {
+      components: {
+        schemas: {
+          ResourceRequest: { type: 'object', properties: { name: { type: 'string' }, count: { type: 'integer' } } },
+          ResourceResponse: {
+            type: 'object',
+            properties: { id: { type: 'string' }, name: { type: 'string' }, count: { type: 'string' } },
+          },
+        },
+      },
+      paths: {
+        '/resource': {
+          post: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2023-01-01+json': { schema: { $ref: '#/components/schemas/ResourceRequest' } },
+              },
+            },
+          },
+        },
+        '/resource/{id}': {
+          get: {
+            responses: {
+              200: {
+                content: {
+                  'application/vnd.atlas.2023-01-01+json': {
+                    schema: { $ref: '#/components/schemas/ResourceResponse' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-106-create-method-request-body-is-get-method-response',
+        message: 'The request body schema properties must be present in the response body schema of the Get method.',
+        path: ['paths', '/resource', 'post', 'requestBody', 'content', 'application/vnd.atlas.2023-01-01+json'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
   },
 ]);

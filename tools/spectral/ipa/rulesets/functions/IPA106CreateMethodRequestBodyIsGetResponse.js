@@ -10,7 +10,7 @@ import { getResponseOfGetMethodByMediaType } from './utils/methodUtils.js';
 import { checkRequestResponseResourceEqualityAndReturnErrors } from './utils/validations/checkRequestResponseResourceEqualityAndReturnErrors.js';
 
 const ERROR_MESSAGE =
-  'The request body schema properties must match the response body schema properties of the Get method.';
+  'The request body schema properties must be present in the response body schema of the Get method.';
 
 /**
  * Create method request body schema properties must match the response body schema properties of the Get method.

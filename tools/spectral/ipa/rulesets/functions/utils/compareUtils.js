@@ -69,6 +69,50 @@ export function isDeepEqual(object1, object2) {
 }
 
 /**
+ * Checks that the structure of a schema is covered by another schema. The superset schema may have additional properties.
+ * Compares property names and types, but not specific values.
+ * Properties are only compared when both schemas define them.
+ * Does not handle circular references
+ * @param {object} subset The schema that must be covered, e.g. a request schema
+ * @param {object} superset The schema that must cover the subset schema, e.g. a response schema
+ * @returns {boolean} Whether all properties of the subset schema are present with the same type in the superset schema
+ */
+export function isSubsetSchema(subset, superset) {
+  if (subset === superset) {
+    return true;
+  }
+
+  if (typeof subset !== 'object' || typeof superset !== 'object') {
+    return typeof subset === typeof superset;
+  }
+
+  if (subset.properties && superset.properties) {
+    for (const key of Object.keys(subset.properties)) {
+      if (!Object.keys(superset.properties).includes(key)) return false;
+
+      if (subset.properties[key].type !== superset.properties[key].type) {
+        return false;
+      }
+
+      if (typeof subset.properties[key] === 'object' && typeof superset.properties[key] === 'object') {
+        if (!isSubsetSchema(subset.properties[key], superset.properties[key])) {
+          return false;
+        }
+      }
+    }
+  }
+
+  if (subset.type !== superset.type) return false;
+
+  const polymorphismProps = ['allOf', 'anyOf', 'oneOf', 'discriminator'];
+  for (const key of polymorphismProps.filter((prop) => Object.keys(subset).includes(prop))) {
+    if (!Object.keys(superset).includes(key)) return false;
+  }
+
+  return true;
+}
+
+/**
  * Recursively removes properties with given flags from schema
  * @param {object} schema The schema to process
  * @param {string} propertyToRemove The property type to remove (boolean property)

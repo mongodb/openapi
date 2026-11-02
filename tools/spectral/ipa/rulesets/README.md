@@ -315,10 +315,11 @@ Request body content of the Create method and response content of the Get method
 
 Validation checks the POST method for resource collection paths.
   - Validation ignores resources without a Get method.
-  - `readOnly:true` properties of Get method response will be ignored.
+  - Validation ignores requests and responses that reference the same schema.
+  - Every property of the Create method request must be present in the Get method response. The response may have additional properties, for example server-owned fields.
   - `writeOnly:true` properties of Create method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
-  - `oneOf` and `discriminator` definitions must match exactly.
+  - `oneOf` and `discriminator` definitions of the request must be present in the response.
 
 #### xgen-IPA-106-create-method-request-has-no-readonly-fields
 
@@ -460,10 +461,11 @@ The request body must contain the resource being updated, i.e. the resource or p
 
 Validation checks the PATCH/PUT methods for single resource paths and singleton resources.
   - Validation ignores resources without a Get method.
-  - `readOnly:true` properties of Get method response will be ignored.
+  - Validation ignores requests and responses that reference the same schema.
+  - Every property of the Update method request must be present in the Get method response. The response may have additional properties, for example server-owned fields.
   - `writeOnly:true` properties of Update method request will be ignored.
   - Property comparison is based on `type` and `name` matching.
-  - `oneOf` and `discriminator` definitions must match exactly.
+  - `oneOf` and `discriminator` definitions of the request must be present in the response.
 
 #### xgen-IPA-107-update-method-request-body-is-update-request-suffixed-object
 
