@@ -18,7 +18,7 @@ module.exports = function (input) {
 
   return [
     {
-      message: `Description of a deprecated parameter or schema must start with "${DEPRECATED_PREFIX}" (Go doc comment format, required by gocritic's deprecatedComment check) but was: "${preview}"`,
+      message: `Description of a deprecated parameter or schema must start with "${DEPRECATED_PREFIX}" but was: "${preview}"`,
     },
   ];
 };
