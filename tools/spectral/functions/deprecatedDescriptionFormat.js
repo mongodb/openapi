@@ -1,3 +1,12 @@
+// The violation is applied only to deprecated objects (parameters and schemas/schema properties
+// selected by the rule's `given` paths) that meet ALL of the following:
+//   - the object is marked `deprecated: true`, and
+//   - the object has a `description`, and
+//   - that description does not start with "Deprecated: " (capital D, colon, space).
+// It is NOT applied to:
+//   - non-deprecated objects (`deprecated` missing or false),
+//   - deprecated objects without a description (nothing would be copied into generated code),
+//   - deprecated operations, which are out of scope for this rule.
 const DEPRECATED_PREFIX = 'Deprecated: ';
 const MAX_DESCRIPTION_PREVIEW_LENGTH = 80;
 
