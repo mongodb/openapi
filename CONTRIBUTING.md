@@ -11,10 +11,10 @@
 
 ### Installation
 
-1. Clone the repository:
+1. Clone the repository (see [Cloning the repository](#cloning-the-repository) for why we use a filtered clone):
    ```bash
-   git clone https://github.com/your-username/mongodb-openapi.git
-   cd mongodb-openapi
+   git clone --filter=blob:none https://github.com/mongodb/openapi.git
+   cd openapi
    ```
 
 2. Install dependencies:
@@ -34,6 +34,28 @@
    ```
 
 This will install Husky, which manages Git hooks for the project. The hooks ensure code quality by automatically running various checks before commits.
+
+### Cloning the repository
+
+The repository history is large (about 8.4 GiB). The release workflows regularly commit regenerated multi-MB OpenAPI specs under `openapi/`, so history holds hundreds of thousands of versions of those files. The files you check out are only about 490 MB, so a full clone mostly downloads history you rarely need.
+
+Measured clone times for `main`:
+
+| Strategy | Command | Time | `.git` size |
+|---|---|---|---|
+| Shallow | `git clone --depth=1 --single-branch --no-tags <url>` | ~16s | ~10 MB |
+| Treeless | `git clone --filter=tree:0 <url>` | ~26s | ~17 MB |
+| **Blobless (recommended)** | `git clone --filter=blob:none <url>` | ~31s | ~36 MB |
+| Full | `git clone <url>` | ~530s | ~8.4 GiB |
+
+Times were taken on a single machine and vary with network speed.
+
+- **Blobless (recommended for development)** keeps the full commit history, so `git log`, `git blame` and branching work normally. File contents of old revisions are downloaded on demand, so commands like `git checkout <old-sha>` or `git log -p` on a spec file may pause to fetch them.
+- **Shallow** is the fastest option and suits one-off changes and CI, but history-based commands are limited. Run `git fetch --unshallow` to get the full history later.
+- **Treeless** is the smallest filtered clone, but many later git operations need to fetch trees on demand and are slower. Prefer it only for throwaway or CI use.
+- To reduce the working tree as well, add `--sparse` and select the directories you need, for example `git sparse-checkout set tools/cli`.
+
+In GitHub Actions, `actions/checkout` already does a blobless fetch whenever `sparse-checkout` is set, and otherwise defaults to `fetch-depth: 1`. Avoid `fetch-depth: 0` without `sparse-checkout`, because it downloads the entire 8.4 GiB history.
 
 ## Development Workflow
 
