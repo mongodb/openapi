@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import {
   allPropertiesAreReadOnly,
   getResourcePathItems,
+  hasStandardCreateMethod,
   isReadOnlyResource,
   isResourceCollectionIdentifier,
   isRootLevelResource,
@@ -641,6 +642,49 @@ describe('tools/spectral/ipa/rulesets/functions/utils/resourceEvaluation.js', ()
 
     it('rejects consecutive path params', () => {
       expect(resourceBelongsToSingleParent('/a/{b}/{c}')).toBe(false);
+    });
+  });
+
+  describe('hasStandardCreateMethod', () => {
+    const paths = {
+      '/resource': { get: {}, post: {} },
+      '/resource/{id}': { get: {}, delete: {} },
+      '/resource/{id}:reset': { post: {} },
+      '/resourceWithoutCreate': { get: {} },
+      '/resourceWithoutCreate/{id}': { get: {}, delete: {} },
+      '/resourceWithoutCreate/{id}:reset': { post: {} },
+      '/resourceWithoutCreate:search': { post: {} },
+      '/groups/{groupId}/singleton': { get: {}, patch: {} },
+      '/groups/{groupId}/nested': { get: {}, post: {} },
+      '/groups/{groupId}/nested/{nestedId}': { get: {}, delete: {} },
+    };
+
+    it('returns true for a resource collection path with a POST method', () => {
+      expect(hasStandardCreateMethod('/resource', paths)).toBe(true);
+    });
+
+    it('returns true for a single resource path when its collection path has a POST method', () => {
+      expect(hasStandardCreateMethod('/resource/{id}', paths)).toBe(true);
+      expect(hasStandardCreateMethod('/groups/{groupId}/nested/{nestedId}', paths)).toBe(true);
+    });
+
+    it('returns false when the collection path has no POST method', () => {
+      expect(hasStandardCreateMethod('/resourceWithoutCreate', paths)).toBe(false);
+      expect(hasStandardCreateMethod('/resourceWithoutCreate/{id}', paths)).toBe(false);
+    });
+
+    it('does not treat custom methods as a Create method', () => {
+      expect(hasStandardCreateMethod('/resource/{id}:reset', paths)).toBe(false);
+      expect(hasStandardCreateMethod('/resourceWithoutCreate/{id}:reset', paths)).toBe(false);
+      expect(hasStandardCreateMethod('/resourceWithoutCreate:search', paths)).toBe(false);
+    });
+
+    it('returns false for a singleton path without a POST method', () => {
+      expect(hasStandardCreateMethod('/groups/{groupId}/singleton', paths)).toBe(false);
+    });
+
+    it('returns false when the collection path does not exist', () => {
+      expect(hasStandardCreateMethod('/missing/{id}', paths)).toBe(false);
     });
   });
 });
