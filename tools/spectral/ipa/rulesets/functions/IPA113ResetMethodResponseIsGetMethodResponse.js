@@ -1,54 +1,21 @@
-import { getResourcePathItems, isResetMethod, stripCustomMethodName } from './utils/resourceEvaluation.js';
-import { resolveObject } from './utils/componentUtils.js';
-import { evaluateAndCollectAdoptionStatus, handleInternalError } from './utils/collectionUtils.js';
-import { getGETMethodResponseSchemaFromPathItem, getSchemaRef } from './utils/methodUtils.js';
+// @ts-check
+import { defineRule } from './utils/defineRule.js';
+import { isReset } from './utils/conditions/path.js';
+import { baseGetHasMediaType, baseGetResponse } from './utils/conditions/resource.js';
+import { hasSchema, isJson } from './utils/conditions/response.js';
+import { getSchemaRef } from './utils/methodUtils.js';
 
 const ERROR_MESSAGE =
   'The schema in the :reset method response must be the same schema as the response of the Get method.';
 
-export default (input, _, { path, documentInventory, rule }) => {
-  const ruleName = rule.name;
-  const oas = documentInventory.unresolved;
-  const resourcePath = path[1];
-  const mediaType = input;
+export default defineRule({
+  document: 'unresolved',
+  appliesTo: [isJson, isReset, hasSchema, baseGetHasMediaType],
+  exceptionTarget: (ctx) => ctx.node,
+  check: (ctx) => {
+    const path = ctx.path;
+    const getMethodResponseContent = baseGetResponse(ctx);
 
-  if (!mediaType.endsWith('json') || !isResetMethod(resourcePath)) {
-    return;
-  }
-
-  // Ignore if the Reset method does not have a response schema
-  const resetMethodResponse = resolveObject(oas, path);
-
-  if (!resetMethodResponse || !resetMethodResponse.schema) {
-    return;
-  }
-
-  // Get the base resource path (without :reset)
-  const baseResourcePath = stripCustomMethodName(resourcePath);
-  const resourcePathItems = getResourcePathItems(baseResourcePath, oas.paths);
-
-  // Ignore if there is no matching Get method on the base resource
-  const basePathItem = resourcePathItems[baseResourcePath];
-  if (!basePathItem) {
-    return;
-  }
-
-  const getMethodResponseContentPerMediaType = getGETMethodResponseSchemaFromPathItem(basePathItem, mediaType);
-  if (!getMethodResponseContentPerMediaType) {
-    return;
-  }
-
-  const errors = checkViolationsAndReturnErrors(
-    path,
-    resetMethodResponse,
-    getMethodResponseContentPerMediaType,
-    ruleName
-  );
-  return evaluateAndCollectAdoptionStatus(errors, ruleName, resetMethodResponse, path);
-};
-
-function checkViolationsAndReturnErrors(path, resetMethodResponseContent, getMethodResponseContent, ruleName) {
-  try {
     // Error if the Get method does not have a schema
     if (!getMethodResponseContent.schema) {
       return [
@@ -59,7 +26,7 @@ function checkViolationsAndReturnErrors(path, resetMethodResponseContent, getMet
       ];
     }
 
-    const resetMethodSchemaRef = getSchemaRef(resetMethodResponseContent.schema);
+    const resetMethodSchemaRef = getSchemaRef(ctx.node.schema);
     const getMethodSchemaRef = getSchemaRef(getMethodResponseContent.schema);
 
     // Error if the Get method does not have a schema ref
@@ -77,7 +44,5 @@ function checkViolationsAndReturnErrors(path, resetMethodResponseContent, getMet
       return [{ path, message: ERROR_MESSAGE }];
     }
     return [];
-  } catch (e) {
-    return handleInternalError(ruleName, path, e);
-  }
-}
+  },
+});

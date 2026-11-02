@@ -79,6 +79,14 @@ describe('tools/spectral/ipa/rulesets/functions/utils/defineRule.js', () => {
     ).not.toThrow();
   });
 
+  it('reads the unresolved document when asked to', () => {
+    const rule = defineRule({
+      document: 'unresolved',
+      check: ({ oas, path }) => [{ path, message: String(oas.paths['/resource']) }],
+    });
+    expect(rule({}, null, spectralContext)[0].message).toBe('undefined');
+  });
+
   it('names the function after the rule, so a crash outside the check says which rule', () => {
     const rule = defineRule({ check: () => [] });
     rule({}, null, spectralContext);
