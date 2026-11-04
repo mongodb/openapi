@@ -16,6 +16,7 @@ package outputfilter
 import (
 	"encoding/json"
 
+	foasdiff "github.com/mongodb/openapi/tools/foas/diff"
 	"github.com/oasdiff/oasdiff/checker"
 	"github.com/oasdiff/oasdiff/formatters"
 	"github.com/spf13/afero"
@@ -44,9 +45,16 @@ func (o *OasDiffEntry) LevelWithDefault() int {
 	if o.Level != 0 {
 		return o.Level
 	}
-	return int(checker.INFO)
+	return severityLevel(foasdiff.SeverityInfo)
 }
 
+func (o *OasDiffEntry) IsBreaking() bool {
+	return o.LevelWithDefault() >= severityLevel(foasdiff.SeverityError)
+}
+
+// NewChangelogEntries converts raw oasdiff checker changes into changelog
+// entries. New comparison callers should use diff.Compare and
+// NewChangelogEntriesFromDiff.
 func NewChangelogEntries(checkers checker.Changes, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	formatter, err := formatters.Lookup("json", formatters.FormatterOpts{
 		Language: lan,
@@ -61,12 +69,43 @@ func NewChangelogEntries(checkers checker.Changes, exemptionsFilePath string) ([
 	}
 
 	var entries []*OasDiffEntry
-	err = json.Unmarshal(bytes, &entries)
-	if err != nil {
+	if err := json.Unmarshal(bytes, &entries); err != nil {
 		return nil, err
+	}
+	return transformEntries(entries, exemptionsFilePath)
+}
+
+// NewChangelogEntriesFromDiff converts a transport-neutral FOAS diff report
+// into changelog entries.
+func NewChangelogEntriesFromDiff(changes []foasdiff.Change, exemptionsFilePath string) ([]*OasDiffEntry, error) {
+	entries := make([]*OasDiffEntry, 0, len(changes))
+	for index := range changes {
+		change := &changes[index]
+		entries = append(entries, &OasDiffEntry{
+			ID:          change.ID,
+			Text:        change.Text,
+			Level:       severityLevel(change.Severity),
+			Operation:   change.Operation,
+			OperationID: change.OperationID,
+			Path:        change.Path,
+			Source:      change.Source,
+			Section:     change.Section,
+		})
 	}
 
 	return transformEntries(entries, exemptionsFilePath)
+}
+
+func severityLevel(severity foasdiff.Severity) int {
+	switch severity {
+	case foasdiff.SeverityError:
+		return 3
+	case foasdiff.SeverityWarning:
+		return 2
+	case foasdiff.SeverityInfo:
+		return 1
+	}
+	return 1
 }
 
 func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {

@@ -15,13 +15,14 @@
 package changelog
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"sort"
 
 	"github.com/mongodb/openapi/tools/foas/changelog/outputfilter"
-	"github.com/oasdiff/oasdiff/checker"
+	foasdiff "github.com/mongodb/openapi/tools/foas/diff"
 )
 
 const (
@@ -204,19 +205,25 @@ func (m *Changelog) newPathsFromDeprecatedChanges(
 }
 
 func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
-	diffResult, err := m.OasDiff.GetFlattenedDiff(m.Base, m.Revision)
+	report, err := foasdiff.Compare(
+		context.Background(),
+		foasdiff.Document{Spec: m.Base.Spec, Source: m.Base.Url},
+		foasdiff.Document{Spec: m.Revision.Spec, Source: m.Revision.Url},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	changes := checker.CheckBackwardCompatibilityUntilLevel(
-		m.Config,
-		diffResult.Report,
-		diffResult.SourceMap,
-		checker.INFO)
+	checkerChanges := make([]foasdiff.Change, 0, len(report.Changes))
+	for index := range report.Changes {
+		change := report.Changes[index]
+		if change.Origin == foasdiff.OriginChecker {
+			checkerChanges = append(checkerChanges, change)
+		}
+	}
 
-	log.Printf("Found '%d' oasdiff changes between %s and %s", len(changes), m.Base.Url, m.Revision.Url)
-	return outputfilter.NewChangelogEntries(changes, m.ExemptionFilePath)
+	log.Printf("Found '%d' diff changes between %s and %s", len(checkerChanges), m.Base.Url, m.Revision.Url)
+	return outputfilter.NewChangelogEntriesFromDiff(checkerChanges, m.ExemptionFilePath)
 }
 
 // sortChangelog sorts changelog by date DESC, path + httpMethod ASC, version DESC.
@@ -268,7 +275,7 @@ func newMergedChanges(changes []*outputfilter.OasDiffEntry,
 		versionChange := &Change{
 			Description:        change.Text,
 			Code:               change.ID,
-			BackwardCompatible: change.LevelWithDefault() < int(checker.ERR),
+			BackwardCompatible: !change.IsBreaking(),
 			HideFromChangelog:  change.HideFromChangelog,
 			DeprecatedVersion:  change.DeprecatedVersion,
 			SunsetDate:         change.SunsetDate,

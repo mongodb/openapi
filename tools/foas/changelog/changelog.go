@@ -24,32 +24,12 @@ import (
 
 	"github.com/mongodb/openapi/tools/foas/apiversion"
 	"github.com/mongodb/openapi/tools/foas/openapi"
-	"github.com/oasdiff/oasdiff/checker"
-	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/load"
 )
 
 const (
-	deprecationDaysStable = 365 //  min days required between deprecating a stable resource and removing it
-	deprecationDaysBeta   = 365 //  min days required between deprecating a beta resource and removing it
-	stabilityLevelStable  = "stable"
+	stabilityLevelStable = "stable"
 )
-
-var breakingChangesAdditionalCheckers = map[string]checker.Level{
-	"response-non-success-status-removed":           checker.ERR,
-	"api-operation-id-removed":                      checker.ERR,
-	"api-tag-removed":                               checker.ERR,
-	"response-property-enum-value-removed":          checker.ERR,
-	"response-mediatype-enum-value-removed":         checker.ERR,
-	"request-body-enum-value-removed":               checker.ERR,
-	"api-schema-removed":                            checker.ERR,
-	"response-property-one-of-added":                checker.INFO,
-	"response-body-one-of-added":                    checker.INFO,
-	"request-parameter-removed":                     checker.ERR,
-	"request-property-removed":                      checker.ERR,
-	"response-optional-property-removed":            checker.ERR,
-	"response-optional-write-only-property-removed": checker.ERR,
-}
 
 type Changelog struct {
 	BaseMetadata      *Metadata
@@ -57,8 +37,6 @@ type Changelog struct {
 	Base              *load.SpecInfo //  the base spec to compare against the revision
 	Revision          *load.SpecInfo //  the new spec to compare against the base
 	BaseChangelog     []*Entry
-	Config            *checker.Config
-	OasDiff           *openapi.OasDiff
 	ExemptionFilePath string
 	RunDate           string
 }
@@ -371,11 +349,6 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath st
 		return nil, err
 	}
 
-	changelogConfig := checker.NewConfig(
-		checker.GetAllChecks(),
-		checker.WithSeverityLevels(breakingChangesAdditionalCheckers),
-		checker.WithDeprecation(deprecationDaysBeta, deprecationDaysStable))
-
 	return &Changelog{
 		BaseChangelog:     baseChangelog,
 		RunDate:           revisionMetadata.RunDate,
@@ -383,11 +356,7 @@ func newChangelog(baseMetadata, revisionMetadata *Metadata, exceptionFilePath st
 		Revision:          revisionSpec,
 		BaseMetadata:      baseMetadata,
 		RevisionMetadata:  revisionMetadata,
-		Config:            changelogConfig,
 		ExemptionFilePath: exceptionFilePath,
-		OasDiff: openapi.NewOasDiffWithSpecInfo(baseSpec, revisionSpec, &diff.Config{
-			IncludePathParams: true,
-		}),
 	}, nil
 }
 
