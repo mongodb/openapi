@@ -1405,17 +1405,6 @@ Rule checks for the following conditions:
   - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
   - Skips validation if the schema has an exception defined for this rule
 
-#### xgen-IPA-123-allowable-enum-values-should-not-exceed-20
-
- ![error](https://img.shields.io/badge/error-red) 
-Allowable enum values should not exceed 20 entries.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Validates that each enum set has 20 or fewer values
-  - Skips validation if the schema has an exception defined for this rule
-  - This validation threshold can be adjusted by changing the functionOptions.maxEnumValues parameter
-
 
 
 ### IPA-124
