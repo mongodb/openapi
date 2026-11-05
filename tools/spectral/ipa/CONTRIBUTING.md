@@ -89,12 +89,13 @@ npm run gen-ipa-docs
 
 A new version of the IPA package will be released when the version in the package.json is changed. To release a new version:
 
-- [ ] Ensure your branch is clean and you have no outstanding changes. Release PRs should only contain the updated changelog and edits to the package.json
+- [ ] Ensure your branch is clean and you have no outstanding changes. Release PRs should only contain the updated changelog and edits to the package.json and package-lock.json
 - [ ] Determine whether your update is major/minor/patch. We follow [semantic versioning](https://semver.org/) custom to the ruleset where: 
     - major (X.0.0) - Changes in behaviour to existing rules, breaking changes
     - minor (0.X.0) - New rules or custom extensions
     - patch (0.0.X) - Backwards-compatible bug fixes 
 - [ ] Update the version number in package.json
+- [ ] Run `npm install --package-lock-only` from `tools/spectral/ipa` to sync the version in package-lock.json (it appears twice: top-level and under `packages[""]`) and commit the changes. CI fails if the lockfile version does not match package.json.
 - [ ] Run `npm run gen-ipa-changelog` and commit the changes. The changelog must be updated alongside a new release.
 - [ ] Open a PR and ensure the title is conventional and scoped to IPA (ie: `ci(ipa): release new version x.x.x`)
 
