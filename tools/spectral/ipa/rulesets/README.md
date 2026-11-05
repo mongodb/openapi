@@ -1389,35 +1389,6 @@ It collects adoption metrics at schema property level and parameter level
 
 
 
-### IPA-123
-
-Rules are based on [https://mongodb.github.io/ipa/123](https://mongodb.github.io/ipa/123).
-
-#### xgen-IPA-123-enum-values-must-be-upper-snake-case
-
- ![error](https://img.shields.io/badge/error-red) 
-Enum values must be UPPER_SNAKE_CASE.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Applies to all enum value arrays defined in the OpenAPI schema
-  - Resolves the schema object that contains the enum values
-  - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
-  - Skips validation if the schema has an exception defined for this rule
-
-#### xgen-IPA-123-allowable-enum-values-should-not-exceed-20
-
- ![error](https://img.shields.io/badge/error-red) 
-Allowable enum values should not exceed 20 entries.
-
-##### Implementation details
-Rule checks for the following conditions:
-  - Validates that each enum set has 20 or fewer values
-  - Skips validation if the schema has an exception defined for this rule
-  - This validation threshold can be adjusted by changing the functionOptions.maxEnumValues parameter
-
-
-
 ### IPA-124
 
 Rules are based on [https://mongodb.github.io/ipa/124](https://mongodb.github.io/ipa/124).
