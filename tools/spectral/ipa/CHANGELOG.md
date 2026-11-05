@@ -2,7 +2,20 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [11.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.2.0...11.3.0)
+#### [11.4.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.3.0...11.4.0)
+
+- fix(ipa): remove IPA-123 rule limiting enums to 20 values [`#1588`](https://github.com/mongodb/openapi/pull/1588)
+- refactor(ipa): CLOUDP-453872 migrate IPA-104 and IPA-113 to defineRule [`#1565`](https://github.com/mongodb/openapi/pull/1565)
+- fix(ipa): IPA 108/106 read only check bug [`#1574`](https://github.com/mongodb/openapi/pull/1574)
+- refactor(ipa): CLOUDP-453872 defineRule collects results, generated Applies to docs [`#1564`](https://github.com/mongodb/openapi/pull/1564)
+- refactor(ipa): CLOUDP-453872 named rule conditions, RuleContext and defineRule [`#1529`](https://github.com/mongodb/openapi/pull/1529)
+- chore(ipa): bump fast-uri from 3.0.6 to 3.1.9 in /tools/spectral/ipa [`#1560`](https://github.com/mongodb/openapi/pull/1560)
+- chore(ipa): bump handlebars from 4.7.9 to 4.7.10 in /tools/spectral/ipa [`#1559`](https://github.com/mongodb/openapi/pull/1559)
+- chore(ipa): CLOUDP-453871 add snapshot and compare scripts for behavior-neutral refactors [`#1528`](https://github.com/mongodb/openapi/pull/1528)
+
+#### [ipa-validation-ruleset-v11.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.2.0...ipa-validation-ruleset-v11.3.0)
+
+> 13 October 2026
 
 - feat(ipa): allow schema-level IPA-112 is-prefix exceptions [`#1548`](https://github.com/mongodb/openapi/pull/1548)
 - refactor(ipa): simplyfy bool expression using DeMorgan's law [`#1547`](https://github.com/mongodb/openapi/pull/1547)
