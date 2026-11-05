@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [11.4.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.3.0...11.4.0)
+
+- fix(ipa): remove IPA-123 rule limiting enums to 20 values [`#1588`](https://github.com/mongodb/openapi/pull/1588)
+
+> 5 November 2026
+
 #### [11.3.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.2.0...11.3.0)
 
 - feat(ipa): allow schema-level IPA-112 is-prefix exceptions [`#1548`](https://github.com/mongodb/openapi/pull/1548)
