@@ -43,23 +43,6 @@ on:
         required: false
         type: boolean
         default: false
-    secrets: # all secrets are passed explicitly in this workflow
-      api_bot_pat:
-        required: true
-      postman_api_key:
-        required: false
-      workspace_id:
-        required: false
-      jira_api_token:
-        required: true
-      ipa_aws_access_key:
-        required: false
-      ipa_aws_secret_key:
-        required: false
-      ipa_aws_s3_bucket_prefix:
-        required: false
-      bump_token:
-        required: true
 
 permissions:
   contents: write
@@ -70,8 +53,7 @@ jobs:
   generate-spec:
     name: Generate the OpenAPI Spec
     uses: ./.github/workflows/generate-openapi.yml
-    secrets:
-      api_bot_pat: ${{ secrets.api_bot_pat }}
+    secrets: inherit
     with:
       aws_default_region: ${{ inputs.aws_default_region}}
       aws_s3_bucket: ${{ inputs.aws_s3_bucket}}
@@ -84,8 +66,7 @@ jobs:
     name: Run Required Validations
     needs: generate-spec
     uses: ./.github/workflows/required-spec-validations.yml
-    secrets:
-      api_bot_pat: ${{ secrets.api_bot_pat }}
+    secrets: inherit
     with:
       env: ${{ inputs.env }}
 
@@ -94,9 +75,7 @@ jobs:
     name: Run Optional Validations
     needs: generate-spec
     uses: ./.github/workflows/optional-spec-validations.yml
-    secrets:
-      api_bot_pat: ${{ secrets.api_bot_pat }}
-      jira_api_token: ${{ secrets.jira_api_token }}
+    secrets: inherit
     with:
       env: ${{ inputs.env }}
 
@@ -108,11 +87,16 @@ jobs:
         changes_detected: ${{ steps.commit.outputs.changes_detected }}
         bump_release: ${{ steps.bump_changes.outputs.bump_release }}
       steps:
+        - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+          id: app-token
+          with:
+            client-id: ${{ vars.APP_CLIENT_ID }}
+            private-key: ${{ secrets.APP_PRIVATE_KEY }}
         - name: Checkout repository
           uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
           with:
             ref: ${{ inputs.branch }}
-            token: ${{secrets.api_bot_pat}}
+            token: ${{steps.app-token.outputs.token}}
         - name: Upload current Specs and Changelog files
           uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
           with:
@@ -127,13 +111,13 @@ jobs:
           uses: actions/download-artifact@v8
           with:
             name: openapi-foas-${{ inputs.env }}
-            github-token: ${{ secrets.api_bot_pat }}
+            github-token: ${{ steps.app-token.outputs.token }}
             run-id: ${{ github.run_id }}
         - name: Download release scripts
           uses: actions/download-artifact@v8
           with:
             name: release-scripts
-            github-token: ${{ secrets.api_bot_pat }}
+            github-token: ${{ steps.app-token.outputs.token }}
             run-id: ${{ github.run_id }}
             path: release-scripts
         - name: Add permissions to execute scripts
@@ -200,9 +184,7 @@ jobs:
       needs: [release]
       if: ${{ inputs.env == 'prod' && needs.release.outputs.changes_detected == 'true' }}
       uses: ./.github/workflows/release-postman.yml
-      secrets:
-        postman_api_key: ${{ secrets.postman_api_key }}
-        workspace_id: ${{ secrets.workspace_id }}
+      secrets: inherit
       with:
         atlas_prod_base_url: ${{ inputs.atlas_prod_base_url}}
 
@@ -210,8 +192,7 @@ jobs:
     name: Release API Changelog
     needs: release
     uses: ./.github/workflows/release-changelog.yml
-    secrets:
-        api_bot_pat: ${{ secrets.api_bot_pat }}
+    secrets: inherit
     with:
         aws_default_region: ${{ inputs.aws_default_region}}
         aws_s3_role_to_assume: ${{ inputs.aws_s3_role_to_assume }}
@@ -225,9 +206,7 @@ jobs:
     needs: release
     if: ${{needs.release.outputs.bump_release == 'true'}}
     uses: ./.github/workflows/generate-bump-pages.yml
-    secrets:
-      api_bot_pat: ${{ secrets.api_bot_pat }}
-      bump_token: ${{ secrets.bump_token }}
+    secrets: inherit
 
     with:
       branch: ${{ inputs.branch }}
@@ -237,20 +216,24 @@ jobs:
   release-cleanup:
     needs: [ release, release-changelog]
     uses: ./.github/workflows/release-cleanup.yml
+    secrets: inherit
     with:
       env: ${{ inputs.env }}
       branch: ${{ inputs.branch }}
-    secrets:
-      api_bot_pat: ${{ secrets.api_bot_pat }}
 
   retry-handler:
     needs: [ release, release-postman, release-changelog, release-bump-sh]
     if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - env:
           GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.api_bot_pat }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
 
   failure-handler:
@@ -262,5 +245,4 @@ jobs:
       env: ${{ inputs.env }}
       release_name: "OpenAPI Spec"
       team_id: ${{ vars.JIRA_TEAM_ID_APIX_PLATFORM }}
-    secrets:
-      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+    secrets: inherit

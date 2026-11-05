@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
-          token: ${{secrets.api_bot_pat}}
+          token: ${{ steps.app-token.outputs.token }}
           sparse-checkout: |
             .github
       # We upload the scripts in .github/scripts/* (defined only in main) so that they can be downloaded and reused 
@@ -59,10 +59,7 @@ jobs:
     if: >-
        github.event_name == 'schedule' || contains(inputs.env_to_release, 'dev')
     uses: ./.github/workflows/release-spec.yml
-    secrets:
-      api_bot_pat: ${{ secrets.API_BOT_PAT }}
-      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
-      bump_token: ${{secrets.BUMP_TOKEN}}
+    secrets: inherit
     with:
       aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
       aws_s3_bucket: ${{ vars.S3_BUCKET_DEV}}
@@ -79,10 +76,7 @@ jobs:
     if: >-
         github.event_name == 'schedule' || contains(inputs.env_to_release, 'qa')
     uses: ./.github/workflows/release-spec.yml
-    secrets:
-        api_bot_pat: ${{ secrets.API_BOT_PAT }}
-        jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
-        bump_token: ${{secrets.BUMP_TOKEN}}
+    secrets: inherit
     with:
         aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
         aws_s3_role_to_assume: ${{ vars.AWS_S3_ROLE_TO_ASSUME }}
@@ -99,10 +93,7 @@ jobs:
     if: >-
         github.event_name == 'schedule' || contains(inputs.env_to_release, 'staging')
     uses: ./.github/workflows/release-spec.yml
-    secrets:
-        api_bot_pat: ${{ secrets.API_BOT_PAT }}
-        jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
-        bump_token: ${{secrets.BUMP_TOKEN}}
+    secrets: inherit
     with:
         aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
         aws_s3_role_to_assume: ${{ vars.AWS_S3_ROLE_TO_ASSUME }}
@@ -119,12 +110,7 @@ jobs:
     if: >-
         github.event_name == 'schedule' || contains(inputs.env_to_release, 'prod')
     uses: ./.github/workflows/release-spec.yml
-    secrets:
-        api_bot_pat: ${{ secrets.API_BOT_PAT }}
-        postman_api_key: ${{ secrets.POSTMAN_API_KEY }}
-        workspace_id: ${{ secrets.WORKSPACE_ID }}
-        jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
-        bump_token: ${{secrets.BUMP_TOKEN}}
+    secrets: inherit
     with:
         aws_default_region: ${{ vars.AWS_DEFAULT_REGION}}
         aws_s3_role_to_assume: ${{ vars.AWS_S3_ROLE_TO_ASSUME }}
@@ -155,9 +141,14 @@ jobs:
     if: ${{ always() && contains(needs.*.result, 'failure') && fromJSON(github.run_attempt) < 3}}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - env:
           GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.api_bot_pat }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: gh workflow run retry-handler.yml -F run_id=${{ github.run_id }}
 
   failure-handler:
