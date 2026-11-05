@@ -14,11 +14,6 @@ on:
         description: 'Branch to release the OpenAPI Spec to.'
         required: true
         type: string
-    secrets:
-      api_bot_pat:
-        required: true
-      bump_token:
-        required: true
 
 permissions:
   contents: read
@@ -29,11 +24,16 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.branch }}
-          token: ${{secrets.api_bot_pat}}
+          token: ${{steps.app-token.outputs.token}}
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
@@ -42,7 +42,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: release-scripts
-          github-token: ${{ secrets.api_bot_pat }}
+          github-token: ${{ steps.app-token.outputs.token }}
           run-id: ${{ github.run_id }}
           path: release-scripts
       - name: Add permissions to execute scripts
@@ -62,15 +62,20 @@ jobs:
     needs: create-matrix
     name: Deploy API documentation on Bump.sh
     strategy:
-      matrix: 
+      matrix:
         spec-mapping: ${{ fromJson(needs.create-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.branch }}
-          token: ${{secrets.api_bot_pat}}
+          token: ${{steps.app-token.outputs.token}}
       - name: Deploy API documentation - ${{inputs.branch}}
         uses: bump-sh/github-action@3cfa0288007867bad2515ca467cc01d8291a3301
         with:

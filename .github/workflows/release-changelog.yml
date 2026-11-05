@@ -26,9 +26,6 @@ on:
         description: 'AWS S3 Role to Assume.'
         required: true
         type: string
-    secrets: # all secrets are passed explicitly in this workflow
-      api_bot_pat:
-        required: true
 
 
 permissions:
@@ -41,11 +38,16 @@ jobs:
       name: Release Changelog
       runs-on: ubuntu-latest
       steps:
+        - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+          id: app-token
+          with:
+            client-id: ${{ vars.APP_CLIENT_ID }}
+            private-key: ${{ secrets.APP_PRIVATE_KEY }}
         - name: Checkout repository
           uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
           with:
             ref: ${{ inputs.branch }}
-            token: ${{secrets.api_bot_pat}}
+            token: ${{steps.app-token.outputs.token}}
         - name: Check last Changelog Entry
           id: check_last_run
           run: |
@@ -73,19 +75,19 @@ jobs:
           with:
             name: base-${{ inputs.env }}
             path: changelog/base
-            github-token: ${{ secrets.api_bot_pat }}
+            github-token: ${{ steps.app-token.outputs.token }}
             run-id: ${{ github.run_id }}
         - name: Download metadata files
           uses: actions/download-artifact@v8
           with:
             name: openapi-foas-${{ inputs.env }}
-            github-token: ${{ secrets.api_bot_pat }}
+            github-token: ${{ steps.app-token.outputs.token }}
             run-id: ${{ github.run_id }}
         - name: Download release scripts
           uses: actions/download-artifact@v8
           with:
             name: release-scripts
-            github-token: ${{ secrets.api_bot_pat }}
+            github-token: ${{ steps.app-token.outputs.token }}
             run-id: ${{ github.run_id }}
             path: release-scripts
         - name: Add permissions to execute scripts

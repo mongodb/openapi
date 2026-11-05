@@ -13,23 +13,25 @@ on:
         description: 'Branch used for the release.'
         required: true
         type: string
-    secrets:
-      api_bot_pat:
-        required: true
 jobs:
   delete-upcoming-versions-with-stable:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.branch }}
-          token: ${{secrets.api_bot_pat}}
+          token: ${{steps.app-token.outputs.token}}
       - name: Download release scripts
         uses: actions/download-artifact@v8
         with:
           name: release-scripts
-          github-token: ${{ secrets.api_bot_pat }}
+          github-token: ${{ steps.app-token.outputs.token }}
           run-id: ${{ github.run_id }}
           path: release-scripts
       - name: Add permissions to execute scripts
@@ -82,7 +84,7 @@ jobs:
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
         if: env.FILES_CHANGED == 'true'
         with:
-          token: ${{ secrets.api_bot_pat }}
+          token: ${{ steps.app-token.outputs.token }}
           title: "APIx-Bot: Release Cleanup 🧹🍃"
           commit-message: "release cleanup"
           delete-branch: true

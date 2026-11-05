@@ -22,9 +22,6 @@ on:
         description: 'AWS S3 Role to Assume.'
         required: true
         type: string
-    secrets: # all secrets are passed explicitly in this workflow
-      api_bot_pat:
-        required: true
 
 permissions:
   contents: write
@@ -36,6 +33,11 @@ jobs:
     name: Generate the Federated OpenAPI Spec
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -55,7 +57,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: release-scripts
-          github-token: ${{ secrets.api_bot_pat }}
+          github-token: ${{ steps.app-token.outputs.token }}
           run-id: ${{ github.run_id }}
           path: release-scripts
       - name: Add permissions to execute scripts

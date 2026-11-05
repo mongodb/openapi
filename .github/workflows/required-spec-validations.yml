@@ -6,9 +6,6 @@ on:
         description: 'Environment to generate the OpenAPI Spec for.'
         required: true
         type: string
-    secrets: # all secrets are passed explicitly in this workflow
-      api_bot_pat:
-        required: true
 permissions:
   contents: write
 
@@ -16,6 +13,11 @@ jobs:
   required-validations:
       runs-on: ubuntu-latest
       steps:
+        - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+          id: app-token
+          with:
+            client-id: ${{ vars.APP_CLIENT_ID }}
+            private-key: ${{ secrets.APP_PRIVATE_KEY }}
         - name: Checkout repository
           uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         - name: Setup Node
@@ -29,7 +31,7 @@ jobs:
           uses: actions/download-artifact@v8
           with:
             name: openapi-foas-${{ inputs.env }}
-            github-token: ${{ secrets.api_bot_pat }}
+            github-token: ${{ steps.app-token.outputs.token }}
             run-id: ${{ github.run_id }}
         - name: Run IPA validation
           id: ipa-spectral-validation
@@ -46,13 +48,13 @@ jobs:
           uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
           with:
             repository: 'mongodb/atlas-sdk-go'
-            token: ${{ secrets.api_bot_pat }}
+            token: ${{ steps.app-token.outputs.token }}
             path: 'atlas-sdk-go'
         - name: Download openapi-foas
           uses: actions/download-artifact@v8
           with:
             name: openapi-foas-${{ inputs.env }}
-            github-token: ${{ secrets.api_bot_pat }}
+            github-token: ${{ steps.app-token.outputs.token }}
             run-id: ${{ github.run_id }}
         - name: Validate the FOAS can be used with the Go SDK
           id: go-sdk-validation
