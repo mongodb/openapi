@@ -1389,6 +1389,24 @@ It collects adoption metrics at schema property level and parameter level
 
 
 
+### IPA-123
+
+Rules are based on [https://mongodb.github.io/ipa/123](https://mongodb.github.io/ipa/123).
+
+#### xgen-IPA-123-enum-values-must-be-upper-snake-case
+
+ ![error](https://img.shields.io/badge/error-red) 
+Enum values must be UPPER_SNAKE_CASE.
+
+##### Implementation details
+Rule checks for the following conditions:
+  - Applies to all enum value arrays defined in the OpenAPI schema
+  - Resolves the schema object that contains the enum values
+  - Validates each enum value individually against the UPPER_SNAKE_CASE pattern
+  - Skips validation if the schema has an exception defined for this rule
+
+
+
 ### IPA-124
 
 Rules are based on [https://mongodb.github.io/ipa/124](https://mongodb.github.io/ipa/124).
