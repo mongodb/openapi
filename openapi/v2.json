@@ -3216,9 +3216,6 @@
             "readOnly": true,
             "type": "string"
           },
-          "mongosTopology": {
-            "$ref": "#/components/schemas/MongosTopology"
-          },
           "name": {
             "description": "Human-readable label that identifies the cluster.",
             "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
@@ -38238,7 +38235,7 @@
         },
         "type": "object"
       },
-      "MongosRegionConfig": {
+      "MongosRegionPlacement": {
         "description": "Dedicated mongos placement in one region.",
         "properties": {
           "nodeCount": {
@@ -38258,40 +38255,6 @@
           "regionName": {
             "description": "Region in which the dedicated mongos run.",
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "MongosTier": {
-        "description": "Hardware spec for the dedicated mongos tier.",
-        "properties": {
-          "instanceSize": {
-            "description": "Instance size of the dedicated mongos hosts (for example, `M30`).",
-            "type": "string"
-          },
-          "regionConfigs": {
-            "description": "Per-region placement of the dedicated mongos hosts.",
-            "items": {
-              "$ref": "#/components/schemas/MongosRegionConfig"
-            },
-            "type": "array"
-          }
-        },
-        "type": "object"
-      },
-      "MongosTopology": {
-        "description": "Configuration of the mongos routers for a sharded cluster: colocated on the shard nodes or running on a dedicated tier.",
-        "properties": {
-          "state": {
-            "description": "Desired mongos topology. `COLOCATED` runs mongos on the shard nodes; `DEDICATED` runs mongos on a dedicated tier described by `tier`.",
-            "enum": [
-              "COLOCATED",
-              "DEDICATED"
-            ],
-            "type": "string"
-          },
-          "tier": {
-            "$ref": "#/components/schemas/MongosTier"
           }
         },
         "type": "object"
@@ -38310,38 +38273,14 @@
           "regionPlacements": {
             "description": "Per-region placement of the dedicated mongos hosts.",
             "items": {
-              "$ref": "#/components/schemas/MongosTopologyResourceRegionConfig"
+              "$ref": "#/components/schemas/MongosRegionPlacement"
             },
             "type": "array"
           }
         },
         "type": "object"
       },
-      "MongosTopologyResourceRegionConfig": {
-        "description": "Dedicated mongos placement in one region.",
-        "properties": {
-          "nodeCount": {
-            "description": "Number of dedicated mongos to run in this region.",
-            "format": "int32",
-            "type": "integer"
-          },
-          "providerName": {
-            "description": "Cloud provider on which the dedicated mongos run.",
-            "enum": [
-              "AWS",
-              "AZURE",
-              "GCP"
-            ],
-            "type": "string"
-          },
-          "regionName": {
-            "description": "Region in which the dedicated mongos run.",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "MongosTopologyResourceResponse": {
+      "MongosTopologyResponse": {
         "description": "Configuration of the dedicated mongos routers for a sharded cluster, identified by the name of its associated cluster.",
         "properties": {
           "clusterName": {
@@ -38355,7 +38294,7 @@
           "regionPlacements": {
             "description": "Per-region placement of the dedicated mongos hosts.",
             "items": {
-              "$ref": "#/components/schemas/MongosTopologyResourceRegionConfig"
+              "$ref": "#/components/schemas/MongosRegionPlacement"
             },
             "type": "array"
           },
@@ -38387,7 +38326,7 @@
           "regionPlacements": {
             "description": "Per-region placement of the dedicated mongos hosts.",
             "items": {
-              "$ref": "#/components/schemas/MongosTopologyResourceRegionConfig"
+              "$ref": "#/components/schemas/MongosRegionPlacement"
             },
             "type": "array"
           }
@@ -46356,7 +46295,7 @@
         ],
         "type": "object"
       },
-      "PaginatedMongosTopologyResourceResponse": {
+      "PaginatedMongosTopologyResponse": {
         "properties": {
           "links": {
             "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
@@ -46373,7 +46312,7 @@
           "results": {
             "description": "List of returned documents that MongoDB Cloud provides when completing this request.",
             "items": {
-              "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+              "$ref": "#/components/schemas/MongosTopologyResponse"
             },
             "readOnly": true,
             "type": "array"
@@ -62465,7 +62404,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "eb5e1079b5350bd9b6f33948baca993bcb334af2"
+    "x-xgen-sha": "ab1d14721ac0e37173cf905cff636c5d7387b022"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -92462,7 +92401,7 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedMongosTopologyResourceResponse"
+                  "$ref": "#/components/schemas/PaginatedMongosTopologyResponse"
                 },
                 "x-xgen-preview": {
                   "name": "mongos-topologies"
@@ -92539,7 +92478,7 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+                  "$ref": "#/components/schemas/MongosTopologyResponse"
                 },
                 "x-xgen-preview": {
                   "name": "mongos-topologies"
@@ -92701,7 +92640,7 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+                  "$ref": "#/components/schemas/MongosTopologyResponse"
                 },
                 "x-xgen-preview": {
                   "name": "mongos-topologies"
@@ -92787,7 +92726,7 @@
             "content": {
               "application/vnd.atlas.preview+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MongosTopologyResourceResponse"
+                  "$ref": "#/components/schemas/MongosTopologyResponse"
                 },
                 "x-xgen-preview": {
                   "name": "mongos-topologies"
