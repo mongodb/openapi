@@ -71,6 +71,7 @@ func NewChangelogEntries(checkers checker.Changes, exemptionsFilePath string) ([
 
 func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	fs := afero.NewOsFs()
+	normalizePropertyRemovals(entries)
 	entries, err := MarkHiddenEntries(entries, exemptionsFilePath, fs)
 	if err != nil {
 		return nil, err
