@@ -45,6 +45,7 @@ var breakingChangesAdditionalCheckers = map[string]checker.Level{
 	"api-schema-removed":                            checker.ERR,
 	"response-property-one-of-added":                checker.INFO,
 	"response-body-one-of-added":                    checker.INFO,
+	"response-property-enum-value-added":            checker.INFO,
 	"request-parameter-removed":                     checker.ERR,
 	"request-property-removed":                      checker.ERR,
 	"response-optional-property-removed":            checker.ERR,
