@@ -28,8 +28,7 @@ func TestNormalizePropertyRemovals(t *testing.T) {
 		change   checker.ApiChange
 		wantID   string
 		wantArgs []any
-		// wantRender is rendered by oasdiff from the legacy check ID, so a
-		// wording change upstream does not fail this test.
+		// wantRender comes from oasdiff's legacy template, not a hardcoded string.
 		wantRender string
 	}{
 		{
@@ -42,7 +41,7 @@ func TestNormalizePropertyRemovals(t *testing.T) {
 			name:       "Request property removed before sunset",
 			change:     checker.ApiChange{Id: "request-property-removed-before-sunset", Args: []any{"foo", "2099-01-01"}, Level: checker.ERR},
 			wantID:     "request-property-removed",
-			wantArgs:   []any{"foo"}, // The sunset date is a trailing argument of the new check only.
+			wantArgs:   []any{"foo"}, // sunset date dropped
 			wantRender: en("request-property-removed", "`foo`"),
 		},
 		{

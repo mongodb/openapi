@@ -36,9 +36,7 @@ const (
 )
 
 // breakingChangesAdditionalCheckers overrides oasdiff's default levels where the
-// Atlas verdict differs, in both directions: removals and schema drops are
-// raised to ERR, while the one-of-added checks are lowered to INFO. Checks that
-// are absent here keep the level oasdiff assigns to them.
+// Atlas verdict differs. Checks absent here keep the oasdiff default.
 var breakingChangesAdditionalCheckers = map[string]checker.Level{
 	"response-non-success-status-removed":                 checker.ERR,
 	"api-operation-id-removed":                            checker.ERR,

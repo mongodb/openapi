@@ -22,15 +22,9 @@ const sunsetExtension = "x-sunset"
 
 // stripPropertySunsets removes x-sunset from schema objects.
 //
-// oasdiff v1.35.0 applies the parameter and endpoint lifecycle to request
-// properties and required response properties: a deprecated property removed
-// before its x-sunset date is reported as *-removed-before-sunset, and one
-// removed after that date is not reported at all. The changelog records every
-// change and Atlas treats every property removal as breaking, so the extension
-// is hidden from the comparison to keep the behavior of oasdiff v1.34.
-//
-// Only schema objects are touched. Operation and media type x-sunset values
-// drive API version sunsetting and are left in place.
+// oasdiff v1.35.0 stops reporting deprecated properties removed after their
+// sunset date; the changelog reports every removal. Media type and operation
+// sunsets (version sunsetting) are untouched.
 func stripPropertySunsets(doc *openapi3.T) error {
 	return doc.WalkSchemas(func(_ string, schema *openapi3.SchemaRef) error {
 		delete(schema.Value.Extensions, sunsetExtension)

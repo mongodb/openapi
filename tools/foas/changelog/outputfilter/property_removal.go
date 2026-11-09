@@ -17,17 +17,13 @@ import (
 	"github.com/oasdiff/oasdiff/checker"
 )
 
-// oasdiff v1.35.0 reports removal of deprecated request properties and required
-// response properties with dedicated check IDs and renders that in the message.
-// Atlas treats every property removal as breaking, and existing exemptions and
-// squash handlers key on the legacy IDs, so map the new checks back to the
-// legacy ones before rendering. oasdiff then produces the legacy message from
-// its own template and the changelog output stays as it was before the bump.
+// oasdiff v1.35.0 reports deprecated property removals with new check IDs.
+// Exemptions and squash handlers key on the legacy IDs, so map them back before
+// rendering and let oasdiff build the legacy message from its own template.
 type propertyRemovalAlias struct {
 	legacyID string
-	// before-sunset findings carry the sunset date as a trailing argument that
-	// the legacy message does not have. Property sunsets are hidden from the
-	// diff by openapi.stripPropertySunsets, so this is only a safety net.
+	// dropSunsetArg removes the trailing sunset date that only the
+	// before-sunset variant carries.
 	dropSunsetArg bool
 }
 
@@ -38,10 +34,8 @@ var propertyRemovalAliases = map[string]propertyRemovalAlias{
 	"response-required-property-removed-before-sunset":    {legacyID: "response-required-property-removed", dropSunsetArg: true},
 }
 
-// normalizePropertyRemovals rewrites the new property removal checks to the IDs
-// used before oasdiff v1.35.0. The change arguments are kept, except for the
-// trailing sunset date of the before-sunset variants, so the rendered message
-// is the one the legacy check produced.
+// normalizePropertyRemovals maps the v1.35.0 property removal checks back to
+// their legacy IDs.
 func normalizePropertyRemovals(changes checker.Changes) checker.Changes {
 	for i, change := range changes {
 		apiChange, ok := change.(checker.ApiChange)
