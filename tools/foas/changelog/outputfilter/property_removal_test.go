@@ -16,76 +16,79 @@ package outputfilter
 import (
 	"testing"
 
+	"github.com/oasdiff/oasdiff/checker"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNormalizePropertyRemovals(t *testing.T) {
+	en := checker.NewLocalizer("en")
+
 	tests := []struct {
 		name     string
-		entry    *OasDiffEntry
-		expected *OasDiffEntry
+		change   checker.ApiChange
+		wantID   string
+		wantArgs []any
+		// wantRender is rendered by oasdiff from the legacy check ID, so a
+		// wording change upstream does not fail this test.
+		wantRender string
 	}{
 		{
-			name: "Request property removed with deprecation",
-			entry: &OasDiffEntry{
-				ID:   "request-property-removed-with-deprecation",
-				Text: "removed the deprecated request property `foo`",
-			},
-			expected: &OasDiffEntry{
-				ID:   "request-property-removed",
-				Text: "removed the request property `foo`",
-			},
+			name:       "Request property removed with deprecation",
+			change:     checker.ApiChange{Id: "request-property-removed-with-deprecation", Args: []any{"foo"}, Level: checker.ERR},
+			wantID:     "request-property-removed",
+			wantRender: en("request-property-removed", "`foo`"),
 		},
 		{
-			name: "Request property removed before sunset",
-			entry: &OasDiffEntry{
-				ID:   "request-property-removed-before-sunset",
-				Text: "removed the request property `foo` before the sunset date `2099-01-01`",
-			},
-			expected: &OasDiffEntry{
-				ID:   "request-property-removed",
-				Text: "removed the request property `foo`",
-			},
+			name:       "Request property removed before sunset",
+			change:     checker.ApiChange{Id: "request-property-removed-before-sunset", Args: []any{"foo", "2099-01-01"}, Level: checker.ERR},
+			wantID:     "request-property-removed",
+			wantArgs:   []any{"foo"}, // The sunset date is a trailing argument of the new check only.
+			wantRender: en("request-property-removed", "`foo`"),
 		},
 		{
 			name: "Response required property removed with deprecation",
-			entry: &OasDiffEntry{
-				ID:   "response-required-property-removed-with-deprecation",
-				Text: "removed the deprecated required property `results/items/foo` from the response with the `200` status",
+			change: checker.ApiChange{
+				Id:    "response-required-property-removed-with-deprecation",
+				Args:  []any{"results/items/foo", "200"},
+				Level: checker.ERR,
 			},
-			expected: &OasDiffEntry{
-				ID:   "response-required-property-removed",
-				Text: "removed the required property `results/items/foo` from the response with the `200` status",
-			},
+			wantID:     "response-required-property-removed",
+			wantRender: en("response-required-property-removed", "`results/items/foo`", "`200`"),
 		},
 		{
 			name: "Response required property removed before sunset",
-			entry: &OasDiffEntry{
-				ID:   "response-required-property-removed-before-sunset",
-				Text: "removed the required property `results/items/foo` from the response with the `200` status before the sunset date `2099-01-01`",
+			change: checker.ApiChange{
+				Id:    "response-required-property-removed-before-sunset",
+				Args:  []any{"results/items/foo", "200", "2099-01-01"},
+				Level: checker.ERR,
 			},
-			expected: &OasDiffEntry{
-				ID:   "response-required-property-removed",
-				Text: "removed the required property `results/items/foo` from the response with the `200` status",
-			},
+			wantID:     "response-required-property-removed",
+			wantArgs:   []any{"results/items/foo", "200"},
+			wantRender: en("response-required-property-removed", "`results/items/foo`", "`200`"),
 		},
 		{
-			name: "Unrelated change is unchanged",
-			entry: &OasDiffEntry{
-				ID:   "request-property-removed",
-				Text: "removed the request property `foo`",
-			},
-			expected: &OasDiffEntry{
-				ID:   "request-property-removed",
-				Text: "removed the request property `foo`",
-			},
+			name:       "Legacy check is unchanged",
+			change:     checker.ApiChange{Id: "request-property-removed", Args: []any{"foo"}, Level: checker.ERR},
+			wantID:     "request-property-removed",
+			wantRender: en("request-property-removed", "`foo`"),
+		},
+		{
+			name:       "Unrelated check is unchanged",
+			change:     checker.ApiChange{Id: "request-parameter-removed", Args: []any{"query", "foo"}, Level: checker.ERR},
+			wantID:     "request-parameter-removed",
+			wantRender: en("request-parameter-removed", "`query`", "`foo`"),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			normalizePropertyRemovals([]*OasDiffEntry{tt.entry})
-			require.Equal(t, tt.expected, tt.entry)
+			got := normalizePropertyRemovals(checker.Changes{tt.change})[0]
+
+			require.Equal(t, tt.wantID, got.GetId())
+			if tt.wantArgs != nil {
+				require.Equal(t, tt.wantArgs, got.GetArgs())
+			}
+			require.Equal(t, tt.wantRender, got.GetUncolorizedText(en))
 		})
 	}
 }

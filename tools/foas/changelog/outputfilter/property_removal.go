@@ -14,33 +14,56 @@
 package outputfilter
 
 import (
-	"regexp"
-	"strings"
+	"github.com/oasdiff/oasdiff/checker"
 )
 
-// oasdiff v1.35.0 reports removal of deprecated properties with dedicated check IDs.
-// Without an x-sunset date those checks are INFO, while Atlas treats every property
-// removal as breaking. Existing exemptions and squash handlers also key on the legacy
-// IDs and wording, so fold the new checks back into the legacy removals before
-// exemptions and squashing are applied.
-var propertyRemovalAliases = map[string]string{
-	"request-property-removed-with-deprecation":           "request-property-removed",
-	"request-property-removed-before-sunset":              "request-property-removed",
-	"response-required-property-removed-with-deprecation": "response-required-property-removed",
-	"response-required-property-removed-before-sunset":    "response-required-property-removed",
+// oasdiff v1.35.0 reports removal of deprecated request properties and required
+// response properties with dedicated check IDs and renders that in the message.
+// Atlas treats every property removal as breaking, and existing exemptions and
+// squash handlers key on the legacy IDs, so map the new checks back to the
+// legacy ones before rendering. oasdiff then produces the legacy message from
+// its own template and the changelog output stays as it was before the bump.
+type propertyRemovalAlias struct {
+	legacyID string
+	// before-sunset findings carry the sunset date as a trailing argument that
+	// the legacy message does not have. Property sunsets are hidden from the
+	// diff by openapi.stripPropertySunsets, so this is only a safety net.
+	dropSunsetArg bool
 }
 
-var beforeSunsetDateSuffix = regexp.MustCompile(" before the sunset date `[^`]*`")
+var propertyRemovalAliases = map[string]propertyRemovalAlias{
+	"request-property-removed-with-deprecation":           {legacyID: "request-property-removed"},
+	"request-property-removed-before-sunset":              {legacyID: "request-property-removed", dropSunsetArg: true},
+	"response-required-property-removed-with-deprecation": {legacyID: "response-required-property-removed"},
+	"response-required-property-removed-before-sunset":    {legacyID: "response-required-property-removed", dropSunsetArg: true},
+}
 
-func normalizePropertyRemovals(entries []*OasDiffEntry) {
-	for _, entry := range entries {
-		legacyID, ok := propertyRemovalAliases[entry.ID]
+// normalizePropertyRemovals rewrites the new property removal checks to the IDs
+// used before oasdiff v1.35.0. The change arguments are kept, except for the
+// trailing sunset date of the before-sunset variants, so the rendered message
+// is the one the legacy check produced.
+func normalizePropertyRemovals(changes checker.Changes) checker.Changes {
+	for i, change := range changes {
+		apiChange, ok := change.(checker.ApiChange)
 		if !ok {
 			continue
 		}
 
-		entry.ID = legacyID
-		entry.Text = strings.Replace(entry.Text, " the deprecated ", " the ", 1)
-		entry.Text = beforeSunsetDateSuffix.ReplaceAllString(entry.Text, "")
+		alias, ok := propertyRemovalAliases[apiChange.Id]
+		if !ok {
+			continue
+		}
+
+		if alias.dropSunsetArg {
+			if len(apiChange.Args) == 0 {
+				continue
+			}
+			apiChange.Args = apiChange.Args[:len(apiChange.Args)-1]
+		}
+
+		apiChange.Id = alias.legacyID
+		changes[i] = apiChange
 	}
+
+	return changes
 }

@@ -55,7 +55,7 @@ func NewChangelogEntries(checkers checker.Changes, exemptionsFilePath string) ([
 		return nil, err
 	}
 
-	bytes, err := formatter.RenderChangelog(checkers, formatters.RenderOpts{ColorMode: checker.ColorAuto})
+	bytes, err := formatter.RenderChangelog(normalizePropertyRemovals(checkers), formatters.RenderOpts{ColorMode: checker.ColorAuto})
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,6 @@ func NewChangelogEntries(checkers checker.Changes, exemptionsFilePath string) ([
 
 func transformEntries(entries []*OasDiffEntry, exemptionsFilePath string) ([]*OasDiffEntry, error) {
 	fs := afero.NewOsFs()
-	normalizePropertyRemovals(entries)
 	entries, err := MarkHiddenEntries(entries, exemptionsFilePath, fs)
 	if err != nil {
 		return nil, err

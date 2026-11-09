@@ -39,3 +39,17 @@ func TestDeprecatedPropertyRemovalsAreBreaking(t *testing.T) {
 		})
 	}
 }
+
+// TestInheritedPropertyRemovalLevel pins the checks that are deliberately absent
+// from the override map because oasdiff already reports them as errors. Failing
+// here means an upstream re-level would silently un-break a property removal.
+func TestInheritedPropertyRemovalLevel(t *testing.T) {
+	levels := checker.GetCheckLevels()
+
+	for _, id := range []string{"response-required-property-removed"} {
+		t.Run(id, func(t *testing.T) {
+			require.Equal(t, checker.ERR, levels[id])
+			require.NotContains(t, breakingChangesAdditionalCheckers, id)
+		})
+	}
+}

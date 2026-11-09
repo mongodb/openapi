@@ -70,6 +70,9 @@ func (o *OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResul
 	if err != nil {
 		return nil, err
 	}
+	if stripErr := stripPropertySunsets(flattenBaseSpec); stripErr != nil {
+		return nil, stripErr
+	}
 
 	baseSpecInfo := &load.SpecInfo{
 		Spec:    flattenBaseSpec,
@@ -80,6 +83,9 @@ func (o *OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResul
 	flattenExternalSpec, err := allof.MergeSpec(revision.Spec)
 	if err != nil {
 		return nil, err
+	}
+	if stripErr := stripPropertySunsets(flattenExternalSpec); stripErr != nil {
+		return nil, stripErr
 	}
 
 	revisionSpecInfo := &load.SpecInfo{
