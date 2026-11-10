@@ -55,7 +55,7 @@ func NewChangelogEntries(checkers checker.Changes, exemptionsFilePath string) ([
 		return nil, err
 	}
 
-	bytes, err := formatter.RenderChangelog(checkers, formatters.RenderOpts{ColorMode: checker.ColorAuto})
+	bytes, err := formatter.RenderChangelog(normalizePropertyRemovals(checkers), formatters.RenderOpts{ColorMode: checker.ColorAuto})
 	if err != nil {
 		return nil, err
 	}
