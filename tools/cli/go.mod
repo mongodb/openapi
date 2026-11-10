@@ -3,7 +3,7 @@ module github.com/mongodb/openapi/tools/cli
 go 1.26.0
 
 require (
-	github.com/getkin/kin-openapi v0.152.0
+	github.com/getkin/kin-openapi v0.153.0
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/oasdiff/oasdiff v1.35.0
 	github.com/spf13/afero v1.15.0
@@ -25,8 +25,6 @@ require (
 	github.com/TwiN/go-color v1.4.1 // indirect
 	github.com/go-openapi/jsonpointer v1.0.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/oasdiff/yaml v0.1.1 // indirect
-	github.com/oasdiff/yaml3 v0.0.14 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
@@ -38,4 +36,5 @@ require (
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yuin/goldmark v1.8.6 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go.yaml.in/yaml/v4 v4.0.0 // indirect
 )
