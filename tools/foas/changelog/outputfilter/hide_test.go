@@ -55,6 +55,112 @@ func TestHideByExemptions(t *testing.T) {
 	assert.True(t, updatedEntries[0].HideFromChangelog)
 }
 
+func TestNormalizePathSeparators(t *testing.T) {
+	tests := []struct {
+		name        string
+		description string
+		expected    string
+	}{
+		{
+			name:        "separator before a backtick",
+			description: "the `results/items/` response property",
+			expected:    "the `results/items` response property",
+		},
+		{
+			name:        "separator before a single quote",
+			description: "the 'logTypes/items/' request property",
+			expected:    "the 'logTypes/items' request property",
+		},
+		{
+			name:        "separator before whitespace",
+			description: "the results/items/ response property",
+			expected:    "the results/items response property",
+		},
+		{
+			name:        "separator at the end of the description",
+			description: "the results/items/",
+			expected:    "the results/items",
+		},
+		{
+			name:        "internal separators are preserved",
+			description: "results/items/replicationSpecs",
+			expected:    "results/items/replicationSpecs",
+		},
+		{
+			name:        "escaped separator in a regular expression is preserved",
+			description: `((%2[fF]|\/)[0-9]{1,3})+$`,
+			expected:    `((%2[fF]|\/)[0-9]{1,3})+$`,
+		},
+		{
+			name:        "separator before punctuation in a regular expression is preserved",
+			description: `((%2[fF]|/)[0-9]{1,3})+$`,
+			expected:    `((%2[fF]|/)[0-9]{1,3})+$`,
+		},
+		{
+			name:        "empty description",
+			description: "",
+			expected:    "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, normalizePathSeparators(tt.description))
+		})
+	}
+}
+
+func TestHideByExemptions_SubschemaTrailingSeparator(t *testing.T) {
+	const (
+		path = "/api/atlas/v2/groups/{groupId}/clusters"
+		id   = "response-property-one-of-added"
+	)
+
+	tests := []struct {
+		name      string
+		text      string
+		exemption string
+		hidden    bool
+	}{
+		{
+			name:      "legacy exemption with trailing separator",
+			text:      "added `#/components/schemas/Foo` to the `results/items` response property `oneOf` list for the response status `200`",
+			exemption: "added `#/components/schemas/Foo` to the `results/items/` response property `oneOf` list for the response status `200`",
+			hidden:    true,
+		},
+		{
+			name:      "legacy description with trailing separator",
+			text:      "added `#/components/schemas/Foo` to the `results/items/` response property `oneOf` list for the response status `200`",
+			exemption: "added `#/components/schemas/Foo` to the `results/items` response property `oneOf` list for the response status `200`",
+			hidden:    true,
+		},
+		{
+			name:      "different change is not hidden",
+			text:      "added `#/components/schemas/Foo` to the `results/items` response property `oneOf` list for the response status `200`",
+			exemption: "added `#/components/schemas/Bar` to the `results/items/` response property `oneOf` list for the response status `200`",
+			hidden:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entries := []*OasDiffEntry{
+				{ID: id, Path: path, Operation: "GET", Source: "source", Text: tt.text},
+			}
+			exemptions := []breakingchanges.Exemption{
+				{
+					BreakingChangeDescription: "GET " + path + " " + tt.exemption + " [" + id + "]",
+					HideFromChangelog:         "true",
+				},
+			}
+
+			updatedEntries, err := hideByExemptions(entries, exemptions)
+			require.NoError(t, err)
+			assert.Equal(t, tt.hidden, updatedEntries[0].HideFromChangelog)
+		})
+	}
+}
+
 func TestFromEntry(t *testing.T) {
 	entry := &OasDiffEntry{
 		ID:        "some-id",
