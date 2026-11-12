@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
-#### [11.4.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.3.0...11.4.0)
+#### [12.0.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.4.0...12.0.0)
+
+- fix(ipa): Refine IPA-106/IPA-107 body matching rules [`#1578`](https://github.com/mongodb/openapi/pull/1578)
+- chore(ipa): bump the npm-minor-and-patch group in /tools/spectral/ipa with 3 updates [`#1597`](https://github.com/mongodb/openapi/pull/1597)
+
+#### [ipa-validation-ruleset-v11.4.0](https://github.com/mongodb/openapi/compare/ipa-validation-ruleset-v11.3.0...ipa-validation-ruleset-v11.4.0)
+
+> 5 November 2026
 
 - fix(ipa): remove IPA-123 rule limiting enums to 20 values [`#1588`](https://github.com/mongodb/openapi/pull/1588)
 - refactor(ipa): CLOUDP-453872 migrate IPA-104 and IPA-113 to defineRule [`#1565`](https://github.com/mongodb/openapi/pull/1565)
