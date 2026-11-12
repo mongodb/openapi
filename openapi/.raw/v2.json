@@ -5715,6 +5715,11 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "warningMessage": {
+            "description": "Explanation of why the response contains no measurement data points, when applicable.",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "type": "object"
@@ -13609,6 +13614,7 @@
             "ATLAS_LOG_INTEGRATION": "#/components/schemas/CloudProviderAccessAtlasLogIntegrationFeatureUsage",
             "ENCRYPTION_AT_REST": "#/components/schemas/CloudProviderAccessEncryptionAtRestFeatureUsage",
             "EXPORT_SNAPSHOT": "#/components/schemas/CloudProviderAccessExportSnapshotFeatureUsage",
+            "OBJECT_STORAGE_PRIVATE_ENDPOINT": "#/components/schemas/CloudProviderAccessObjectStoragePrivateEndpointFeatureUsage",
             "PUSH_BASED_LOG_EXPORT": "#/components/schemas/CloudProviderAccessPushBasedLogExportFeatureUsage"
           },
           "propertyName": "featureType"
@@ -13621,7 +13627,8 @@
               "ENCRYPTION_AT_REST",
               "EXPORT_SNAPSHOT",
               "PUSH_BASED_LOG_EXPORT",
-              "ATLAS_LOG_INTEGRATION"
+              "ATLAS_LOG_INTEGRATION",
+              "OBJECT_STORAGE_PRIVATE_ENDPOINT"
             ],
             "readOnly": true,
             "type": "string"
@@ -13686,6 +13693,26 @@
           },
           "groupId": {
             "description": "Unique 24-hexadecimal digit string that identifies your project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CloudProviderAccessFeatureUsageObjectStoragePrivateEndpointFeatureId": {
+        "description": "Identifying characteristics about the object storage private endpoint linked to this Azure Service Principal.",
+        "properties": {
+          "groupId": {
+            "description": "Unique 24-hexadecimal digit string that identifies your project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "privateEndpointId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the object storage private endpoint.",
             "example": "32b6e34b3d91647abb20e7b8",
             "pattern": "^([a-f0-9]{24})$",
             "readOnly": true,
@@ -13826,6 +13853,23 @@
         "required": [
           "providerName"
         ],
+        "type": "object"
+      },
+      "CloudProviderAccessObjectStoragePrivateEndpointFeatureUsage": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CloudProviderAccessFeatureUsage"
+          },
+          {
+            "properties": {
+              "featureId": {
+                "$ref": "#/components/schemas/CloudProviderAccessFeatureUsageObjectStoragePrivateEndpointFeatureId"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Details that describe the object storage private endpoints linked to this Azure Service Principal. This capability is in limited early access: it is enabled per project via a feature flag and is not generally available. Contact MongoDB to become an early adopter.",
         "type": "object"
       },
       "CloudProviderAccessPushBasedLogExportFeatureUsage": {
@@ -33716,7 +33760,7 @@
             "type": "boolean"
           },
           "operationsContacts": {
-            "description": "Email addresses registered as project operations contacts. Passing an explicit null clears the existing operations contacts. An empty list is invalid. The combined length of all addresses must not exceed 1024 characters.",
+            "description": "Set of email addresses registered as project operations contacts. Passing an explicit null clears the existing operations contacts. An empty set or exact duplicate address is invalid. Order is not significant. Addresses that differ only in case are distinct. The combined length of all addresses must not exceed 1024 characters.",
             "items": {
               "format": "email",
               "maxLength": 254,
@@ -33725,7 +33769,9 @@
             "maxItems": 100,
             "minItems": 1,
             "nullable": true,
-            "type": "array"
+            "type": "array",
+            "uniqueItems": true,
+            "x-xgen-array-semantic": "set"
           }
         },
         "type": "object",
@@ -33808,7 +33854,7 @@
             "type": "boolean"
           },
           "operationsContacts": {
-            "description": "Email addresses registered as project operations contacts. Passing an explicit null clears the existing operations contacts. An empty list is invalid. The combined length of all addresses must not exceed 1024 characters.",
+            "description": "Set of email addresses registered as project operations contacts. Passing an explicit null clears the existing operations contacts. An empty set or exact duplicate address is invalid. Order is not significant. Addresses that differ only in case are distinct. The combined length of all addresses must not exceed 1024 characters.",
             "items": {
               "format": "email",
               "maxLength": 254,
@@ -33817,7 +33863,9 @@
             "maxItems": 100,
             "minItems": 1,
             "nullable": true,
-            "type": "array"
+            "type": "array",
+            "uniqueItems": true,
+            "x-xgen-array-semantic": "set"
           }
         },
         "type": "object",
@@ -65772,7 +65820,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "786b4cf080b671b3932651bd40f6c83bcb075c04"
+    "x-xgen-sha": "b87a463cb3d6c1120954e1b8763789c5ebba5bf2"
   },
   "openapi": "3.0.1",
   "paths": {
