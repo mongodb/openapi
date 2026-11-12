@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/getkin/kin-openapi v0.153.0
 	github.com/iancoleman/strcase v0.3.0 // indirect
-	github.com/oasdiff/oasdiff v1.36.0
+	github.com/oasdiff/oasdiff v1.37.0
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
