@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/getkin/kin-openapi v0.153.0
 	github.com/iancoleman/strcase v0.3.0
-	github.com/oasdiff/oasdiff v1.35.0
+	github.com/oasdiff/oasdiff v1.37.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0
@@ -25,7 +25,7 @@ require (
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/wI2L/jsondiff v0.7.1 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
-	github.com/yuin/goldmark v1.8.6 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	github.com/yuin/goldmark v1.8.7 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	go.yaml.in/yaml/v4 v4.0.0 // indirect
 )
