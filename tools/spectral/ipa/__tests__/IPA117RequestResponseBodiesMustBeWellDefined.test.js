@@ -151,6 +151,65 @@ testRule('xgen-IPA-117-request-response-bodies-must-be-well-defined', [
     errors: [],
   },
   {
+    name: 'delete request body with schema does not crash',
+    document: {
+      paths: {
+        '/resource/{id}': {
+          delete: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2024-08-05+json': {
+                  schema: {
+                    type: 'object',
+                  },
+                },
+              },
+            },
+            responses: {
+              204: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {},
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [],
+  },
+  {
+    name: 'delete request body without schema is still validated',
+    document: {
+      paths: {
+        '/resource/{id}': {
+          delete: {
+            requestBody: {
+              content: {
+                'application/vnd.atlas.2024-08-05+json': {},
+              },
+            },
+            responses: {
+              204: {
+                content: {
+                  'application/vnd.atlas.2024-08-05+json': {},
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: [
+      {
+        code: 'xgen-IPA-117-request-response-bodies-must-be-well-defined',
+        message: 'Request and response bodies must have a schema.',
+        path: ['paths', '/resource/{id}', 'delete', 'requestBody', 'content', 'application/vnd.atlas.2024-08-05+json'],
+        severity: DiagnosticSeverity.Error,
+      },
+    ],
+  },
+  {
     name: 'invalid requests and responses',
     document: {
       paths: {
