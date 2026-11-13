@@ -405,22 +405,7 @@ components:
                     example: self
                     type: string
             type: object
-        MongosTopologyCreateRequest:
-            description: Dedicated mongos topology to attach to a sharded cluster.
-            properties:
-                clusterName:
-                    description: Human-readable label that identifies the sharded cluster this topology belongs to.
-                    type: string
-                instanceSize:
-                    description: Instance size of the dedicated mongos hosts (for example, `M30`).
-                    type: string
-                regionPlacements:
-                    description: Per-region placement of the dedicated mongos hosts.
-                    items:
-                        $ref: '#/components/schemas/MongosTopologyResourceRegionConfig'
-                    type: array
-            type: object
-        MongosTopologyResourceRegionConfig:
+        MongosRegionPlacement:
             description: Dedicated mongos placement in one region.
             properties:
                 nodeCount:
@@ -438,7 +423,22 @@ components:
                     description: Region in which the dedicated mongos run.
                     type: string
             type: object
-        MongosTopologyResourceResponse:
+        MongosTopologyCreateRequest:
+            description: Dedicated mongos topology to attach to a sharded cluster.
+            properties:
+                clusterName:
+                    description: Human-readable label that identifies the sharded cluster this topology belongs to.
+                    type: string
+                instanceSize:
+                    description: Instance size of the dedicated mongos hosts (for example, `M30`).
+                    type: string
+                regionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts.
+                    items:
+                        $ref: '#/components/schemas/MongosRegionPlacement'
+                    type: array
+            type: object
+        MongosTopologyResponse:
             description: Configuration of the dedicated mongos routers for a sharded cluster, identified by the name of its associated cluster.
             properties:
                 clusterName:
@@ -450,7 +450,7 @@ components:
                 regionPlacements:
                     description: Per-region placement of the dedicated mongos hosts.
                     items:
-                        $ref: '#/components/schemas/MongosTopologyResourceRegionConfig'
+                        $ref: '#/components/schemas/MongosRegionPlacement'
                     type: array
                 status:
                     description: Lifecycle status of the dedicated mongos topology resource.
@@ -474,10 +474,10 @@ components:
                 regionPlacements:
                     description: Per-region placement of the dedicated mongos hosts.
                     items:
-                        $ref: '#/components/schemas/MongosTopologyResourceRegionConfig'
+                        $ref: '#/components/schemas/MongosRegionPlacement'
                     type: array
             type: object
-        PaginatedMongosTopologyResourceResponse:
+        PaginatedMongosTopologyResponse:
             properties:
                 links:
                     description: List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.
@@ -491,7 +491,7 @@ components:
                 results:
                     description: List of returned documents that MongoDB Cloud provides when completing this request.
                     items:
-                        $ref: '#/components/schemas/MongosTopologyResourceResponse'
+                        $ref: '#/components/schemas/MongosTopologyResponse'
                     readOnly: true
                     type: array
                 totalCount:
@@ -564,7 +564,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 64c8d6d01857b442ebe15a8b1bf8b650b47d3b7f
+    x-xgen-sha: effd7aa915b011ad2581163da6a6e826e6504757
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/mongosTopologies:
@@ -586,7 +586,7 @@ paths:
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/PaginatedMongosTopologyResourceResponse'
+                                $ref: '#/components/schemas/PaginatedMongosTopologyResponse'
                             x-xgen-preview:
                                 name: mongos-topologies
                             x-xgen-version: private-preview-mongos-topologies
@@ -658,7 +658,7 @@ paths:
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/MongosTopologyResourceResponse'
+                                $ref: '#/components/schemas/MongosTopologyResponse'
                             x-xgen-preview:
                                 name: mongos-topologies
                             x-xgen-version: private-preview-mongos-topologies
@@ -680,7 +680,7 @@ paths:
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
-                    $ref: '#/components/responses/forbidden'
+                    $ref: '#/components/responses/forbiddenOrResourcePolicyViolation'
                 "404":
                     $ref: '#/components/responses/notFound'
                 "409":
@@ -755,7 +755,7 @@ paths:
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
-                    $ref: '#/components/responses/forbidden'
+                    $ref: '#/components/responses/forbiddenOrResourcePolicyViolation'
                 "404":
                     $ref: '#/components/responses/notFound'
                 "409":
@@ -812,7 +812,7 @@ paths:
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/MongosTopologyResourceResponse'
+                                $ref: '#/components/schemas/MongosTopologyResponse'
                             x-xgen-preview:
                                 name: mongos-topologies
                             x-xgen-version: private-preview-mongos-topologies
@@ -890,7 +890,7 @@ paths:
                     content:
                         application/vnd.atlas.preview+json:
                             schema:
-                                $ref: '#/components/schemas/MongosTopologyResourceResponse'
+                                $ref: '#/components/schemas/MongosTopologyResponse'
                             x-xgen-preview:
                                 name: mongos-topologies
                             x-xgen-version: private-preview-mongos-topologies
@@ -912,7 +912,7 @@ paths:
                 "401":
                     $ref: '#/components/responses/unauthorized'
                 "403":
-                    $ref: '#/components/responses/forbidden'
+                    $ref: '#/components/responses/forbiddenOrResourcePolicyViolation'
                 "404":
                     $ref: '#/components/responses/notFound'
                 "409":
