@@ -1688,6 +1688,56 @@ components:
                     description: Notice that by using this API, you agree to MongoDB's Cloud Terms of Service at <https://www.mongodb.com/legal/terms-and-conditions/cloud> and Privacy Policy at <https://www.mongodb.com/legal/privacy/privacy-policy>.
                     type: string
             type: object
+        EventBackfillRequest:
+            description: Request to backfill historical events to an external log sink.
+            properties:
+                earliestCreatedDate:
+                    description: Earliest event created date to include in the backfill, in ISO 8601 UTC format. When omitted, the entire available history is backfilled.
+                    format: date-time
+                    nullable: true
+                    type: string
+            title: Event Backfill Request
+            type: object
+        EventBackfillResponse:
+            description: State of a one-time backfill of historical events to an external log sink.
+            properties:
+                backfillCutoffDate:
+                    description: Date after which events are covered by the live stream rather than the backfill, in ISO 8601 UTC format.
+                    format: date-time
+                    nullable: true
+                    readOnly: true
+                    type: string
+                earliestCreatedDate:
+                    description: Earliest event created date included in the backfill, in ISO 8601 UTC format. Null when the entire available history was backfilled.
+                    format: date-time
+                    nullable: true
+                    type: string
+                earliestFailedDate:
+                    description: Earliest failed event date, recorded when a backfill fails so a future retry can be bounded, in ISO 8601 UTC format.
+                    format: date-time
+                    nullable: true
+                    readOnly: true
+                    type: string
+                failureReason:
+                    description: 'Reason the backfill failed: historical events could not be read, the external platform rejected events, or some events were never confirmed as delivered. Null unless the backfill failed.'
+                    enum:
+                        - READ_FAILED
+                        - EXPORT_FAILED
+                        - RECORDS_MISSING
+                    nullable: true
+                    readOnly: true
+                    type: string
+                status:
+                    description: Status of the backfill.
+                    enum:
+                        - IN_PROGRESS
+                        - SUCCEEDED
+                        - FAILED
+                    nullable: true
+                    readOnly: true
+                    type: string
+            title: Event Backfill Response
+            type: object
         FieldViolation:
             properties:
                 description:
@@ -2020,6 +2070,11 @@ components:
             oneOf:
                 - $ref: '#/components/schemas/OrgOtelLogIntegrationRequest'
             properties:
+                eventBackfill:
+                    allOf:
+                        - $ref: '#/components/schemas/EventBackfillRequest'
+                    description: Requests a one-time backfill of historical events to this integration's sink.
+                    nullable: true
                 logTypes:
                     description: Array of log types exported by this integration.
                     example:
@@ -2050,6 +2105,11 @@ components:
             oneOf:
                 - $ref: '#/components/schemas/OrgOtelLogIntegrationResponse'
             properties:
+                eventBackfill:
+                    allOf:
+                        - $ref: '#/components/schemas/EventBackfillResponse'
+                    description: State of a one-time backfill of historical events to this integration's sink.
+                    nullable: true
                 id:
                     description: Unique 24-character hexadecimal digit string that identifies the log integration configuration.
                     example: 507f1f77bcf86cd799439011
@@ -2086,6 +2146,11 @@ components:
             oneOf:
                 - $ref: '#/components/schemas/OrgOtelLogIntegrationUpdateRequest'
             properties:
+                eventBackfill:
+                    allOf:
+                        - $ref: '#/components/schemas/EventBackfillRequest'
+                    description: Requests a one-time backfill of historical events to this integration's sink.
+                    nullable: true
                 logTypes:
                     description: Array of log types exported by this integration.
                     example:
@@ -2111,6 +2176,13 @@ components:
             allOf:
                 - $ref: '#/components/schemas/OrgLogIntegrationRequest'
                 - properties:
+                    eventBackfill:
+                        allOf:
+                            - $ref: '#/components/schemas/EventBackfillRequest'
+                        description: Requests a one-time backfill of historical events to this integration's sink.
+                        nullable: true
+                        x-xgen-hidden-env:
+                            envs: prod
                     otelEndpoint:
                         description: OpenTelemetry collector endpoint URL. Must be HTTPS and not exceed 2048 characters.
                         example: https://otel-collector.example.com:4318/v1/logs
@@ -2170,6 +2242,13 @@ components:
             allOf:
                 - $ref: '#/components/schemas/OrgLogIntegrationUpdateRequest'
                 - properties:
+                    eventBackfill:
+                        allOf:
+                            - $ref: '#/components/schemas/EventBackfillRequest'
+                        description: Requests a one-time backfill of historical events to this integration's sink.
+                        nullable: true
+                        x-xgen-hidden-env:
+                            envs: prod
                     otelEndpoint:
                         description: OpenTelemetry collector endpoint URL. Must be HTTPS and not exceed 2048 characters.
                         example: https://otel-collector.example.com:4318/v1/logs
@@ -2722,7 +2801,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: a65b8bee77d50f9dfca7a1ff38b2659f68debf87
+    x-xgen-sha: 7c9d38f09dc8ede02b32c77b7207a84bd38b195c
 openapi: 3.0.1
 paths:
     /api/atlas/v2/defaultGroupLimits:
