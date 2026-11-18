@@ -92,4 +92,8 @@ When working in the `tools/cli` directory:
   this after editing `tools/spectral/ipa/rulesets/functions/utils/legacyLroOperationIds.js`; a
   unit test fails if the generated copy is out of date, so a forgotten run cannot pass CI
 
+### Updating golangci-lint
+
+To bump the golangci-lint version used by the Go modules, see [Updating golangci-lint](docs/update-golangci-lint.md).
+
 **Note: Please ensure the usage of [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in PR titles**
