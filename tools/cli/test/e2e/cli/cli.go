@@ -223,3 +223,17 @@ func newOpenAPISpec(t *testing.T, path string) *openapi3.T {
 
 	return specInfo.Spec
 }
+
+func NewBaseSpecOpenAPI31Path(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/base_spec_openapi_3_1.json")
+	require.NoError(t, err)
+	return cliPath
+}
+
+func NewExternalSpecOpenAPI31Path(t *testing.T) string {
+	t.Helper()
+	cliPath, err := filepath.Abs("../../data/external_spec_openapi_3_1.json")
+	require.NoError(t, err)
+	return cliPath
+}
