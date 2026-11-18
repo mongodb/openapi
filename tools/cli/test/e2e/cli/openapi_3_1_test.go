@@ -15,7 +15,7 @@ import (
 
 func runCLI(t *testing.T, args ...string) []byte {
 	t.Helper()
-	cmd := exec.CommandContext(context.Background(), NewBin(t), args...)
+	cmd := exec.CommandContext(context.Background(), NewBin(t), args...) // #nosec G204
 	var o, e bytes.Buffer
 	cmd.Stdout = &o
 	cmd.Stderr = &e
