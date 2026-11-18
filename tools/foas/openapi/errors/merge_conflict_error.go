@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package errors //nolint:revive // package name "errors" is intentional; callers use a qualified import alias
+package errors
 
 import (
 	"encoding/json"
