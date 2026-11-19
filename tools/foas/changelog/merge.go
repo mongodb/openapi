@@ -132,7 +132,7 @@ func (m *Changelog) newEntryFromOasDiff() ([]*Entry, error) {
 		return m.BaseChangelog, nil
 	}
 
-	log.Printf("Found %d changes between %s and %s", len(changes), m.Base.Url, m.Revision.Url)
+	log.Printf("Found %d changes between %s and %s", len(changes), m.Base.Source.DisplayPath(), m.Revision.Source.DisplayPath())
 
 	conf := outputfilter.NewOperationConfigs(m.Base, m.Revision)
 
@@ -215,7 +215,7 @@ func (m *Changelog) newOasDiffEntries() ([]*outputfilter.OasDiffEntry, error) {
 		diffResult.SourceMap,
 		checker.INFO)
 
-	log.Printf("Found '%d' oasdiff changes between %s and %s", len(changes), m.Base.Url, m.Revision.Url)
+	log.Printf("Found '%d' oasdiff changes between %s and %s", len(changes), m.Base.Source.DisplayPath(), m.Revision.Source.DisplayPath())
 	return outputfilter.NewChangelogEntries(changes, m.ExemptionFilePath)
 }
 

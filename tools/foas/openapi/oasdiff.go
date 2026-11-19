@@ -299,8 +299,8 @@ func (o *OasDiff) mergeTags() error {
 		return errors.TagConflictError{
 			Entry:                v.Name,
 			Description:          v.Description,
-			BaseSpecLocation:     o.base.Url,
-			ExternalSpecLocation: o.external.Url,
+			BaseSpecLocation:     o.base.Source.DisplayPath(),
+			ExternalSpecLocation: o.external.Source.DisplayPath(),
 		}
 	}
 	slices.SortFunc(ByName(baseTags), func(a, b *openapi3.Tag) int {
@@ -421,8 +421,8 @@ func (o *OasDiff) mergeSchemas() error {
 		// The schemas have the same name but different definitions
 		return errors.SchemaConflictError{
 			Entry:                k,
-			BaseSpecLocation:     o.base.Url,
-			ExternalSpecLocation: o.external.Url,
+			BaseSpecLocation:     o.base.Source.DisplayPath(),
+			ExternalSpecLocation: o.external.Source.DisplayPath(),
 		}
 	}
 
