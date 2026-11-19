@@ -96,6 +96,31 @@ func TestGetSimpleDiff(t *testing.T) {
 	}
 }
 
+func TestGetFlattenedDiffPreservesOperationSources(t *testing.T) {
+	const path = "/example"
+	baseSource := load.NewFileSource("base.yaml")
+	revisionSource := load.NewSource("HEAD:revision.yaml")
+	base := &load.SpecInfo{
+		Source: baseSource,
+		Spec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath(path, &openapi3.PathItem{Get: &openapi3.Operation{}})),
+		},
+	}
+	revision := &load.SpecInfo{
+		Source: revisionSource,
+		Spec: &openapi3.T{
+			Paths: openapi3.NewPaths(openapi3.WithPath(path, &openapi3.PathItem{Get: &openapi3.Operation{}})),
+		},
+	}
+
+	o := NewOasDiffWithSpecInfo(base, revision, diff.NewConfig())
+	result, err := o.GetFlattenedDiff(base, revision)
+
+	require.NoError(t, err)
+	require.Same(t, baseSource, result.SourceMap[result.SpecInfoPair.Base.Spec.Paths.Value(path).Get])
+	require.Same(t, revisionSource, result.SourceMap[result.SpecInfoPair.Revision.Spec.Paths.Value(path).Get])
+}
+
 func TestGetDiffWithConfig(t *testing.T) {
 	// Mock diff.Get function
 	ctrl := gomock.NewController(t)

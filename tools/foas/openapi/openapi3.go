@@ -51,8 +51,6 @@ func (o *OpenAPI3) CreateOpenAPISpecFromPath(path string) (*load.SpecInfo, error
 	if err != nil {
 		return nil, err
 	}
-	spec.Url = path
-
 	if o.ExcludePrivatePaths {
 		removePrivatePaths(spec.Spec)
 	}
@@ -73,8 +71,8 @@ func CreateNormalizedOpenAPISpecFromPath(path string) (*load.SpecInfo, error) {
 	}
 
 	return &load.SpecInfo{
-		Spec: spec,
-		Url:  path,
+		Spec:   spec,
+		Source: load.NewFileSource(path),
 	}, nil
 }
 

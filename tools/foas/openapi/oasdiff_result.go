@@ -14,7 +14,7 @@
 
 package openapi
 
-//go:generate mockgen -destination=../openapi/mock_oasdiff_result.go -package=openapi github.com/mongodb/openapi/tools/foas/openapi DiffGetter
+//go:generate mockgen -destination=../openapi/mock_oasdiff_result.go -package=openapi -mock_names=Differ=MockDiffGetter github.com/mongodb/openapi/tools/foas/openapi Differ
 import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/diff"
@@ -22,10 +22,10 @@ import (
 	"github.com/oasdiff/oasdiff/load"
 )
 
-// DiffGetter defines an interface for getting diffs.
+// Differ defines an interface for getting diffs.
 type Differ interface {
 	Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error)
-	GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error)
+	GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, diff.OperationsSourcesMap, error)
 }
 
 type ResultGetter struct{}
@@ -38,13 +38,13 @@ func (ResultGetter) Get(config *diff.Config, base, revision *openapi3.T) (*diff.
 	return diff.Get(config, base, revision)
 }
 func (ResultGetter) GetWithOperationsSourcesMap(
-	config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, *diff.OperationsSourcesMap, error) {
+	config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, diff.OperationsSourcesMap, error) {
 	return diff.GetWithOperationsSourcesMap(config, base, revision)
 }
 
 type OasDiffResult struct {
 	Report       *diff.Diff
-	SourceMap    *diff.OperationsSourcesMap
+	SourceMap    diff.OperationsSourcesMap
 	SpecInfoPair *load.SpecInfoPair
 	Config       *diff.Config
 }
@@ -76,7 +76,7 @@ func (o *OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResul
 
 	baseSpecInfo := &load.SpecInfo{
 		Spec:    flattenBaseSpec,
-		Url:     base.Url,
+		Source:  base.Source,
 		Version: base.GetVersion(),
 	}
 
@@ -90,7 +90,7 @@ func (o *OasDiff) GetFlattenedDiff(base, revision *load.SpecInfo) (*OasDiffResul
 
 	revisionSpecInfo := &load.SpecInfo{
 		Spec:    flattenExternalSpec,
-		Url:     revision.Url,
+		Source:  revision.Source,
 		Version: revision.GetVersion(),
 	}
 
