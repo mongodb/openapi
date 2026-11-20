@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/getkin/kin-openapi v0.153.0
 	github.com/iancoleman/strcase v0.3.0
-	github.com/oasdiff/oasdiff v1.37.0
+	github.com/oasdiff/oasdiff v1.38.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0

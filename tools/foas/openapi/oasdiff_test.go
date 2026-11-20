@@ -38,14 +38,14 @@ func TestOasDiff_mergePaths(t *testing.T) {
 		{
 			name: "SuccessfulMerge",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Paths: newBaseSpecPaths(t),
 				},
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Paths: newExternalSpecPaths(t),
 				},
@@ -56,14 +56,14 @@ func TestOasDiff_mergePaths(t *testing.T) {
 		{
 			name: "SuccessfulMergeWithEmptyPaths",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Paths: nil,
 				},
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Paths: nil,
 				},
@@ -74,14 +74,14 @@ func TestOasDiff_mergePaths(t *testing.T) {
 		{
 			name: "SuccessfulMergeWithEmptyexternalPaths",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Paths: nil,
 				},
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Paths: newExternalSpecPaths(t),
 				},
@@ -92,14 +92,14 @@ func TestOasDiff_mergePaths(t *testing.T) {
 		{
 			name: "SuccessfulMergeWithEmptyExternalPaths",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Paths: newBaseSpecPaths(t),
 				},
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Paths: nil,
 				},
@@ -110,14 +110,14 @@ func TestOasDiff_mergePaths(t *testing.T) {
 		{
 			name: "FailedMerge",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Paths: newBaseSpecPaths(t),
 				},
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Paths: newBaseSpecPaths(t),
 				},
@@ -150,7 +150,7 @@ func TestOasDiff_mergeTags(t *testing.T) {
 		{
 			name: "SuccessfulMerge",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
 						{
@@ -171,7 +171,7 @@ func TestOasDiff_mergeTags(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
 						{
@@ -216,14 +216,14 @@ func TestOasDiff_mergeTags(t *testing.T) {
 		{
 			name: "SuccessfulMergeEmptyTags",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Tags: nil,
 				},
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Tags: nil,
 				},
@@ -234,7 +234,7 @@ func TestOasDiff_mergeTags(t *testing.T) {
 		{
 			name: "SuccessfulMergeEmptyBaseTags",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
 						{
@@ -251,7 +251,7 @@ func TestOasDiff_mergeTags(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
 						{
@@ -272,14 +272,14 @@ func TestOasDiff_mergeTags(t *testing.T) {
 		{
 			name: "SuccessfulMergeEmptyExternalTags",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Tags: nil,
 				},
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Tags: nil,
 				},
@@ -290,7 +290,7 @@ func TestOasDiff_mergeTags(t *testing.T) {
 		{
 			name: "FailedMerge",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
 						{
@@ -307,7 +307,7 @@ func TestOasDiff_mergeTags(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Tags: []*openapi3.Tag{
 						{
@@ -358,7 +358,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 			name: "SuccessfulMergeWithEmptyResponses",
 			diff: &diff.Diff{},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: nil,
@@ -367,7 +367,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: nil,
@@ -381,7 +381,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 			name: "SuccessfulMergeWithEmpyBaseResponses",
 			diff: &diff.Diff{},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: openapi3.ResponseBodies{},
@@ -390,7 +390,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -410,7 +410,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 			name: "SuccessfulMergeWithEmpyExternalResponses",
 			diff: &diff.Diff{},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -425,7 +425,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: openapi3.ResponseBodies{},
@@ -445,7 +445,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				},
 			},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -465,7 +465,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -489,7 +489,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 		{
 			name: "SuccessfulMerge",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -504,7 +504,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -538,7 +538,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				},
 			},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -558,7 +558,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -608,7 +608,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 			name: "SuccessfulMergeWithEmptySchemas",
 			diff: &diff.Diff{},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: nil,
@@ -617,7 +617,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: nil,
@@ -631,7 +631,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 			name: "SuccessfulMergeWithEmpyBaseSchema",
 			diff: &diff.Diff{},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{},
@@ -640,7 +640,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{
@@ -658,7 +658,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 			name: "SuccessfulMergeWithEmpyExternalSchema",
 			diff: &diff.Diff{},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{
@@ -671,7 +671,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{},
@@ -691,7 +691,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				},
 			},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{
@@ -704,7 +704,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{
@@ -721,7 +721,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 		{
 			name: "SuccessfulMerge",
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -736,7 +736,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Responses: map[string]*openapi3.ResponseRef{
@@ -770,7 +770,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				},
 			},
 			inputBase: &load.SpecInfo{
-				Url: "base",
+				Source: load.NewFileSource("base"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{
@@ -786,7 +786,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 				Version: "3.0.1",
 			},
 			inputExternal: &load.SpecInfo{
-				Url: "external",
+				Source: load.NewFileSource("external"),
 				Spec: &openapi3.T{
 					Components: &openapi3.Components{
 						Schemas: openapi3.Schemas{
