@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/getkin/kin-openapi v0.153.0
 	github.com/iancoleman/strcase v0.3.0 // indirect
-	github.com/oasdiff/oasdiff v1.37.0
+	github.com/oasdiff/oasdiff v1.38.0
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
@@ -27,7 +27,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
-	github.com/spf13/pflag v1.0.10 // indirect
+	github.com/spf13/pflag v1.1.0 // indirect
 	github.com/tidwall/gjson v1.20.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.2 // indirect

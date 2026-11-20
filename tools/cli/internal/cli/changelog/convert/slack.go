@@ -161,7 +161,7 @@ func newAttachmentFromChange(version, method, path, changeType string, change *c
 }
 
 func newAttachmentText(version, method, path, changeType, changeCode, change, hiddenFromChangelog string) string {
-	return fmt.Sprintf(
+	return fmt.Sprintf( //nolint:gocritic // TODO: revisit %#q, it changes output for values containing backticks or newlines
 		"\n• *Version*: `%s` | *Hidden from Changelog*: `%s`\n• *Path*: `%s %s`\n• *Change Type*: `%s` | *Change Code*: `%s`\n• *Change*: `%s`",
 		version, hiddenFromChangelog, method, path, changeType, changeCode, change)
 }
