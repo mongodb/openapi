@@ -7845,6 +7845,54 @@
         ],
         "type": "string"
       },
+      "AtlasGroupBackupPolicyPreview": {
+        "properties": {
+          "groupId": {
+            "description": "Unique identifier of the project.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "pitEnabled": {
+            "description": "Flag that indicates whether continuous cloud backup is enabled.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "policies": {
+            "description": "Rules that make up the backup policy.",
+            "items": {
+              "$ref": "#/components/schemas/AdvancedDiskBackupSnapshotSchedulePolicy"
+            },
+            "maxItems": 1,
+            "readOnly": true,
+            "type": "array"
+          },
+          "policySource": {
+            "description": "Source of the project backup policy.",
+            "enum": [
+              "INHERITING_ORG",
+              "OVERRIDE",
+              "UNLINKED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "referenceTimeInMins": {
+            "description": "Reference time for scheduled snapshots, in minutes after midnight UTC.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "restoreWindowDays": {
+            "description": "Number of days that continuous cloud backups are retained.",
+            "format": "int32",
+            "readOnly": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "AtlasOrganization": {
         "description": "Details that describe the organization.",
         "properties": {
@@ -11710,7 +11758,8 @@
           "PAYMENT_METHOD_UNFLAGGED",
           "MARKETPLACE_REFUND_ISSUED",
           "PAYMENT_DUE_DATE_EXTENDED",
-          "CREDIT_LINE_ITEMS_DELETED"
+          "CREDIT_LINE_ITEMS_DELETED",
+          "CREDIT_APPLIED_RETROACTIVELY"
         ],
         "example": "CHARGE_SUCCEEDED",
         "title": "Billing Event Types",
@@ -24851,6 +24900,154 @@
         ],
         "type": "object"
       },
+      "DiskBackupSnapshotSchedulePreview": {
+        "properties": {
+          "autoCopySettingsEnabled": {
+            "description": "Flag that indicates whether the copy settings are automatically managed by MongoDB Cloud and sync to the cluster topology.",
+            "type": "boolean"
+          },
+          "autoExportEnabled": {
+            "description": "Flag that indicates whether MongoDB Cloud automatically exports Cloud Backup Snapshots to the Export Bucket.",
+            "type": "boolean"
+          },
+          "clusterId": {
+            "description": "Unique 24-hexadecimal digit string that identifies the cluster with the Snapshot you want to return.",
+            "example": "32b6e34b3d91647abb20e7b8",
+            "pattern": "^([a-f0-9]{24})$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "clusterName": {
+            "description": "Human-readable label that identifies the cluster with the Snapshot you want to return.",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$",
+            "readOnly": true,
+            "type": "string"
+          },
+          "copyPolicyItemsEnabled": {
+            "description": "Flag that indicates whether copy settings use `copyPolicyItems` instead of `frequencies`. When true, requests must supply `copyPolicyItems` and responses return `copyPolicyItems` only. When false or omitted, requests must supply `frequencies` and responses return `frequencies` only.",
+            "type": "boolean"
+          },
+          "copySettings": {
+            "description": "List that contains a document for each copy setting item in the desired backup policy.",
+            "items": {
+              "$ref": "#/components/schemas/DiskBackupCopySetting20240805"
+            },
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
+            }
+          },
+          "deleteCopiedBackups": {
+            "description": "List that contains a document for each deleted copy setting whose backup copies you want to delete.",
+            "items": {
+              "$ref": "#/components/schemas/DeleteCopiedBackups20240805"
+            },
+            "type": "array",
+            "writeOnly": true,
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
+            }
+          },
+          "deleteCopySnapshots": {
+            "description": "Flag that indicates whether to delete Snapshot copies that MongoDB Cloud took previously when their associated `copyPolicyItems` are removed from a `copySetting`. This option requires `copyPolicyItemsEnabled` to be true.",
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "deleteSnapshots": {
+            "description": "Flag that indicates whether to delete Snapshots that MongoDB Cloud took previously when deleting the associated backup policy.",
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "export": {
+            "$ref": "#/components/schemas/AutoExportPolicyView"
+          },
+          "extraRetentionSettings": {
+            "description": "List that contains a document for each extra retention setting item in the desired backup policy.",
+            "items": {
+              "$ref": "#/components/schemas/ExtraRetentionSetting"
+            },
+            "type": "array",
+            "x-xgen-IPA-exception": {
+              "xgen-IPA-124-array-max-items": "Schema predates IPA validation."
+            }
+          },
+          "links": {
+            "description": "List of one or more Uniform Resource Locators (URLs) that point to API sub-resources, related API resources, or both. RFC 5988 outlines these relationships.",
+            "externalDocs": {
+              "description": "Web Linking Specification (RFC 5988)",
+              "url": "https://datatracker.ietf.org/doc/html/rfc5988"
+            },
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "nextSnapshot": {
+            "description": "Date and time when MongoDB Cloud takes the next Snapshot. This parameter expresses its value in the ISO 8601 timestamp format in UTC.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "pitEnabled": {
+            "description": "Flag that indicates whether continuous cloud backup is enabled.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "policies": {
+            "description": "Rules set for this backup schedule.",
+            "items": {
+              "$ref": "#/components/schemas/AdvancedDiskBackupSnapshotSchedulePolicy"
+            },
+            "maxItems": 1,
+            "type": "array"
+          },
+          "policySource": {
+            "description": "Source of the cluster backup policy.",
+            "enum": [
+              "INHERITING_ORG",
+              "INHERITING_PROJECT",
+              "OVERRIDE",
+              "UNLINKED"
+            ],
+            "readOnly": true,
+            "type": "string"
+          },
+          "referenceHourOfDay": {
+            "description": "Hour of day in Coordinated Universal Time (UTC) that represents when MongoDB Cloud takes the Snapshot.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "referenceMinuteOfHour": {
+            "description": "Minute of the `referenceHourOfDay` that represents when MongoDB Cloud takes the Snapshot.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "restoreWindowDays": {
+            "description": "Number of previous days that you can restore back to with Continuous Cloud Backup accuracy. You must specify a positive, non-zero integer. This parameter applies to continuous Cloud Backups only.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "updateCopySnapshots": {
+            "description": "Flag that indicates whether to apply the retention changes for updated copy policy items to Snapshot copies that MongoDB Cloud took previously.",
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "updateSnapshots": {
+            "description": "Flag that indicates whether to apply the retention changes in the updated backup policy to Snapshots that MongoDB Cloud took previously.",
+            "type": "boolean",
+            "writeOnly": true
+          },
+          "useOrgAndGroupNamesInExportPrefix": {
+            "description": "Flag that indicates whether to use organization and project names instead of organization and project UUIDs in the path to the metadata files that MongoDB Cloud uploads to your Export Bucket.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "policies"
+        ],
+        "type": "object"
+      },
       "DiskBackupTimeBasedCopyPolicyItem": {
         "allOf": [
           {
@@ -27925,7 +28122,8 @@
               "PAYMENT_METHOD_UNFLAGGED",
               "MARKETPLACE_REFUND_ISSUED",
               "PAYMENT_DUE_DATE_EXTENDED",
-              "CREDIT_LINE_ITEMS_DELETED"
+              "CREDIT_LINE_ITEMS_DELETED",
+              "CREDIT_APPLIED_RETROACTIVELY"
             ],
             "title": "Billing Event Types",
             "type": "string"
@@ -66529,7 +66727,7 @@
     "termsOfService": "https://www.mongodb.com/mongodb-management-service-terms-and-conditions",
     "title": "MongoDB Atlas Administration API",
     "version": "2.0",
-    "x-xgen-sha": "cc2451af057f53e712238e45ce7b094328d5de62"
+    "x-xgen-sha": "e8b5c129563f9e9311c1ffa13941ce6f0d866eff"
   },
   "openapi": "3.0.1",
   "paths": {
@@ -72554,6 +72752,75 @@
         "x-xgen-owner-team": "Backup - Atlas"
       }
     },
+    "/api/atlas/v2/groups/{groupId}/backup/schedule": {
+      "get": {
+        "description": "Returns the cascading backup policy configured for the specified project.",
+        "operationId": "listGroupBackupSchedule",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/envelope"
+          },
+          {
+            "$ref": "#/components/parameters/pretty"
+          },
+          {
+            "$ref": "#/components/parameters/groupId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AtlasGroupBackupPolicyPreview"
+                },
+                "x-xgen-preview": {
+                  "name": "org-level-cascading-backup-policies",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "RateLimit-Limit": {
+                "$ref": "#/components/headers/HeaderRateLimitLimit"
+              },
+              "RateLimit-Remaining": {
+                "$ref": "#/components/headers/HeaderRateLimitRemaining"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/tooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerError"
+          }
+        },
+        "summary": "Return the Project Backup Policy",
+        "tags": [
+          "Cloud Backups"
+        ],
+        "x-rolesRequirements": [
+          "Project Read Only"
+        ],
+        "x-xgen-docs-url": "https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Cloud-Backups/operation/listGroupBackupSchedule",
+        "x-xgen-owner-team": "Backup - Atlas"
+      },
+      "x-xgen-IPA-exception": {
+        "xgen-IPA-102-path-alternate-resource-name-path-param": "The backup policy endpoint follows the approved API contract."
+      }
+    },
     "/api/atlas/v2/groups/{groupId}/backup/{cloudProvider}/privateEndpoints": {
       "get": {
         "description": "Returns the private endpoints of the specified cloud provider for object storage backup operations. The AZURE value is in limited early access: the capability is enabled per project via a feature flag and is not generally available. Contact MongoDB to become an early adopter.",
@@ -76663,6 +76930,16 @@
                   "$ref": "#/components/schemas/DiskBackupSnapshotSchedule20240805"
                 },
                 "x-xgen-version": "2024-08-05"
+              },
+              "application/vnd.atlas.preview+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiskBackupSnapshotSchedulePreview"
+                },
+                "x-xgen-preview": {
+                  "name": "org-level-cascading-backup-policies",
+                  "public": "false"
+                },
+                "x-xgen-version": "preview"
               }
             },
             "description": "OK",
