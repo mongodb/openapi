@@ -17660,6 +17660,8 @@ components:
                             - PROJECT_OPERATIONS_CONTACT_ALERTS_ENABLED
                             - PROJECT_OPERATIONS_CONTACT_ALERTS_DISABLED
                             - GROUP_DEFAULT_ALERTS_SETTINGS_CHANGED
+                            - PROJECT_ALERTS_SNOOZED
+                            - PROJECT_ALERTS_UNSNOOZED
                           title: Group Audit Types
                           type: string
                         - enum:
@@ -21312,6 +21314,8 @@ components:
                     - PROJECT_OPERATIONS_CONTACT_ALERTS_ENABLED
                     - PROJECT_OPERATIONS_CONTACT_ALERTS_DISABLED
                     - GROUP_DEFAULT_ALERTS_SETTINGS_CHANGED
+                    - PROJECT_ALERTS_SNOOZED
+                    - PROJECT_ALERTS_UNSNOOZED
                   title: Group Audit Types
                   type: string
                 - enum:
@@ -32264,7 +32268,6 @@ components:
                     description: Utilization, from 0 to 1, of CPU or connections above which the tier scales out. Defaults to `0.75`.
                     format: double
                     type: number
-            readOnly: true
             type: object
         MongosRegionAutoScaling:
             description: Node-count bounds for dedicated mongos autoscaling in this region. Default enabled. To disable autoscaling for a certain region, you can set the `minNodeCount` and `maxNodeCount` to equal `nodeCount`.
@@ -32307,7 +32310,10 @@ components:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
                 effectiveAutoScaling:
-                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                    allOf:
+                        - $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                    description: Autoscaling configuration in effect for the dedicated mongos tier. Resolves the defaults omitted from `autoScaling`.
+                    readOnly: true
                 effectiveInstanceSize:
                     description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
                     readOnly: true
@@ -32340,7 +32346,10 @@ components:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
                 effectiveAutoScaling:
-                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                    allOf:
+                        - $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                    description: Autoscaling configuration in effect for the dedicated mongos tier. Resolves the defaults omitted from `autoScaling`.
+                    readOnly: true
                 effectiveInstanceSize:
                     description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
                     readOnly: true
@@ -32382,7 +32391,10 @@ components:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
                 effectiveAutoScaling:
-                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                    allOf:
+                        - $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                    description: Autoscaling configuration in effect for the dedicated mongos tier. Resolves the defaults omitted from `autoScaling`.
+                    readOnly: true
                 effectiveInstanceSize:
                     description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
                     readOnly: true
@@ -52065,7 +52077,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 9307fc650575541821b4a3da9837ee7d0f35f7ad
+    x-xgen-sha: cc2451af057f53e712238e45ce7b094328d5de62
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -72023,7 +72035,7 @@ paths:
             x-rolesRequirements:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listGroupMcpConfigs
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         post:
             description: Creates an MCP configuration for the specified project. Returns the configuration ID and ingress credentials.
             operationId: createGroupMcpConfig
@@ -72070,7 +72082,7 @@ paths:
             x-rolesRequirements:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}:
         delete:
             description: Deletes the MCP configuration with the specified ID for the specified project.
@@ -72122,7 +72134,7 @@ paths:
             x-rolesRequirements:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         get:
             description: Returns the MCP configuration with the specified ID for the specified project.
             operationId: getGroupMcpConfig
@@ -72167,7 +72179,7 @@ paths:
             x-rolesRequirements:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         patch:
             description: 'Updates the specified MCP configuration for the project. Supports partial updates: only provided fields are changed.'
             operationId: updateGroupMcpConfig
@@ -72225,7 +72237,7 @@ paths:
             x-rolesRequirements:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateGroupMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets:
         get:
             description: Returns metadata for all secrets on the ingress service account of the specified project-level MCP configuration. Secret values are never returned.
@@ -72277,7 +72289,7 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listGroupMcpConfigSecrets
             x-xgen-operation-id-override: listGroupMcpSecrets
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         post:
             description: Creates a new secret on the ingress service account of the specified project-level MCP configuration. The plain-text secret value is returned only in this response and is never shown again.
             operationId: createGroupMcpConfigSecret
@@ -72335,7 +72347,7 @@ paths:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createGroupMcpConfigSecret
             x-xgen-operation-id-override: createGroupMcpSecret
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/groups/{groupId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}:
         delete:
             description: Deletes the specified secret from the ingress service account of the specified project-level MCP configuration.
@@ -72388,7 +72400,7 @@ paths:
                 - Project Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteGroupMcpConfigSecret
             x-xgen-operation-id-override: deleteGroupMcpSecret
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         get:
             description: Returns metadata for the specified secret on the ingress service account of a project-level MCP configuration. The secret value is never returned.
             operationId: getGroupMcpConfigSecret
@@ -72446,7 +72458,7 @@ paths:
                 - Project Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getGroupMcpConfigSecret
             x-xgen-operation-id-override: getGroupMcpSecret
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/groups/{groupId}/metricIntegrations:
         get:
             description: Returns all metric integration configurations for the project. Optionally filter by integration type and provider type.
@@ -84505,7 +84517,7 @@ paths:
             x-rolesRequirements:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listOrgMcpConfigs
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         post:
             description: Creates an MCP configuration for the specified organization. Returns the configuration ID and ingress credentials.
             operationId: createOrgMcpConfig
@@ -84552,7 +84564,7 @@ paths:
             x-rolesRequirements:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}:
         delete:
             description: Deletes the MCP configuration with the specified ID for the specified organization.
@@ -84604,7 +84616,7 @@ paths:
             x-rolesRequirements:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         get:
             description: Returns the MCP configuration with the specified ID for the specified organization.
             operationId: getOrgMcpConfig
@@ -84649,7 +84661,7 @@ paths:
             x-rolesRequirements:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         patch:
             description: 'Updates the specified MCP configuration for the organization. Supports partial updates: only provided fields are changed.'
             operationId: updateOrgMcpConfig
@@ -84707,7 +84719,7 @@ paths:
             x-rolesRequirements:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/updateOrgMcpConfig
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets:
         get:
             description: Returns metadata for all secrets on the ingress service account of the specified organization-level MCP configuration. Secret values are never returned.
@@ -84759,7 +84771,7 @@ paths:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/listOrgMcpConfigSecrets
             x-xgen-operation-id-override: listOrgMcpSecrets
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         post:
             description: Creates a new secret on the ingress service account of the specified organization-level MCP configuration. The plain-text secret value is returned only in this response and is never shown again.
             operationId: createOrgMcpConfigSecret
@@ -84817,7 +84829,7 @@ paths:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/createOrgMcpConfigSecret
             x-xgen-operation-id-override: createOrgMcpSecret
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/orgs/{orgId}/mcpConfigs/{mcpConfigId}/secrets/{secretId}:
         delete:
             description: Deletes the specified secret from the ingress service account of the specified organization-level MCP configuration.
@@ -84870,7 +84882,7 @@ paths:
                 - Organization Owner
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/deleteOrgMcpConfigSecret
             x-xgen-operation-id-override: deleteOrgMcpSecret
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
         get:
             description: Returns metadata for the specified secret on the ingress service account of an organization-level MCP configuration. The secret value is never returned.
             operationId: getOrgMcpConfigSecret
@@ -84928,7 +84940,7 @@ paths:
                 - Organization Read Only
             x-xgen-docs-url: https://mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Remote-MCP-Configurations/operation/getOrgMcpConfigSecret
             x-xgen-operation-id-override: getOrgMcpSecret
-            x-xgen-owner-team: apix-devtools
+            x-xgen-owner-team: abx-i
     /api/atlas/v2/orgs/{orgId}/nonCompliantResources:
         get:
             description: Return all non-compliant resources for an organization.
