@@ -22,7 +22,7 @@ import (
 	"github.com/oasdiff/oasdiff/load"
 )
 
-// DiffGetter defines an interface for getting diffs.
+// Differ defines an interface for getting diffs.
 type Differ interface {
 	Get(config *diff.Config, base, revision *openapi3.T) (*diff.Diff, error)
 	GetWithOperationsSourcesMap(config *diff.Config, base, revision *load.SpecInfo) (*diff.Diff, diff.OperationsSourcesMap, error)
