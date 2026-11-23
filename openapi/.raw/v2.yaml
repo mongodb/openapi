@@ -2152,6 +2152,7 @@ components:
                 - ALERT_CONFIG_DELETED_AUDIT
                 - ALERT_CONFIG_CHANGED_AUDIT
                 - ALERT_CONFIG_SNOOZED_AUDIT
+                - ALERT_CONFIG_UNSNOOZED_AUDIT
             example: ALERT_CONFIG_ADDED_AUDIT
             title: Alert Audit Types
             type: string
@@ -4658,6 +4659,63 @@ components:
                     default: false
                     description: Flag that indicates whether Atlas lowers the Search Node tier when load drops. Takes effect only when `enabled` is `true`. If set to `true`, you must also set `minInstanceTier`. Scaling down is not supported yet, so setting this to `true` returns an error.
                     type: boolean
+            type: object
+        ApiSearchDeployment20261209ResponseView:
+            properties:
+                autoScaling:
+                    allOf:
+                        - $ref: '#/components/schemas/ApiSearchAutoScalingView'
+                    description: Autoscaling settings configured for this Search deployment.
+                    readOnly: true
+                effectiveSpecs:
+                    description: List of settings that configure the Search Nodes for your cluster. Each entry describes one region or, when `shardId` is present, one shard in one region.
+                    items:
+                        $ref: '#/components/schemas/ApiSearchDeploymentEffectiveSpecView'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: Upper bound is the number of cluster regions multiplied by the number of shards when per-shard details are included.
+                encryptionAtRestProvider:
+                    description: Cloud service provider that manages your customer keys to provide an additional layer of Encryption At Rest for the cluster.
+                    enum:
+                        - NONE
+                        - AWS
+                        - AZURE
+                        - GCP
+                    externalDocs:
+                        description: Encryption at Rest using Customer Key Management
+                        url: https://www.mongodb.com/docs/atlas/security-kms-encryption/
+                    nullable: true
+                    readOnly: true
+                    type: string
+                groupId:
+                    description: Unique 24-hexadecimal character string that identifies the project.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                id:
+                    description: Unique 24-hexadecimal digit string that identifies the search deployment.
+                    example: 32b6e34b3d91647abb20e7b8
+                    pattern: ^([a-f0-9]{24})$
+                    readOnly: true
+                    type: string
+                specs:
+                    description: Resolved baseline settings for the Search Nodes in each cluster region. Autoscaling changes are reflected in `effectiveSpecs`.
+                    items:
+                        $ref: '#/components/schemas/ApiSearchDeploymentSpecView'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: Schema predates IPA validation.
+                stateName:
+                    description: Human-readable label that indicates the current operating condition of this search deployment.
+                    enum:
+                        - IDLE
+                        - PAUSED
+                        - UPDATING
+                    readOnly: true
+                    type: string
             type: object
         ApiSearchDeploymentEffectiveSpecView:
             properties:
@@ -9379,6 +9437,7 @@ components:
                 - PAYMENT_METHOD_UNFLAGGED
                 - MARKETPLACE_REFUND_ISSUED
                 - PAYMENT_DUE_DATE_EXTENDED
+                - CREDIT_LINE_ITEMS_DELETED
             example: CHARGE_SUCCEEDED
             title: Billing Event Types
             type: string
@@ -16948,6 +17007,8 @@ components:
                             - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
                             - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
                             - LOG_STREAMING_REPLAY_FAILED
+                            - LOG_STREAMING_EVENT_BACKFILL_SUCCEEDED
+                            - LOG_STREAMING_EVENT_BACKFILL_FAILED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -17231,6 +17292,8 @@ components:
                             - LOG_STREAMING_EXPORT_FAILED_NONRETRYABLE
                             - LOG_STREAMING_EXPORT_FAILED_RETRIES_EXHAUSTED
                             - LOG_STREAMING_REPLAY_FAILED
+                            - LOG_STREAMING_EVENT_BACKFILL_SUCCEEDED
+                            - LOG_STREAMING_EVENT_BACKFILL_FAILED
                           title: Atlas Audit Types
                           type: string
                         - enum:
@@ -21010,6 +21073,7 @@ components:
                     - ALERT_CONFIG_DELETED_AUDIT
                     - ALERT_CONFIG_CHANGED_AUDIT
                     - ALERT_CONFIG_SNOOZED_AUDIT
+                    - ALERT_CONFIG_UNSNOOZED_AUDIT
                   title: Alert Audit Types
                   type: string
                 - enum:
@@ -21572,6 +21636,9 @@ components:
                     - LOG_STREAMING_REPLAY_STARTED
                     - LOG_STREAMING_REPLAY_COMPLETE
                     - LOG_STREAMING_REPLAY_FAILED
+                    - LOG_STREAMING_EVENT_BACKFILL_STARTED
+                    - LOG_STREAMING_EVENT_BACKFILL_SUCCEEDED
+                    - LOG_STREAMING_EVENT_BACKFILL_FAILED
                     - OTEL_METRIC_INTEGRATION_ENABLED
                     - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                     - OTEL_METRIC_INTEGRATION_DISABLED
@@ -21983,6 +22050,7 @@ components:
                     - ALERT_CONFIG_DELETED_AUDIT
                     - ALERT_CONFIG_CHANGED_AUDIT
                     - ALERT_CONFIG_SNOOZED_AUDIT
+                    - ALERT_CONFIG_UNSNOOZED_AUDIT
                   title: Alert Audit Types
                   type: string
                 - enum:
@@ -22095,6 +22163,7 @@ components:
                     - PAYMENT_METHOD_UNFLAGGED
                     - MARKETPLACE_REFUND_ISSUED
                     - PAYMENT_DUE_DATE_EXTENDED
+                    - CREDIT_LINE_ITEMS_DELETED
                   title: Billing Event Types
                   type: string
                 - enum:
@@ -22167,6 +22236,9 @@ components:
                     - MAINTENANCE_WAVE_ASSIGNMENT_ADDED
                     - MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED
                     - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
+                    - LOG_STREAMING_EVENT_BACKFILL_STARTED
+                    - LOG_STREAMING_EVENT_BACKFILL_SUCCEEDED
+                    - LOG_STREAMING_EVENT_BACKFILL_FAILED
                   title: Atlas Audit Types
                   type: string
                 - enum:
@@ -32149,9 +32221,68 @@ components:
                     x-xgen-IPA-exception:
                         xgen-IPA-124-array-max-items: Schema predates IPA validation.
             type: object
+        MongosAutoScaling:
+            description: Autoscaling configuration for the dedicated mongos tier. Default enabled.
+            properties:
+                enabled:
+                    default: true
+                    description: Flag that indicates whether autoscaling is enabled for the tier.
+                    type: boolean
+                maxInstanceSize:
+                    description: Maximum instance size the tier may scale up to (for example, `M80`).
+                    type: string
+                minInstanceSize:
+                    description: Minimum instance size the tier may scale down to (for example, `M40`).
+                    type: string
+                scaleInThreshold:
+                    description: Utilization, from 0 to 1, of CPU and connections below which the tier scales in. Defaults to `0.40`.
+                    format: double
+                    type: number
+                scaleOutThreshold:
+                    description: Utilization, from 0 to 1, of CPU or connections above which the tier scales out. Defaults to `0.75`.
+                    format: double
+                    type: number
+            type: object
+        MongosEffectiveAutoScaling:
+            description: Autoscaling configuration in effect for the dedicated mongos tier. Resolves the defaults omitted from `autoScaling`.
+            properties:
+                enabled:
+                    default: true
+                    description: Flag that indicates whether autoscaling is enabled for the tier.
+                    type: boolean
+                maxInstanceSize:
+                    description: Maximum instance size the tier may scale up to (for example, `M80`).
+                    type: string
+                minInstanceSize:
+                    description: Minimum instance size the tier may scale down to (for example, `M40`).
+                    type: string
+                scaleInThreshold:
+                    description: Utilization, from 0 to 1, of CPU and connections below which the tier scales in. Defaults to `0.40`.
+                    format: double
+                    type: number
+                scaleOutThreshold:
+                    description: Utilization, from 0 to 1, of CPU or connections above which the tier scales out. Defaults to `0.75`.
+                    format: double
+                    type: number
+            readOnly: true
+            type: object
+        MongosRegionAutoScaling:
+            description: Node-count bounds for dedicated mongos autoscaling in this region. Default enabled. To disable autoscaling for a certain region, you can set the `minNodeCount` and `maxNodeCount` to equal `nodeCount`.
+            properties:
+                maxNodeCount:
+                    description: Maximum number of dedicated mongos the tier may scale out to in this region. Defaults to `10`.
+                    format: int32
+                    type: integer
+                minNodeCount:
+                    description: Minimum number of dedicated mongos the tier may scale in to in this region. Defaults to `2`.
+                    format: int32
+                    type: integer
+            type: object
         MongosRegionPlacement:
             description: Dedicated mongos placement in one region.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosRegionAutoScaling'
                 nodeCount:
                     description: Number of dedicated mongos to run in this region.
                     format: int32
@@ -32170,9 +32301,25 @@ components:
         MongosTopologyCreateRequest:
             description: Dedicated mongos topology to attach to a sharded cluster.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosAutoScaling'
                 clusterName:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
+                effectiveAutoScaling:
+                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                effectiveInstanceSize:
+                    description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
+                    readOnly: true
+                    type: string
+                effectiveRegionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts in effect. Resolves the defaults omitted from `regionPlacements`.
+                    items:
+                        $ref: '#/components/schemas/MongosRegionPlacement'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: Region placements are naturally bounded by the number of cloud regions; no fixed array cap is enforced.
                 instanceSize:
                     description: Instance size of the dedicated mongos hosts (for example, `M30`).
                     type: string
@@ -32187,9 +32334,25 @@ components:
         MongosTopologyResponse:
             description: Configuration of the dedicated mongos routers for a sharded cluster, identified by the name of its associated cluster.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosAutoScaling'
                 clusterName:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
+                effectiveAutoScaling:
+                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                effectiveInstanceSize:
+                    description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
+                    readOnly: true
+                    type: string
+                effectiveRegionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts in effect. Resolves the defaults omitted from `regionPlacements`.
+                    items:
+                        $ref: '#/components/schemas/MongosRegionPlacement'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: Region placements are naturally bounded by the number of cloud regions; no fixed array cap is enforced.
                 instanceSize:
                     description: Instance size of the dedicated mongos hosts (for example, `M30`).
                     type: string
@@ -32213,9 +32376,25 @@ components:
         MongosTopologyUpdateRequest:
             description: Dedicated mongos tier to apply to a sharded cluster.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosAutoScaling'
                 clusterName:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
+                effectiveAutoScaling:
+                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                effectiveInstanceSize:
+                    description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
+                    readOnly: true
+                    type: string
+                effectiveRegionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts in effect. Resolves the defaults omitted from `regionPlacements`.
+                    items:
+                        $ref: '#/components/schemas/MongosRegionPlacement'
+                    readOnly: true
+                    type: array
+                    x-xgen-IPA-exception:
+                        xgen-IPA-124-array-max-items: Region placements are naturally bounded by the number of cloud regions; no fixed array cap is enforced.
                 instanceSize:
                     description: Instance size of the dedicated mongos hosts (for example, `M30`).
                     type: string
@@ -32757,6 +32936,9 @@ components:
                 - LOG_STREAMING_REPLAY_STARTED
                 - LOG_STREAMING_REPLAY_COMPLETE
                 - LOG_STREAMING_REPLAY_FAILED
+                - LOG_STREAMING_EVENT_BACKFILL_STARTED
+                - LOG_STREAMING_EVENT_BACKFILL_SUCCEEDED
+                - LOG_STREAMING_EVENT_BACKFILL_FAILED
                 - OTEL_METRIC_INTEGRATION_ENABLED
                 - OTEL_METRIC_INTEGRATION_CONFIGURATION_UPDATED
                 - OTEL_METRIC_INTEGRATION_DISABLED
@@ -32856,6 +33038,9 @@ components:
                 - MAINTENANCE_WAVE_ASSIGNMENT_ADDED
                 - MAINTENANCE_WAVE_ASSIGNMENT_MODIFIED
                 - MAINTENANCE_WAVE_ASSIGNMENT_REMOVED
+                - LOG_STREAMING_EVENT_BACKFILL_STARTED
+                - LOG_STREAMING_EVENT_BACKFILL_SUCCEEDED
+                - LOG_STREAMING_EVENT_BACKFILL_FAILED
             example: ORG_LIMIT_UPDATED
             title: Atlas Audit Types
             type: string
@@ -51865,7 +52050,7 @@ info:
           --data "grant_type=client_credentials" | jq -r '.access_token')
 
         curl --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-          --header "Accept: application/vnd.atlas.2025-03-12+json" \
+          --header "Accept: application/vnd.atlas.2026-12-09+json" \
           -X GET "https://cloud.mongodb.com/api/atlas/v2/orgs?pretty=true"
         ```
 
@@ -51880,7 +52065,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 816589188985fc576c35b8c491aa02499c5e0cf7
+    x-xgen-sha: 7911b556163234912ad7638a52cc70e70b82dc50
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
@@ -63560,7 +63745,10 @@ paths:
                 "204":
                     content:
                         application/vnd.atlas.2024-05-30+json:
+                            x-sunset: "2027-12-09"
                             x-xgen-version: "2024-05-30"
+                        application/vnd.atlas.2026-12-09+json:
+                            x-xgen-version: "2026-12-09"
                         application/vnd.atlas.preview+json:
                             x-xgen-preview:
                                 name: search-node-autoscaling
@@ -63624,7 +63812,12 @@ paths:
                         application/vnd.atlas.2025-03-12+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-sunset: "2027-12-09"
                             x-xgen-version: "2025-03-12"
+                        application/vnd.atlas.2026-12-09+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeployment20261209ResponseView'
+                            x-xgen-version: "2026-12-09"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentPreviewResponseView'
@@ -63685,6 +63878,10 @@ paths:
                     application/vnd.atlas.2024-05-30+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                    application/vnd.atlas.2026-12-09+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                        x-xgen-version: "2026-12-09"
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
@@ -63705,7 +63902,12 @@ paths:
                         application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-sunset: "2027-12-09"
                             x-xgen-version: "2024-05-30"
+                        application/vnd.atlas.2026-12-09+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeployment20261209ResponseView'
+                            x-xgen-version: "2026-12-09"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentPreviewResponseView'
@@ -63763,6 +63965,10 @@ paths:
                     application/vnd.atlas.2024-05-30+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                    application/vnd.atlas.2026-12-09+json:
+                        schema:
+                            $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
+                        x-xgen-version: "2026-12-09"
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/ApiSearchDeploymentRequestView'
@@ -63791,7 +63997,12 @@ paths:
                         application/vnd.atlas.2024-05-30+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentResponseView'
+                            x-sunset: "2027-12-09"
                             x-xgen-version: "2024-05-30"
+                        application/vnd.atlas.2026-12-09+json:
+                            schema:
+                                $ref: '#/components/schemas/ApiSearchDeployment20261209ResponseView'
+                            x-xgen-version: "2026-12-09"
                         application/vnd.atlas.preview+json:
                             schema:
                                 $ref: '#/components/schemas/ApiSearchDeploymentPreviewResponseView'
@@ -72669,6 +72880,8 @@ paths:
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/MongosTopologyCreateRequest'
+                        x-xgen-IPA-exception:
+                            xgen-IPA-106-create-method-request-has-no-readonly-fields: The read-only effective fields share the resource shape and are ignored on writes.
                         x-xgen-preview:
                             name: mongos-topologies
                         x-xgen-version: preview
@@ -72830,6 +73043,8 @@ paths:
                     application/vnd.atlas.preview+json:
                         schema:
                             $ref: '#/components/schemas/MongosTopologyUpdateRequest'
+                        x-xgen-IPA-exception:
+                            xgen-IPA-107-update-method-request-has-no-readonly-fields: The read-only effective fields share the resource shape and are ignored on writes.
                         x-xgen-preview:
                             name: mongos-topologies
                         x-xgen-version: preview

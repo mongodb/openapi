@@ -405,9 +405,68 @@ components:
                     example: self
                     type: string
             type: object
+        MongosAutoScaling:
+            description: Autoscaling configuration for the dedicated mongos tier. Default enabled.
+            properties:
+                enabled:
+                    default: true
+                    description: Flag that indicates whether autoscaling is enabled for the tier.
+                    type: boolean
+                maxInstanceSize:
+                    description: Maximum instance size the tier may scale up to (for example, `M80`).
+                    type: string
+                minInstanceSize:
+                    description: Minimum instance size the tier may scale down to (for example, `M40`).
+                    type: string
+                scaleInThreshold:
+                    description: Utilization, from 0 to 1, of CPU and connections below which the tier scales in. Defaults to `0.40`.
+                    format: double
+                    type: number
+                scaleOutThreshold:
+                    description: Utilization, from 0 to 1, of CPU or connections above which the tier scales out. Defaults to `0.75`.
+                    format: double
+                    type: number
+            type: object
+        MongosEffectiveAutoScaling:
+            description: Autoscaling configuration in effect for the dedicated mongos tier. Resolves the defaults omitted from `autoScaling`.
+            properties:
+                enabled:
+                    default: true
+                    description: Flag that indicates whether autoscaling is enabled for the tier.
+                    type: boolean
+                maxInstanceSize:
+                    description: Maximum instance size the tier may scale up to (for example, `M80`).
+                    type: string
+                minInstanceSize:
+                    description: Minimum instance size the tier may scale down to (for example, `M40`).
+                    type: string
+                scaleInThreshold:
+                    description: Utilization, from 0 to 1, of CPU and connections below which the tier scales in. Defaults to `0.40`.
+                    format: double
+                    type: number
+                scaleOutThreshold:
+                    description: Utilization, from 0 to 1, of CPU or connections above which the tier scales out. Defaults to `0.75`.
+                    format: double
+                    type: number
+            readOnly: true
+            type: object
+        MongosRegionAutoScaling:
+            description: Node-count bounds for dedicated mongos autoscaling in this region. Default enabled. To disable autoscaling for a certain region, you can set the `minNodeCount` and `maxNodeCount` to equal `nodeCount`.
+            properties:
+                maxNodeCount:
+                    description: Maximum number of dedicated mongos the tier may scale out to in this region. Defaults to `10`.
+                    format: int32
+                    type: integer
+                minNodeCount:
+                    description: Minimum number of dedicated mongos the tier may scale in to in this region. Defaults to `2`.
+                    format: int32
+                    type: integer
+            type: object
         MongosRegionPlacement:
             description: Dedicated mongos placement in one region.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosRegionAutoScaling'
                 nodeCount:
                     description: Number of dedicated mongos to run in this region.
                     format: int32
@@ -426,9 +485,23 @@ components:
         MongosTopologyCreateRequest:
             description: Dedicated mongos topology to attach to a sharded cluster.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosAutoScaling'
                 clusterName:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
+                effectiveAutoScaling:
+                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                effectiveInstanceSize:
+                    description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
+                    readOnly: true
+                    type: string
+                effectiveRegionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts in effect. Resolves the defaults omitted from `regionPlacements`.
+                    items:
+                        $ref: '#/components/schemas/MongosRegionPlacement'
+                    readOnly: true
+                    type: array
                 instanceSize:
                     description: Instance size of the dedicated mongos hosts (for example, `M30`).
                     type: string
@@ -441,9 +514,23 @@ components:
         MongosTopologyResponse:
             description: Configuration of the dedicated mongos routers for a sharded cluster, identified by the name of its associated cluster.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosAutoScaling'
                 clusterName:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
+                effectiveAutoScaling:
+                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                effectiveInstanceSize:
+                    description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
+                    readOnly: true
+                    type: string
+                effectiveRegionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts in effect. Resolves the defaults omitted from `regionPlacements`.
+                    items:
+                        $ref: '#/components/schemas/MongosRegionPlacement'
+                    readOnly: true
+                    type: array
                 instanceSize:
                     description: Instance size of the dedicated mongos hosts (for example, `M30`).
                     type: string
@@ -465,9 +552,23 @@ components:
         MongosTopologyUpdateRequest:
             description: Dedicated mongos tier to apply to a sharded cluster.
             properties:
+                autoScaling:
+                    $ref: '#/components/schemas/MongosAutoScaling'
                 clusterName:
                     description: Human-readable label that identifies the sharded cluster this topology belongs to.
                     type: string
+                effectiveAutoScaling:
+                    $ref: '#/components/schemas/MongosEffectiveAutoScaling'
+                effectiveInstanceSize:
+                    description: Instance size the dedicated mongos hosts are running at. Can differ from `instanceSize` when autoscaling is enabled.
+                    readOnly: true
+                    type: string
+                effectiveRegionPlacements:
+                    description: Per-region placement of the dedicated mongos hosts in effect. Resolves the defaults omitted from `regionPlacements`.
+                    items:
+                        $ref: '#/components/schemas/MongosRegionPlacement'
+                    readOnly: true
+                    type: array
                 instanceSize:
                     description: Instance size of the dedicated mongos hosts (for example, `M30`).
                     type: string
@@ -564,7 +665,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 816589188985fc576c35b8c491aa02499c5e0cf7
+    x-xgen-sha: 7911b556163234912ad7638a52cc70e70b82dc50
 openapi: 3.0.1
 paths:
     /api/atlas/v2/groups/{groupId}/mongosTopologies:
