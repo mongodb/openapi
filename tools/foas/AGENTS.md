@@ -64,3 +64,4 @@ CI (`.github/workflows/code-health-foas-lib.yml`) runs the build, unit tests, go
   test and in each subtest, unless they share state.
 - When you must suppress a linter, scope `//nolint:<linter> // <reason>` to the line.
 - Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in PR titles.
+- Always open PRs as drafts (`gh pr create --draft`). Mark them ready for review once CI passes.
