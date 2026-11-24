@@ -18317,6 +18317,7 @@ components:
                     - SEARCH_HOST_DISABLE_FTS
                     - SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS
                     - SEARCH_AUTOSCALING_ADMIN_OVERRIDES_UPDATED
+                    - SEARCH_AUTOSCALING_EVALUATION_UPDATED
                     - SEARCH_CLUSTER_MONGOT_VERSION_OVERRIDE_UPDATED
                     - HOST_SEARCH_CONFIG_OVERRIDES_UPDATED
                     - CLUSTER_BLOCK_WRITE
@@ -28767,6 +28768,7 @@ components:
                 - SEARCH_HOST_DISABLE_FTS
                 - SEARCH_HOST_PAUSE_INITIAL_SYNC_ON_INDEX_IDS
                 - SEARCH_AUTOSCALING_ADMIN_OVERRIDES_UPDATED
+                - SEARCH_AUTOSCALING_EVALUATION_UPDATED
                 - SEARCH_CLUSTER_MONGOT_VERSION_OVERRIDE_UPDATED
                 - HOST_SEARCH_CONFIG_OVERRIDES_UPDATED
                 - CLUSTER_BLOCK_WRITE
@@ -42756,7 +42758,8 @@ components:
             description: Failover options for starting a stream processor.
             properties:
                 clearCheckpoint:
-                    description: If true, clears the checkpoint so the failover processor does not resume from it. Applies only to FORCED failover; clearing may cause duplicate or missing records in the output.
+                    deprecated: true
+                    description: 'Deprecated: use the top-level `resumeFromCheckpoint` field set to `false` instead. If true, clears the checkpoint so the failover processor does not resume from it. Applies only to FORCED failover; clearing may cause duplicate or missing records in the output. If `resumeFromCheckpoint` is also set, it takes precedence; `resumeFromCheckpoint: true` together with `clearCheckpoint: true` on a FORCED failover is rejected as a conflict.'
                     type: boolean
                 dryRun:
                     description: If true, simulates the operation without making any changes.
@@ -42791,7 +42794,7 @@ components:
                     readOnly: true
                     type: array
                 resumeFromCheckpoint:
-                    description: When true or not specified, the stream processor resumes from its last checkpoint. When false, the stream processor starts fresh.
+                    description: 'When true or not specified, the stream processor resumes from its last checkpoint. When false, the stream processor starts fresh. If `failover.clearCheckpoint` is also set, this field takes precedence; `true` together with `failover.clearCheckpoint: true` on a FORCED failover is rejected as a conflict.'
                     type: boolean
                 startAtOperationTime:
                     description: The operation time after which the change stream source should begin reporting. This parameter expresses its value in the ISO 8601 timestamp format in UTC.
@@ -46225,7 +46228,7 @@ info:
     termsOfService: https://www.mongodb.com/mongodb-management-service-terms-and-conditions
     title: MongoDB Atlas Administration API
     version: "2.0"
-    x-xgen-sha: 6d6020e1f79a968a3aed605a8fee63fcdac292b0
+    x-xgen-sha: 77335253e953e8795c67eb9b6becc169400bdcc0
 openapi: 3.0.1
 paths:
     /api/atlas/v2:
