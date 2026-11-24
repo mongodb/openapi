@@ -12,15 +12,18 @@ deps:  ## Download go module dependencies
 	go mod download
 	go mod tidy
 
+.PHONY: check-tidy
+check-tidy: ## Fail if go.mod or go.sum is not tidy
+	go mod tidy -diff
+
 .PHONY: devtools
 devtools:  ## Install dev tools
 	@echo "==> Installing dev tools..."
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)
 
 .PHONY: fmt
-fmt: ### Format all go files with goimports and gofmt
-	find . -name "*.go" -exec gofmt -w "{}" \;
-	find . -name "*.go" -exec goimports -l -w "{}" \;
+fmt: ## Format all go files with the formatters configured in .golangci.yml
+	golangci-lint fmt
 
 .PHONY: build
 build: ## Build all packages in the library
@@ -30,6 +33,10 @@ build: ## Build all packages in the library
 .PHONY: lint
 lint: ## Run linter
 	golangci-lint run
+
+.PHONY: fix-lint
+fix-lint: ## Fix linting errors
+	golangci-lint run --fix
 
 .PHONY: unit-test
 unit-test: ## Run unit-tests

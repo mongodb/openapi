@@ -30,6 +30,10 @@ deps:  ## Download go module dependencies
 	go mod download
 	go mod tidy
 
+.PHONY: check-tidy
+check-tidy: ## Fail if go.mod or go.sum is not tidy
+	go mod tidy -diff
+
 .PHONY: devtools
 devtools:  ## Install dev tools
 	@echo "==> Installing dev tools..."
@@ -41,9 +45,8 @@ devtools:  ## Install dev tools
 setup: deps devtools ## Set up dev env
 
 .PHONY: fmt
-fmt: ### Format all go files with goimports and gofmt
-	find . -name "*.go" -exec gofmt -w "{}" \;
-	find . -name "*.go" -exec goimports -l -w "{}" \;
+fmt: ## Format all go files with the formatters configured in .golangci.yml
+	golangci-lint fmt
 
 .PHONY: build
 build:

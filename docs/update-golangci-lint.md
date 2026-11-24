@@ -36,7 +36,7 @@ pin from the linter version and is not part of this update.
    cd tools/foas && make lint
    ```
 
-   `make fix-lint` in `tools/cli` applies the automatic fixes.
+   `make fix-lint` in either module applies the automatic fixes.
 5. Run the unit tests (`make unit-test`) in both modules.
 6. Open a PR with a conventional commit title, for example `chore: bump golangci-lint to v2.15.0`.
 
