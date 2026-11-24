@@ -1,0 +1,66 @@
+# AGENTS.md: foas
+
+`foas` (`github.com/mongodb/openapi/tools/foas`) is the Go library behind `foascli`. It covers
+OpenAPI loading, merging, filtering, slicing, versioning, sunsets, breaking-change exemptions and the
+API changelog. See [CONTRIBUTING.md](../../CONTRIBUTING.md) for the project-wide rules and
+[../cli/README.md](../cli/README.md) for the CLI. This file covers the development loop.
+
+## Layout
+
+- `openapi/`: spec loading, merging, oasdiff integration, plus `filter/`, `slice/`, `sunset/` and
+  `errors/`.
+- `changelog/`: changelog generation, merge, manual entries and sunsets.
+- `apiversion/`: API versions and stability levels.
+- `breakingchanges/`: breaking-change exemptions.
+- `pointer/`: small helpers.
+- `test/data/`: test fixtures.
+
+`foascli` (`../cli`) consumes this module through `replace ... => ../foas`, and both modules belong
+to the Go workspace in `../go.work`. A change here can break the CLI, so after changing this module,
+also run the CLI loop in [../cli/AGENTS.md](../cli/AGENTS.md).
+
+## Setup
+
+Run all commands from `tools/foas`.
+
+```shell
+make deps       # go mod download + go mod tidy
+make devtools   # install golangci-lint
+```
+
+The tools are installed to `$(go env GOPATH)/bin`, which must be on your `PATH`. `make fmt` also
+needs `goimports`, and regenerating mocks needs `mockgen`. Neither is installed by this Makefile
+(`go install golang.org/x/tools/cmd/goimports@latest`, `go install go.uber.org/mock/mockgen@latest`).
+
+## Development loop
+
+1. Make the change.
+2. `make fmt`: format with `gofmt` and `goimports`.
+3. `make lint`: run golangci-lint (config in `.golangci.yml`).
+4. `make unit-test`: run `go test -race -cover ./...`.
+5. `make check-tidy`: fail if `go.mod` or `go.sum` is not tidy. Run it after changing dependencies.
+6. Run the CLI loop in `../cli`, at least `make unit-test` and `make e2e-test`.
+
+`make build` compiles every package (`go build ./...`). There is no binary.
+
+CI (`.github/workflows/code-health-foas-lib.yml`) runs the build, unit tests, golangci-lint and
+`make check-tidy`.
+
+## Gotchas
+
+- Mocks (`openapi/mock_*.go`, `openapi/filter/mock_filter.go`) are generated with `mockgen` through
+  `//go:generate` directives. After changing a mocked interface, regenerate them with
+  `go generate ./...`.
+- `openapi/filter/README.md` documents the filters. Update it when you add or change a filter.
+- Dependabot bumps each module separately. A bump here can leave `../cli/go.mod` untidy. Run
+  `make check-tidy` in `../cli` too.
+- Running Go commands in the workspace can add lines to `../go.work.sum`. Don't commit those unless
+  the change needs them.
+- To bump golangci-lint, follow [docs/update-golangci-lint.md](../../docs/update-golangci-lint.md).
+
+## Conventions
+
+- Tests are table-driven and use `testify` (`assert`/`require`). New tests call `t.Parallel()` in the
+  test and in each subtest, unless they share state.
+- When you must suppress a linter, scope `//nolint:<linter> // <reason>` to the line.
+- Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in PR titles.

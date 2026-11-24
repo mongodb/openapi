@@ -30,6 +30,10 @@ deps:  ## Download go module dependencies
 	go mod download
 	go mod tidy
 
+.PHONY: check-tidy
+check-tidy: ## Fail if go.mod or go.sum is not tidy
+	go mod tidy -diff
+
 .PHONY: devtools
 devtools:  ## Install dev tools
 	@echo "==> Installing dev tools..."
