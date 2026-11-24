@@ -64,7 +64,7 @@ func TestNewAttachmentText(t *testing.T) {
 			change:              "added the enum value `MONGODB_USER_PASSWORD_UPDATED` to the `query` request parameter `eventType`",
 			changeType:          "UPDATE",
 			hiddenFromChangelog: "false",
-			expected:            "\n• *Version*: `2025-03-12` | *Hidden from Changelog*: `false`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/activityFeed`\n• *Change Type*: `UPDATE` | *Change Code*: `request-parameter-property-enum-value-added`\n• *Change*: `added the enum value `MONGODB_USER_PASSWORD_UPDATED` to the `query` request parameter `eventType``", //nolint:lll //Test string
+			expected:            "\n• *Version*: `2025-03-12` | *Hidden from Changelog*: `false`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/activityFeed`\n• *Change Type*: `UPDATE` | *Change Code*: `request-parameter-property-enum-value-added`\n• *Change*: \"added the enum value `MONGODB_USER_PASSWORD_UPDATED` to the `query` request parameter `eventType`\"", //nolint:lll //Test string
 		},
 		{
 			name:                "Change with backslashes and quotes",
@@ -75,7 +75,7 @@ func TestNewAttachmentText(t *testing.T) {
 			change:              `added the pattern ` + "`^[\\p{L}\\p{N}\\-_.,' ]*$`" + ` to the "mcpConfigName" property`,
 			changeType:          "UPDATE",
 			hiddenFromChangelog: "false",
-			expected:            "\n• *Version*: `2025-03-12` | *Hidden from Changelog*: `false`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/mcpConfigs`\n• *Change Type*: `UPDATE` | *Change Code*: `request-property-pattern-added`\n• *Change*: `added the pattern `^[\\p{L}\\p{N}\\-_.,' ]*$` to the \"mcpConfigName\" property`", //nolint:lll //Test string
+			expected:            "\n• *Version*: `2025-03-12` | *Hidden from Changelog*: `false`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/mcpConfigs`\n• *Change Type*: `UPDATE` | *Change Code*: `request-property-pattern-added`\n• *Change*: \"added the pattern `^[\\\\p{L}\\\\p{N}\\\\-_.,' ]*$` to the \\\"mcpConfigName\\\" property\"", //nolint:lll //Test string
 		},
 		{
 			name:                "Change with newline and non-ASCII characters",
@@ -86,7 +86,7 @@ func TestNewAttachmentText(t *testing.T) {
 			change:              "first line\nsecond line é",
 			changeType:          "UPDATE",
 			hiddenFromChangelog: "false",
-			expected:            "\n• *Version*: `2024-08-05` | *Hidden from Changelog*: `false`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/clusters`\n• *Change Type*: `UPDATE` | *Change Code*: `response-property-description-changed`\n• *Change*: `first line\nsecond line é`", //nolint:lll //Test string
+			expected:            "\n• *Version*: `2024-08-05` | *Hidden from Changelog*: `false`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/clusters`\n• *Change Type*: `UPDATE` | *Change Code*: `response-property-description-changed`\n• *Change*: \"first line\\nsecond line é\"", //nolint:lll //Test string
 		},
 		{
 			name:                "Empty values",
