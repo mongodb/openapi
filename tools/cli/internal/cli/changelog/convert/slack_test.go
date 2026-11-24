@@ -21,6 +21,7 @@ import (
 )
 
 func TestNewAttachmentText(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name                string
 		version             string
@@ -54,16 +55,62 @@ func TestNewAttachmentText(t *testing.T) {
 			changeType:          "RELEASE",
 			expected:            "\n• *Version*: `2024-08-05` | *Hidden from Changelog*: `true`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/clusters`\n• *Change Type*: `RELEASE` | *Change Code*: `new-optional-request-property`\n• *Change*: `added the new optional request property replicaSetScalingStrategy`", //nolint:lll //Test string
 		},
+		{
+			name:                "Change with backticks",
+			version:             "2025-03-12",
+			method:              "GET",
+			path:                "/api/atlas/v2/groups/{groupId}/activityFeed",
+			changeCode:          "request-parameter-property-enum-value-added",
+			change:              "added the enum value `MONGODB_USER_PASSWORD_UPDATED` to the `query` request parameter `eventType`",
+			changeType:          "UPDATE",
+			hiddenFromChangelog: "false",
+			expected:            "\n• *Version*: `2025-03-12` | *Hidden from Changelog*: `false`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/activityFeed`\n• *Change Type*: `UPDATE` | *Change Code*: `request-parameter-property-enum-value-added`\n• *Change*: `added the enum value `MONGODB_USER_PASSWORD_UPDATED` to the `query` request parameter `eventType``", //nolint:lll //Test string
+		},
+		{
+			name:                "Change with backslashes and quotes",
+			version:             "2025-03-12",
+			method:              "POST",
+			path:                "/api/atlas/v2/groups/{groupId}/mcpConfigs",
+			changeCode:          "request-property-pattern-added",
+			change:              `added the pattern ` + "`^[\\p{L}\\p{N}\\-_.,' ]*$`" + ` to the "mcpConfigName" property`,
+			changeType:          "UPDATE",
+			hiddenFromChangelog: "false",
+			expected:            "\n• *Version*: `2025-03-12` | *Hidden from Changelog*: `false`\n• *Path*: `POST /api/atlas/v2/groups/{groupId}/mcpConfigs`\n• *Change Type*: `UPDATE` | *Change Code*: `request-property-pattern-added`\n• *Change*: `added the pattern `^[\\p{L}\\p{N}\\-_.,' ]*$` to the \"mcpConfigName\" property`", //nolint:lll //Test string
+		},
+		{
+			name:                "Change with newline and non-ASCII characters",
+			version:             "2024-08-05",
+			method:              "GET",
+			path:                "/api/atlas/v2/groups/{groupId}/clusters",
+			changeCode:          "response-property-description-changed",
+			change:              "first line\nsecond line é",
+			changeType:          "UPDATE",
+			hiddenFromChangelog: "false",
+			expected:            "\n• *Version*: `2024-08-05` | *Hidden from Changelog*: `false`\n• *Path*: `GET /api/atlas/v2/groups/{groupId}/clusters`\n• *Change Type*: `UPDATE` | *Change Code*: `response-property-description-changed`\n• *Change*: `first line\nsecond line é`", //nolint:lll //Test string
+		},
+		{
+			name:                "Empty values",
+			version:             "",
+			method:              "",
+			path:                "",
+			changeCode:          "",
+			change:              "",
+			changeType:          "",
+			hiddenFromChangelog: "",
+			expected:            "\n• *Version*: `` | *Hidden from Changelog*: ``\n• *Path*: ` `\n• *Change Type*: `` | *Change Code*: ``\n• *Change*: ``",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			actual := newAttachmentText(tt.version, tt.method, tt.path, tt.changeType, tt.changeCode, tt.change, tt.hiddenFromChangelog)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}
 }
 func TestNewMessagesFromAttachments(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		attachments []*Attachment
@@ -177,12 +224,14 @@ func TestNewMessagesFromAttachments(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			actual := newMessagesFromAttachments(tt.attachments, tt.channelID, tt.messageID, tt.batchSize)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}
 }
 func TestNewColorFromBackwardCompatible(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name               string
 		backwardCompatible bool
@@ -211,6 +260,7 @@ func TestNewColorFromBackwardCompatible(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			actual := newColorFromBackwardCompatible(tt.backwardCompatible, tt.hideFromChangelog)
 			assert.Equal(t, tt.expectedColor, actual)
 		})
@@ -218,6 +268,7 @@ func TestNewColorFromBackwardCompatible(t *testing.T) {
 }
 
 func TestOrderAttachments(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		attachments []*Attachment
@@ -273,6 +324,7 @@ func TestOrderAttachments(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			actual := orderAttachments(tt.attachments)
 			assert.Equal(t, tt.expected, actual)
 		})
