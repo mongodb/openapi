@@ -22,9 +22,8 @@ devtools:  ## Install dev tools
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_VERSION)
 
 .PHONY: fmt
-fmt: ### Format all go files with goimports and gofmt
-	find . -name "*.go" -exec gofmt -w "{}" \;
-	find . -name "*.go" -exec goimports -l -w "{}" \;
+fmt: ## Format all go files with the formatters configured in .golangci.yml
+	golangci-lint fmt
 
 .PHONY: build
 build: ## Build all packages in the library

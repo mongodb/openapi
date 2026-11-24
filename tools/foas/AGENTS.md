@@ -28,14 +28,14 @@ make deps       # go mod download + go mod tidy
 make devtools   # install golangci-lint
 ```
 
-The tools are installed to `$(go env GOPATH)/bin`, which must be on your `PATH`. `make fmt` also
-needs `goimports`, and regenerating mocks needs `mockgen`. Neither is installed by this Makefile
-(`go install golang.org/x/tools/cmd/goimports@latest`, `go install go.uber.org/mock/mockgen@latest`).
+The tools are installed to `$(go env GOPATH)/bin`, which must be on your `PATH`. Regenerating mocks
+needs `mockgen`, which this Makefile does not install (`go install go.uber.org/mock/mockgen@latest`).
 
 ## Development loop
 
 1. Make the change.
-2. `make fmt`: format with `gofmt` and `goimports`.
+2. `make fmt`: run `golangci-lint fmt`, which applies the formatters configured in `.golangci.yml`
+   (`gci`, `gofmt`, `goimports`). `make lint` also reports unformatted files.
 3. `make lint`: run golangci-lint (config in `.golangci.yml`).
 4. `make unit-test`: run `go test -race -cover ./...`.
 5. `make check-tidy`: fail if `go.mod` or `go.sum` is not tidy. Run it after changing dependencies.
