@@ -36,7 +36,8 @@ needs `mockgen`, which this Makefile does not install (`go install go.uber.org/m
 1. Make the change.
 2. `make fmt`: run `golangci-lint fmt`, which applies the formatters configured in `.golangci.yml`
    (`gci`, `gofmt`, `goimports`). `make lint` also reports unformatted files.
-3. `make lint`: run golangci-lint (config in `.golangci.yml`).
+3. `make fix-lint`: run golangci-lint (config in `.golangci.yml`) and apply the automatic fixes it can.
+   Fix whatever remains by hand. `make lint` runs the same checks without changing files.
 4. `make unit-test`: run `go test -race -cover ./...`.
 5. `make check-tidy`: fail if `go.mod` or `go.sum` is not tidy. Run it after changing dependencies.
 6. Run the CLI loop in `../cli`, at least `make unit-test` and `make e2e-test`.

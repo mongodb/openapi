@@ -30,7 +30,8 @@ The tools are installed to `$(go env GOPATH)/bin`, which must be on your `PATH`.
 1. Make the change.
 2. `make fmt`: run `golangci-lint fmt`, which applies the formatters configured in `.golangci.yml`
    (`gci`, `gofmt`, `goimports`). `make lint` also reports unformatted files.
-3. `make lint`: run golangci-lint (config in `.golangci.yml`). `make fix-lint` applies automatic fixes.
+3. `make fix-lint`: run golangci-lint (config in `.golangci.yml`) and apply the automatic fixes it can.
+   Fix whatever remains by hand. `make lint` runs the same checks without changing files.
 4. `make unit-test`: run `go test -race -cover ./internal...`.
 5. `make e2e-test`: build the binary into `./bin/foascli` and run `./test/e2e...` against it. Run this
    when you change command behavior or output.

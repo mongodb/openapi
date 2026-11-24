@@ -34,6 +34,10 @@ build: ## Build all packages in the library
 lint: ## Run linter
 	golangci-lint run
 
+.PHONY: fix-lint
+fix-lint: ## Fix linting errors
+	golangci-lint run --fix
+
 .PHONY: unit-test
 unit-test: ## Run unit-tests
 	@echo "==> Running unit tests..."
