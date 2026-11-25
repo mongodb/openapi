@@ -59,6 +59,9 @@ CI (`.github/workflows/code-health-foas-lib.yml`) runs the build, unit tests, go
   `make check-tidy` in `../cli` too.
 - Running Go commands in the workspace can add lines to `../go.work.sum`. Don't commit those unless
   the change needs them.
+- The Go version is pinned only by the `go` and `toolchain` directives in `go.mod` (and `../go.work`).
+  With the default `GOTOOLCHAIN=auto`, Go downloads that toolchain for you. To update it, follow
+  [docs/update-go.md](../../docs/update-go.md).
 - To bump golangci-lint, follow [docs/update-golangci-lint.md](../../docs/update-golangci-lint.md).
 
 ## Conventions

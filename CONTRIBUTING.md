@@ -96,4 +96,8 @@ When working in the `tools/cli` directory:
 
 To bump the golangci-lint version used by the Go modules, see [Updating golangci-lint](docs/update-golangci-lint.md).
 
+### Updating Go
+
+The Go version is pinned only in the `go.mod` and `go.work` files. To update it, see [Updating Go](docs/update-go.md).
+
 **Note: Please ensure the usage of [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in PR titles**

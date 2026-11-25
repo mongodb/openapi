@@ -1,6 +1,8 @@
 module github.com/mongodb/openapi/tools/foas
 
-go 1.26.0
+go 1.27.0
+
+toolchain go1.27.4
 
 require (
 	github.com/getkin/kin-openapi v0.153.0
