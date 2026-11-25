@@ -18,6 +18,7 @@ package openapi
 import (
 	"encoding/json"
 	"log"
+	"maps"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/oasdiff/oasdiff/diff"
@@ -129,9 +130,7 @@ func (doc *Spec) MarshalYAML() (any, error) {
 		return nil, nil
 	}
 	m := make(map[string]any, 4+len(doc.Extensions))
-	for k, v := range doc.Extensions {
-		m[k] = v
-	}
+	maps.Copy(m, doc.Extensions)
 	m["openapi"] = doc.OpenAPI
 	if x := doc.Components; x != nil {
 		m["components"] = x

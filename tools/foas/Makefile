@@ -16,6 +16,10 @@ deps:  ## Download go module dependencies
 check-tidy: ## Fail if go.mod or go.sum is not tidy
 	go mod tidy -diff
 
+.PHONY: check-fix
+check-fix: ## Fail if go fix would change any file
+	go fix -diff ./...
+
 .PHONY: devtools
 devtools:  ## Install dev tools
 	@echo "==> Installing dev tools..."
@@ -34,8 +38,12 @@ build: ## Build all packages in the library
 lint: ## Run linter
 	golangci-lint run
 
+.PHONY: go-fix
+go-fix: ## Apply go fix modernizations
+	go fix ./...
+
 .PHONY: fix-lint
-fix-lint: ## Fix linting errors
+fix-lint: go-fix ## Apply go fix, then fix linting errors
 	golangci-lint run --fix
 
 .PHONY: unit-test

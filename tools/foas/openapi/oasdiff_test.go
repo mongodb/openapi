@@ -20,7 +20,6 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/foas/openapi/errors"
-	"github.com/mongodb/openapi/tools/foas/pointer"
 	"github.com/oasdiff/oasdiff/diff"
 	"github.com/oasdiff/oasdiff/load"
 	"github.com/stretchr/testify/assert"
@@ -396,7 +395,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"external": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external"),
+									Description: new("external"),
 								},
 							},
 						},
@@ -416,7 +415,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"base": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("base"),
+									Description: new("base"),
 								},
 							},
 						},
@@ -451,12 +450,12 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"external1": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external1"),
+									Description: new("external1"),
 								},
 							},
 							"external2": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external2"),
+									Description: new("external2"),
 								},
 							},
 						},
@@ -471,12 +470,12 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"external1": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external1"),
+									Description: new("external1"),
 								},
 							},
 							"external2": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external2"),
+									Description: new("external2"),
 								},
 							},
 						},
@@ -495,7 +494,7 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"base": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("base"),
+									Description: new("base"),
 								},
 							},
 						},
@@ -510,12 +509,12 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"external1": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external1"),
+									Description: new("external1"),
 								},
 							},
 							"external2": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external2"),
+									Description: new("external2"),
 								},
 							},
 						},
@@ -544,12 +543,12 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"external1": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external1"),
+									Description: new("external1"),
 								},
 							},
 							"external2": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external2"),
+									Description: new("external2"),
 								},
 							},
 						},
@@ -564,12 +563,12 @@ func TestOasDiff_mergeResponses(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"external1": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external1"),
+									Description: new("external1"),
 								},
 							},
 							"external2": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external2"),
+									Description: new("external2"),
 								},
 							},
 						},
@@ -727,7 +726,7 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"base": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("base"),
+									Description: new("base"),
 								},
 							},
 						},
@@ -742,12 +741,12 @@ func TestOasDiff_mergeSchemas(t *testing.T) {
 						Responses: map[string]*openapi3.ResponseRef{
 							"external1": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external1"),
+									Description: new("external1"),
 								},
 							},
 							"external2": {
 								Value: &openapi3.Response{
-									Description: pointer.Get("external2"),
+									Description: new("external2"),
 								},
 							},
 						},

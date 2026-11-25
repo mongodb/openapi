@@ -18,7 +18,6 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/foas/pointer"
 	"github.com/stretchr/testify/require"
 )
 
@@ -70,7 +69,7 @@ func unusedParametersScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -112,7 +111,7 @@ func unusedParametersScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -148,7 +147,7 @@ func usedParametersInOperationScenario() struct {
 						},
 					},
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -183,7 +182,7 @@ func usedParametersInOperationScenario() struct {
 						},
 					},
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -232,7 +231,7 @@ func usedParametersAtPathLevelScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -267,7 +266,7 @@ func usedParametersAtPathLevelScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -316,7 +315,7 @@ func mixedParametersScenario() struct {
 						},
 					},
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -375,7 +374,7 @@ func mixedParametersScenario() struct {
 						},
 					},
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -425,7 +424,7 @@ func onlyUsedParametersScenario() struct {
 							},
 						},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Description: pointer.Get("Success"),
+							Description: new("Success"),
 						})),
 					},
 					Post: &openapi3.Operation{
@@ -436,7 +435,7 @@ func onlyUsedParametersScenario() struct {
 							},
 						},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Description: pointer.Get("Success"),
+							Description: new("Success"),
 						})),
 					},
 				}),
@@ -485,7 +484,7 @@ func onlyUsedParametersScenario() struct {
 							},
 						},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Description: pointer.Get("Success"),
+							Description: new("Success"),
 						})),
 					},
 					Post: &openapi3.Operation{
@@ -496,7 +495,7 @@ func onlyUsedParametersScenario() struct {
 							},
 						},
 						Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-							Description: pointer.Get("Success"),
+							Description: new("Success"),
 						})),
 					},
 				}),
@@ -553,7 +552,7 @@ func nilComponentsScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -568,7 +567,7 @@ func nilComponentsScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -597,7 +596,7 @@ func nilParametersScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -614,7 +613,7 @@ func nilParametersScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
