@@ -1,20 +1,19 @@
 module github.com/mongodb/openapi/tools/cli
 
-go 1.26.0
+go 1.27.0
+
+toolchain go1.27.4
 
 require (
 	github.com/getkin/kin-openapi v0.153.0
-	github.com/iancoleman/strcase v0.3.0 // indirect
+	github.com/mongodb/openapi/tools/foas v0.0.0
 	github.com/oasdiff/oasdiff v1.39.0
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/mock v0.6.0
-	golang.org/x/text v0.44.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
-
-require github.com/mongodb/openapi/tools/foas v0.0.0
 
 // foas is developed in this repo; resolved locally via go.work during dev/CI and
 // via this replace directive when GOWORK=off (e.g. GoReleaser).
@@ -24,6 +23,7 @@ require (
 	cloud.google.com/go v0.123.0 // indirect
 	github.com/TwiN/go-color v1.4.1 // indirect
 	github.com/go-openapi/jsonpointer v1.0.2 // indirect
+	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
@@ -37,4 +37,5 @@ require (
 	github.com/yuin/goldmark v1.8.7 // indirect
 	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	go.yaml.in/yaml/v4 v4.0.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
 )
