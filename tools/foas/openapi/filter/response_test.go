@@ -18,7 +18,6 @@ import (
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mongodb/openapi/tools/foas/pointer"
 	"github.com/stretchr/testify/require"
 )
 
@@ -69,7 +68,7 @@ func unusedResponsesScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -77,12 +76,12 @@ func unusedResponsesScenario() struct {
 				Responses: map[string]*openapi3.ResponseRef{
 					"UnusedResponse1": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Unused response 1"),
+							Description: new("Unused response 1"),
 						},
 					},
 					"UnusedResponse2": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Unused response 2"),
+							Description: new("Unused response 2"),
 						},
 					},
 				},
@@ -97,7 +96,7 @@ func unusedResponsesScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -150,12 +149,12 @@ func usedResponsesInOperationScenario() struct {
 				Responses: map[string]*openapi3.ResponseRef{
 					"SuccessResponse": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Success"),
+							Description: new("Success"),
 						},
 					},
 					"NotFoundResponse": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Not Found"),
+							Description: new("Not Found"),
 						},
 					},
 				},
@@ -176,12 +175,12 @@ func usedResponsesInOperationScenario() struct {
 				Responses: map[string]*openapi3.ResponseRef{
 					"SuccessResponse": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Success"),
+							Description: new("Success"),
 						},
 					},
 					"NotFoundResponse": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Not Found"),
+							Description: new("Not Found"),
 						},
 					},
 				},
@@ -226,17 +225,17 @@ func mixedResponsesScenario() struct {
 				Responses: map[string]*openapi3.ResponseRef{
 					"UsedResponse": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Used response"),
+							Description: new("Used response"),
 						},
 					},
 					"UnusedResponse1": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Unused response 1"),
+							Description: new("Unused response 1"),
 						},
 					},
 					"UnusedResponse2": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Unused response 2"),
+							Description: new("Unused response 2"),
 						},
 					},
 				},
@@ -257,7 +256,7 @@ func mixedResponsesScenario() struct {
 				Responses: map[string]*openapi3.ResponseRef{
 					"UsedResponse": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Used response"),
+							Description: new("Used response"),
 						},
 					},
 				},
@@ -318,12 +317,12 @@ func onlyUsedResponsesScenario() struct {
 				Responses: map[string]*openapi3.ResponseRef{
 					"Response1": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Response 1"),
+							Description: new("Response 1"),
 						},
 					},
 					"Response2": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Response 2"),
+							Description: new("Response 2"),
 						},
 					},
 				},
@@ -350,12 +349,12 @@ func onlyUsedResponsesScenario() struct {
 				Responses: map[string]*openapi3.ResponseRef{
 					"Response1": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Response 1"),
+							Description: new("Response 1"),
 						},
 					},
 					"Response2": {
 						Value: &openapi3.Response{
-							Description: pointer.Get("Response 2"),
+							Description: new("Response 2"),
 						},
 					},
 				},
@@ -384,7 +383,7 @@ func nilComponentsResponseScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -399,7 +398,7 @@ func nilComponentsResponseScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -428,7 +427,7 @@ func nilResponsesScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),
@@ -445,7 +444,7 @@ func nilResponsesScenario() struct {
 				Get: &openapi3.Operation{
 					OperationID: "testOperation",
 					Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-						Description: pointer.Get("Success"),
+						Description: new("Success"),
 					})),
 				},
 			})),

@@ -20,7 +20,6 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mongodb/openapi/tools/foas/apiversion"
-	"github.com/mongodb/openapi/tools/foas/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -112,7 +111,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			operation: &openapi3.Operation{
 				Extensions: map[string]any{},
 				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-					Description: pointer.Get("Success"),
+					Description: new("Success"),
 					Content: map[string]*openapi3.MediaType{
 						"application/vnd.atlas.2024-08-05+json": {
 							Schema: &openapi3.SchemaRef{
@@ -135,7 +134,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			operation: &openapi3.Operation{
 				Extensions: map[string]any{},
 				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-					Description: pointer.Get("Success"),
+					Description: new("Success"),
 					Content: map[string]*openapi3.MediaType{
 						"application/vnd.atlas.preview+json": {
 							Schema: &openapi3.SchemaRef{
@@ -158,7 +157,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			operation: &openapi3.Operation{
 				Extensions: map[string]any{},
 				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-					Description: pointer.Get("Success"),
+					Description: new("Success"),
 					Content: map[string]*openapi3.MediaType{
 						"application/vnd.atlas.2024-08-05+json": {
 							Schema: &openapi3.SchemaRef{
@@ -181,7 +180,7 @@ func TestIsOperationHiddenForEnv(t *testing.T) {
 			operation: &openapi3.Operation{
 				Extensions: map[string]any{},
 				Responses: openapi3.NewResponses(openapi3.WithName("200", &openapi3.Response{
-					Description: pointer.Get("Success"),
+					Description: new("Success"),
 					Content: map[string]*openapi3.MediaType{
 						"application/vnd.atlas.2024-08-05.upcoming+json": {
 							Schema: &openapi3.SchemaRef{
@@ -693,7 +692,7 @@ func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
 					&openapi3.ResponseRef{
 						Value: &openapi3.Response{
-							Description: pointer.Get("A sample response"),
+							Description: new("A sample response"),
 							Extensions: map[string]any{
 								hiddenEnvsExtension: map[string]any{
 									"envs": "prod",
@@ -722,7 +721,7 @@ func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
 					&openapi3.ResponseRef{
 						Value: &openapi3.Response{
-							Description: pointer.Get("A sample response"),
+							Description: new("A sample response"),
 							Content: map[string]*openapi3.MediaType{
 								"application/json": {
 									Schema: &openapi3.SchemaRef{},
@@ -749,7 +748,7 @@ func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
 					&openapi3.ResponseRef{
 						Value: &openapi3.Response{
-							Description: pointer.Get("A sample response"),
+							Description: new("A sample response"),
 							Content: map[string]*openapi3.MediaType{
 								"application/2-json": {
 									Schema:     &openapi3.SchemaRef{},
@@ -768,7 +767,7 @@ func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
 					&openapi3.ResponseRef{
 						Value: &openapi3.Response{
-							Description: pointer.Get("A sample response"),
+							Description: new("A sample response"),
 							Content: map[string]*openapi3.MediaType{
 								"application/json": {
 									Schema: &openapi3.SchemaRef{},
@@ -795,7 +794,7 @@ func TestRemoveResponseIfHiddenForEnv(t *testing.T) {
 				Responses: openapi3.NewResponses(openapi3.WithStatus(200,
 					&openapi3.ResponseRef{
 						Value: &openapi3.Response{
-							Description: pointer.Get("A sample response"),
+							Description: new("A sample response"),
 							Content: map[string]*openapi3.MediaType{
 								"application/json": {
 									Schema:     &openapi3.SchemaRef{},

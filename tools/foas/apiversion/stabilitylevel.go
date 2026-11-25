@@ -63,8 +63,7 @@ func IsUpcomingStabilityLevel(value string) bool {
 	if strings.EqualFold(lowerCaseValue, UpcomingStabilityLevel) {
 		return true
 	}
-	if strings.HasSuffix(lowerCaseValue, "."+UpcomingStabilityLevel) {
-		datePart := strings.TrimSuffix(lowerCaseValue, "."+UpcomingStabilityLevel)
+	if datePart, ok := strings.CutSuffix(lowerCaseValue, "."+UpcomingStabilityLevel); ok {
 		_, err := time.Parse("2006-01-02", datePart)
 		return err == nil
 	}

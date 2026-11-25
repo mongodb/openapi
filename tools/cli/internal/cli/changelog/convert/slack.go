@@ -102,12 +102,9 @@ func newMessagesFromAttachments(attachments []*Attachment, channelID, messageID 
 
 	numBatches := (numAttachments + batchSize - 1) / batchSize
 	messages := make([]*Message, 0)
-	for i := 0; i < numBatches; i++ {
+	for i := range numBatches {
 		start := i * batchSize
-		end := (i + 1) * batchSize
-		if end > numAttachments {
-			end = numAttachments
-		}
+		end := min((i+1)*batchSize, numAttachments)
 
 		batchAttachments := attachments[start:end]
 		message := &Message{

@@ -12,7 +12,6 @@ API changelog. See [CONTRIBUTING.md](../../CONTRIBUTING.md) for the project-wide
 - `changelog/`: changelog generation, merge, manual entries and sunsets.
 - `apiversion/`: API versions and stability levels.
 - `breakingchanges/`: breaking-change exemptions.
-- `pointer/`: small helpers.
 - `test/data/`: test fixtures.
 
 `foascli` (`../cli`) consumes this module through `replace ... => ../foas`, and both modules belong
@@ -36,16 +35,19 @@ needs `mockgen`, which this Makefile does not install (`go install go.uber.org/m
 1. Make the change.
 2. `make fmt`: run `golangci-lint fmt`, which applies the formatters configured in `.golangci.yml`
    (`gci`, `gofmt`, `goimports`). `make lint` also reports unformatted files.
-3. `make fix-lint`: run golangci-lint (config in `.golangci.yml`) and apply the automatic fixes it can.
-   Fix whatever remains by hand. `make lint` runs the same checks without changing files.
+3. `make fix-lint`: apply the automatic fixes. It runs `make go-fix` (`go fix ./...`, which modernizes
+   code to the Go version in `go.mod`), then golangci-lint with `--fix` (config in `.golangci.yml`).
+   Fix whatever remains by hand. `make lint` runs the same lint checks without changing files.
 4. `make unit-test`: run `go test -race -cover ./...`.
 5. `make check-tidy`: fail if `go.mod` or `go.sum` is not tidy. Run it after changing dependencies.
-6. Run the CLI loop in `../cli`, at least `make unit-test` and `make e2e-test`.
+6. `make check-fix`: fail if `go fix` would change any file. `make go-fix` or `make fix-lint` applies
+   the fixes.
+7. Run the CLI loop in `../cli`, at least `make unit-test` and `make e2e-test`.
 
 `make build` compiles every package (`go build ./...`). There is no binary.
 
-CI (`.github/workflows/code-health-foas-lib.yml`) runs the build, unit tests, golangci-lint and
-`make check-tidy`.
+CI (`.github/workflows/code-health-foas-lib.yml`) runs the build, unit tests, golangci-lint,
+`make check-tidy` and `make check-fix`.
 
 ## Gotchas
 

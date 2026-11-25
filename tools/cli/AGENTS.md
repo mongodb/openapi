@@ -30,17 +30,20 @@ The tools are installed to `$(go env GOPATH)/bin`, which must be on your `PATH`.
 1. Make the change.
 2. `make fmt`: run `golangci-lint fmt`, which applies the formatters configured in `.golangci.yml`
    (`gci`, `gofmt`, `goimports`). `make lint` also reports unformatted files.
-3. `make fix-lint`: run golangci-lint (config in `.golangci.yml`) and apply the automatic fixes it can.
-   Fix whatever remains by hand. `make lint` runs the same checks without changing files.
+3. `make fix-lint`: apply the automatic fixes. It runs `make go-fix` (`go fix ./...`, which modernizes
+   code to the Go version in `go.mod`), then golangci-lint with `--fix` (config in `.golangci.yml`).
+   Fix whatever remains by hand. `make lint` runs the same lint checks without changing files.
 4. `make unit-test`: run `go test -race -cover ./internal...`.
 5. `make e2e-test`: build the binary into `./bin/foascli` and run `./test/e2e...` against it. Run this
    when you change command behavior or output.
 6. `make check-tidy`: fail if `go.mod` or `go.sum` is not tidy. Run it after changing dependencies.
+7. `make check-fix`: fail if `go fix` would change any file. `make go-fix` or `make fix-lint` applies
+   the fixes.
 
 `make pre-commit` runs steps 2 to 4. The repository's git pre-commit hook runs it for staged Go files.
 
 CI (`.github/workflows/code-health-foascli.yml`) runs the build, unit tests, golangci-lint, `make check-tidy`,
-actionlint and the e2e tests.
+`make check-fix`, actionlint and the e2e tests.
 
 ## Gotchas
 

@@ -141,8 +141,7 @@ func ValidateVersion(version string) error {
 	if IsPreviewStabilityLevel(version) {
 		return nil
 	}
-	if strings.HasSuffix(strings.ToLower(version), "."+UpcomingStabilityLevel) {
-		datePart := strings.TrimSuffix(strings.ToLower(version), "."+UpcomingStabilityLevel)
+	if datePart, ok := strings.CutSuffix(strings.ToLower(version), "."+UpcomingStabilityLevel); ok {
 		if _, err := time.Parse(dateFormat, datePart); err != nil {
 			return fmt.Errorf("invalid upcoming version format %q: %w", version, err)
 		}
@@ -316,7 +315,7 @@ func privatePreviewContentMatch(contentVersion *APIVersion, contentValue *openap
 
 // Sort versions.
 func Sort(versions []*APIVersion) {
-	for i := 0; i < len(versions); i++ {
+	for i := range versions {
 		for j := i + 1; j < len(versions); j++ {
 			if versions[i].LessThan(versions[j]) {
 				versions[i], versions[j] = versions[j], versions[i]
