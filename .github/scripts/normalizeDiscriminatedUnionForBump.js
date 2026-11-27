@@ -112,11 +112,9 @@ function main() {
   }
 
   doc.components.schemas = result.schemas;
-  doc.info = structuredClone(doc.info);
-  doc.info.title = `${doc.info.title ?? ''} (docs render view)`;
   fs.writeFileSync(outPath, `${JSON.stringify(doc, null, 1)}\n`);
   console.log(
-    `normalizeDiscriminatedUnionForBump: rewrote ${parentName} -> ${parentName}${BASE_SUFFIX} + acyclic union -> ${outPath}`,
+    `normalizeDiscriminatedUnionForBump: rewrote ${parentName} -> ${parentName}${BASE_SUFFIX} + acyclic union -> ${outPath}`
   );
 }
 
